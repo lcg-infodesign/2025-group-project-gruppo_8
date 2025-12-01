@@ -56,9 +56,7 @@ function preload() {
   myFont2 = loadFont("fonts/LibreFranklin-Regular.otf");
   myFont3 = loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
   img1 = loadImage("images/bleauuu.png");
-  img2 = loadImage("images/explosion3.png");
-  img3 = loadImage("images/graphic1.svg");
-  img4 = loadImage("images/graphic2.svg");
+
 
   // pagina2
   table = loadTable("dataset/dataset.csv", "csv", "header");
