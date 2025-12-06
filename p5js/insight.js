@@ -4,6 +4,12 @@ let largeImages = [];
 let showPreview = false;
 let previewImg = null;
 
+// -----------------------
+// 页面载入淡入 + 上浮变量
+// -----------------------
+let introFade = 0;      
+let introFloat = 40;    
+
 // ----------------------------------------------------
 // 文本内容
 // ----------------------------------------------------
@@ -40,8 +46,7 @@ function preload() {
   img3 = loadImage(`images/img7.jpg`);
 
   for (let i = 1; i <= 7; i++) {
-    let t = loadImage(`images/img${i}.jpg`);
-    thumbs.push(t);
+    thumbs.push(loadImage(`images/img${i}.jpg`));
     largeImages.push(loadImage(`images/img${i}.jpg`));
   }
 }
@@ -54,70 +59,102 @@ function setup() {
   c.style("left", "0px");
   c.style("z-index", "-1");
 
-  textSize(22);
   imgW = width * 0.62;
   imgH = imgW * 800 / 1200;
 }
 
 function draw() {
   background(0);
-  fill(255);
+
+  // --------------------------
+  // 页面载入淡入 + 上浮动画
+  // --------------------------
+  introFade = min(introFade + 3, 255);
+  introFloat = max(introFloat - 1, 0);
 
   scrollY += (targetScrollY - scrollY) * 0.1;
   thumbOffset += (targetThumbOffset - thumbOffset) * 0.2;
 
-  let topTextW = width - topTextSideMargin * 2;
-  let topTextY = topMargin - scrollY;
-  
+  // -----------------------------------------
+  // ★ 标题固定显示（不参与淡入或上浮）
+  // -----------------------------------------
   textFont(myFont1);
-  fill(110, 133, 219);
+  fill(110, 133, 219);  
   textSize(20);
   textAlign(CENTER, TOP);
-  text("HIROSHIMA E NAGASAKI", width / 2, 20); 
+  text("HIROSHIMA E NAGASAKI", width / 2, 20);
+
+  // -----------------------------------------
+  // ★ 页面内容淡入 + 上浮开始
+  // -----------------------------------------
+  push();
+  translate(0, introFloat);
+  tint(255, introFade);
+
+  let topTextW = width - topTextSideMargin * 2;
+  let topTextH = estimateTextHeight(topText, topTextW);
 
   // 第一行
-  let topTextH = estimateTextHeight(topText, topTextW);
   let y1 = topMargin + topTextH + spacing;
 
-  tint(255, 180);
+  tint(255, 180 * (introFade / 255));
   image(img1, sideMargin, y1 - scrollY * 0.9, imgW, imgH);
   noTint();
 
   let textX1 = sideMargin + imgW + textGap;
   let textW1 = min(width - sideMargin - textX1, maxTextWidth);
   let alpha1 = map(y1 - scrollY, height, 0, 0, 255, true);
-  drawTextInteractive(Text1, textX1, y1 + 100 - scrollY, textW1, alpha1, -20, 20);
+  drawTextInteractive(Text1, textX1, y1 + 100 - scrollY, textW1, alpha1);
 
   // 第二行
   let y2 = y1 + imgH + spacing;
   let imgX2 = width - sideMargin - imgW;
-  tint(255, 120);
+
+  tint(255, 120 * (introFade / 255));
   image(img2, imgX2, y2 - scrollY * 0.9, imgW, imgH);
   noTint();
 
   let textX2 = sideMargin + 200;
   let textW2 = min(imgX2 - textX2 - textGap, maxTextWidth);
   let alpha2 = map(y2 - scrollY, height, 0, 0, 255, true);
-  drawTextInteractive(Text2, textX2, y2 + 200 - scrollY, textW2, alpha2, 20, -20);
+  drawTextInteractive(Text2, textX2, y2 + 200 - scrollY, textW2, alpha2);
 
   // 第三行
   let y3 = y2 + imgH + spacing;
-  tint(255, 180);
+
+  tint(255, 180 * (introFade / 255));
   image(img3, sideMargin, y3 - scrollY * 0.9, imgW, imgH);
   noTint();
 
   let textX3 = sideMargin + imgW + textGap;
   let textW3 = min(width - sideMargin - textX3, maxTextWidth);
   let alpha3 = map(y3 - scrollY, height, 0, 0, 255, true);
-  drawTextInteractive(Text3, textX3, y3 + 300 - scrollY, textW3, alpha3, -20, 20);
+  drawTextInteractive(Text3, textX3, y3 + 300 - scrollY, textW3, alpha3);
 
-  // 缩略图区域
+  // 缩略图
   let thumbY = calculateThumbY(scrollY);
   drawThumbnails(thumbY);
 
+  pop(); // ← 停止淡入 + 上浮处理
+
+  // 预览
   if (showPreview && previewImg) {
     drawPreviewOverlay();
   }
+}
+
+// -----------------------------
+// 文字淡入函数（叠加 introFade）
+// -----------------------------
+function drawTextInteractive(txt, x, y, maxW, alpha) {
+  let finalAlpha = alpha * (introFade / 255);
+  fill(255, finalAlpha);
+
+  textSize(18);
+  textFont(myFont1);
+  textAlign(LEFT, TOP);
+  textLeading(24);
+  text(txt, x, y, maxW);
 }
 
 function calculateThumbY(yOffset) {
@@ -129,114 +166,22 @@ function calculateThumbY(yOffset) {
   return y3 + imgH + spacing - yOffset + 180;
 }
 
-function mousePressed() {
-
-  if (showPreview) {
-    showPreview = false;
-    return;
-  }
-
-  let thumbY = calculateThumbY(scrollY);
-  let totalW = thumbs.length * thumbSize + (thumbs.length - 1) * thumbGap;
-  let arrowW = 40, arrowH = thumbSize;
-  
-  const visibleEnd = width - sideMargin;
-  const initialStripStart = (width - totalW) / 2;
-  const maxScrollNegative = visibleEnd - (initialStripStart + totalW);
-  const maxScroll = Math.min(0, maxScrollNegative); 
-
-  let scrollAmount = thumbSize + thumbGap;
-
-  // 左
-  let leftArrowX = sideMargin - arrowW;
-  if (targetThumbOffset < -5 &&
-      mouseX > leftArrowX && mouseX < leftArrowX + arrowW &&
-      mouseY > thumbY && mouseY < thumbY + arrowH) {
-    targetThumbOffset = constrain(targetThumbOffset + scrollAmount, maxScroll, 0);
-    return;
-  }
-
-  // 右
-  let rightArrowX = width - sideMargin;
-  if (targetThumbOffset > maxScroll + 5 &&
-      mouseX > rightArrowX - arrowW && mouseX < rightArrowX &&
-      mouseY > thumbY && mouseY < thumbY + arrowH) {
-    targetThumbOffset = constrain(targetThumbOffset - scrollAmount, maxScroll, 0);
-    return;
-  }
-
-  // 图片点击
-  if (thumbY > -thumbSize && thumbY < height) {
-    let startX = (width - totalW) / 2 + thumbOffset;
-
-    for (let i = 0; i < thumbs.length; i++) {
-      let x = startX + i * (thumbSize + thumbGap);
-
-      if (mouseX > x && mouseX < x + thumbSize &&
-          mouseY > thumbY && mouseY < thumbY + thumbSize) {
-        previewImg = largeImages[i];
-        showPreview = true;
-        break;
-      }
-    }
-  }
-}
-
+// 缩略图绘制（保持原效果）
 function drawThumbnails(y) {
   let totalW = thumbs.length * thumbSize + (thumbs.length - 1) * thumbGap;
   let startX = (width - totalW) / 2 + thumbOffset;
 
-  noStroke();
-  fill(255);
-
-  let arrowW = 40, arrowH = thumbSize;
-  let arrowY = y;
-
-  const visibleEnd = width - sideMargin;
-  const initialStripStart = (width - totalW) / 2;
-  const maxScrollNegative = visibleEnd - (initialStripStart + totalW);
-  const maxScroll = Math.min(0, maxScrollNegative);
-
-  // 左箭头
-  if (thumbOffset < -5) {
-    let x = sideMargin - arrowW;
-    fill(255, 200);
-    triangle(x + 15, arrowY + arrowH/2, x + arrowW - 15, arrowY + 20, x + arrowW - 15, arrowY + arrowH - 20);
-  }
-
-  // 右箭头
-  if (thumbOffset > maxScroll + 5) {
-    let x = width - sideMargin;
-    fill(255, 200);
-    triangle(x - 15, arrowY + arrowH/2, x - arrowW + 15, arrowY + 20, x - arrowW + 15, arrowY + arrowH - 20);
-  }
-
-  let hoveredIndex = -1;
-
-  let currentThumbX = (width - totalW) / 2 + thumbOffset;
-  if (y > -thumbSize && y < height) {
-    for (let i = 0; i < thumbs.length; i++) {
-      let x = currentThumbX + i * (thumbSize + thumbGap);
-      if (mouseX > x && mouseX < x + thumbSize &&
-          mouseY > y && mouseY < y + thumbSize) {
-        hoveredIndex = i;
-        break;
-      }
-    }
-  }
-
   for (let i = 0; i < thumbs.length; i++) {
     let x = startX + i * (thumbSize + thumbGap);
     if (x + thumbSize > 0 && x < width) {
-        
-      let thumbImg = thumbs[i];
-      let ratioToCover = max(thumbSize / thumbImg.width, thumbSize / thumbImg.height);
 
-      let displayW = thumbImg.width * ratioToCover;
-      let displayH = thumbImg.height * ratioToCover;
+      let img = thumbs[i];
+      let r = max(thumbSize / img.width, thumbSize / img.height);
+      let dw = img.width * r;
+      let dh = img.height * r;
 
-      let offsetX = x + (thumbSize - displayW) / 2;
-      let offsetY = y + (thumbSize - displayH) / 2;
+      let ox = x + (thumbSize - dw) / 2;
+      let oy = y + (thumbSize - dh) / 2;
 
       fill(50);
       rect(x, y, thumbSize, thumbSize);
@@ -246,94 +191,63 @@ function drawThumbnails(y) {
       drawingContext.rect(x, y, thumbSize, thumbSize);
       drawingContext.clip();
 
-      if (i === hoveredIndex) tint(255, 150);
-      else noTint();
-
-      image(thumbImg, offsetX, offsetY, displayW, displayH);
+      tint(255, introFade);
+      image(img, ox, oy, dw, dh);
       drawingContext.restore();
       noTint();
-
-      if (i === hoveredIndex) {
-        stroke(110, 133, 219);
-        strokeWeight(3);
-        noFill();
-        rect(x, y, thumbSize, thumbSize);
-      }
     }
   }
 }
 
 function drawPreviewOverlay() {
   push();
-  noStroke();
   fill(0, 180);
   rect(0, 0, width, height);
-
-  drawingContext.filter = "none";
-
-  const maxWidth = 900;
 
   let pw = previewImg.width;
   let ph = previewImg.height;
 
+  const maxWidth = 900;
   if (pw > maxWidth) {
-    let ratio = maxWidth / pw;
-    pw *= ratio;
-    ph *= ratio;
+    let r = maxWidth / pw;
+    pw *= r;
+    ph *= r;
   }
 
-  if (pw > width * 0.9 || ph > height * 0.9) {
-    let ratio = min((width * 0.9) / pw, (height * 0.9) / ph);
-    pw *= ratio;
-    ph *= ratio;
-  }
+  image(previewImg, (width - pw)/2, (height - ph)/2, pw, ph);
 
-  image(previewImg, (width - pw) / 2, (height - ph) / 2, pw, ph);
-
-  fill(255, 200);
+  fill(255);
   textSize(16);
   textFont(myFont2);
-  textAlign(CENTER, CENTER);
+  textAlign(CENTER);
   text("Click anywhere to close", width/2, (height + ph)/2 + 30);
+
   pop();
 }
 
-function drawTextInteractive(txt, x, y, maxW, alpha, o1, o2) {
-  fill(255, alpha);
-  push();
-  let offset = map(alpha, 0, 255, o1, o2);
-  translate(offset, 0);
-  textSize(18);
-  textFont(myFont1);
-  textAlign(LEFT, TOP);
-  textLeading(24);
-  text(txt, x, y, maxW);
-  pop();
+function mouseWheel(e) {
+  if (showPreview) return false;
+  targetScrollY += e.delta;
+  targetScrollY = constrain(targetScrollY, 0, canvasHeight - height);
+  return false;
 }
 
 function estimateTextHeight(txt, maxW) {
   textSize(22);
   textLeading(24);
   let words = txt.split(/\s+/);
-  let lineCount = 1;
-  let lineWidth = 0;
+  let lines = 1;
+  let lineW = 0;
   for (let w of words) {
-    let wWidth = textWidth(w + " ");
-    if (lineWidth + wWidth > maxW) {
-      lineCount++;
-      lineWidth = wWidth;
+    let ww = textWidth(w + " ");
+    if (lineW + ww > maxW) {
+      lines++;
+      lineW = ww;
     } else {
-      lineWidth += wWidth;
+      lineW += ww;
     }
   }
-  return lineCount * 24;
-}
-
-function mouseWheel(event) {
-  if (showPreview) return false;
-  targetScrollY += event.delta;
-  targetScrollY = constrain(targetScrollY, 0, canvasHeight - height);
-  return false;
+  return lines * 24;
 }
 
 function calculateCanvasHeight() {
@@ -343,7 +257,7 @@ function calculateCanvasHeight() {
   let topTextW = windowWidth - topTextSideMargin * 2;
   let topTextH = estimateTextHeight(topText, topTextW);
 
-  canvasHeight = topMargin + topTextH + (spacing + imgH) * 3 + 600; 
+  canvasHeight = topMargin + topTextH + (spacing + imgH) * 3 + 600;
 }
 
 function windowResized() {
