@@ -154,8 +154,6 @@ function draw() {
     drawPreviewOverlay();
   }
   
-  // ⭐ 新增: 绘制菜单图标
-  drawMenuIcon();
 }
 
 // 辅助函数：计算缩略图的屏幕 Y 坐标
@@ -183,56 +181,6 @@ function mousePressed() {
   if (d < 15) {
     menuOpen = !menuOpen;
     return;
-  }
-
-  // -----------------------------
-  // ⭐ 新增: 菜单项点击逻辑 (来自 single.js)
-  // -----------------------------
-  if (menuOpen) {
-    // HOMEPAGE
-    if (mouseX > 20 && mouseX < 300 && mouseY > 75 && mouseY < 95) {
-      window.location.href = "index.html";
-      menuOpen = false;
-      return;
-    }
-
-    // GENERAL VISUALIZATION
-    if (mouseX > 20 && mouseX < 300 && mouseY > 105 && mouseY < 125) {
-      window.location.href = "index.html#page2";
-      menuOpen = false;
-      return;
-    }
-
-    // BOMBS IN ONE YEAR
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 155) {
-      window.location.href = "year.html?id=1";
-      menuOpen = false;
-      return;
-    }
-
-    // SINGLE BOMB
-    // 注意: 根据 single.js 的逻辑，这块区域 (135到185) 包含了 "BOMBS IN ONE YEAR" 和 "SINGLE BOMB"
-    // 为了防止重叠，我们使用 single.js 中的原始Y坐标逻辑。
-    if (mouseX > 20 && mouseX < 300 && mouseY > 165 && mouseY < 185) { // 原始 single.js: 135-185
-      window.location.href = "single.html";
-      menuOpen = false;
-      return;
-    }
-
-    // INSIGHT
-    // 为了防止重叠，我们调整INSIGHT和ABOUT的Y坐标。
-    if (mouseX > 20 && mouseX < 300 && mouseY > 195 && mouseY < 215) { // 原始 single.js: 135-215
-      // 当前页，无需跳转
-      menuOpen = false;
-      return;
-    }
-
-    // ABOUT
-    if (mouseX > 20 && mouseX < 300 && mouseY > 225 && mouseY < 245) { // 原始 single.js: 135-245
-      window.location.href = "about.html";
-      menuOpen = false;
-      return;
-    }
   }
 
 
@@ -565,33 +513,4 @@ function calculateCanvasHeight() {
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   calculateCanvasHeight();
-}
-
-//==================================================
-// ⭐ 新增: 菜单图标绘制 (来自 single.js)
-//==================================================
-function drawMenuIcon() {
-  fill(0, 255, 255);
-  noStroke();
-  ellipse(50, 50, 20, 20);
-
-  if (menuOpen) {
-    fill(200);
-    rect(0, 0, 300, windowHeight);
-    textFont(myFont2);
-    textSize(12);
-    fill(110, 133, 219);
-    textAlign(LEFT, TOP);
-    fill(110, 133, 219);
-    noStroke();
-    ellipse(50, 50, 20, 20);
-    text("HOMEPAGE", 50, 80);
-    text("GENERAL VISUALIZATION", 50, 110);
-    text("BOMBS IN ONE YEAR", 50, 140);
-    
-    // ⭐ Y坐标调整，以防重叠
-    text("SINGLE BOMB", 50, 170); 
-    text("INSIGHT", 50, 200);
-    text("ABOUT", 50, 230);
-  }
 }

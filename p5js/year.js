@@ -33,12 +33,7 @@ function setup() {
 }
 
 function draw() {
-  background(20);
-  textFont(myFont1);
-  fill(110, 133, 219);
-  textSize(20);
-  textAlign(CENTER, TOP);
-  text("BOMBS IN EACH YEAR", width / 2, 20);
+  background(20)
 
   if (years.length === 0) {
     fill(255);
@@ -204,38 +199,44 @@ function drawBottomInfo(yearData) {
   fill(0, 255, 255);
   textAlign(RIGHT, TOP);
   textSize(14);
-  text("TATAL BOMBS IN EACH YEAR", width-80, 70);
+  text("TOTAL BOMBS IN THAT YEAR", width-80, 70);
   textSize(60);
   text(total, width-80 , 90);
+
+ 
+  // Coordinate di riferimento in basso a destra
+let offsetX = width - 150; // distanza dal bordo destro
+let offsetY = height - 150; // distanza dal bordo inferiore
 
   textAlign(LEFT, TOP);
   fill(0, 255, 255);
   textSize(14);
-  text("YIELD", 80, 70);
+  text("YIELD (kt)", offsetX, offsetY - 40);
 
+  
   let legend = [
-    { range: "0-19 kt", y: 10 },
-    { range: "20 kt", y: 20 },
-    { range: "21-150 kt", y: 100 },
-    { range: "151-4999 kt", y: 1000 },
-    { range: "5000+ kt", y: 5000 },
-  ];
+  { range: "0-19", y: 10 },
+  { range: "20", y: 20 },
+  { range: "21-150", y: 100 },
+  { range: "151-4999", y: 1000 },
+  { range: "5000+", y: 5000 },
+];
 
-  textFont(myFont2);
-  textSize(12);
-  let circleSize = 10;
-  let lineSpacing = 20;
+textFont(myFont2);
+textSize(12);
+let circleSize = 10;
+let lineSpacing = 20;
 
-  legend.forEach((item, i) => {
-    fill(getYieldColor(item.y));
-    let cx = 80 + circleSize / 2;
-    let cy = 80 + 25 + i * lineSpacing;
-    circle(cx, cy, circleSize);
+legend.forEach((item, i) => {
+  fill(getYieldColor(item.y));
+  let cx = offsetX + circleSize / 2;
+  let cy = offsetY + i * lineSpacing;
+  circle(cx, cy, circleSize);
 
-    fill(200, 200, 200);
-    textAlign(LEFT, CENTER);
-    text(item.range, cx + circleSize + 5, cy);
-  });
+  fill(200, 200, 200);
+  textAlign(LEFT, CENTER);
+  text(item.range, cx + circleSize + 5, cy);
+});
 }
 
 function mouseWheel(event) {
