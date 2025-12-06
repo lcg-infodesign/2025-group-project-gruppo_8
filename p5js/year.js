@@ -4,7 +4,6 @@ let currentYearIndex = 0;
 let testsByYear = {};
 let countries = [];
 let dots = [];
-let menuOpen = false;
 
 function preload() {
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
@@ -35,7 +34,6 @@ function setup() {
 
 function draw() {
   background(20);
-  drawGrid();
   textFont(myFont1);
   fill(110, 133, 219);
   textSize(20);
@@ -56,8 +54,6 @@ function draw() {
   drawYearNavigation(currentYear);
   drawTestDots(yearData);
   drawBottomInfo(yearData);
-
-  drawMenuIcon();
 }
 
 function processData() {
@@ -118,15 +114,15 @@ function getColorLevel(y) {
 }
 
 function drawYearNavigation(currentYear) {
-  textAlign(RIGHT, TOP);
+  textAlign(CENTER, TOP);
   textSize(32);
   fill(200);
   textFont(myFont2);
-  text(currentYear, width - 80, 120);
+  text(currentYear, width/2,110);
   textFont(myFont3);
   fill(0, 255, 255);
   textSize(14);
-  text("YEAR", width - 80, 70);
+  text("YEAR", width/2, 90);
 
   // Freccia sinistra <
   fill(
@@ -206,11 +202,11 @@ function drawBottomInfo(yearData) {
   );
 
   fill(0, 255, 255);
-  textAlign(CENTER, TOP);
+  textAlign(RIGHT, TOP);
   textSize(14);
-  text("TATAL BOMBS IN EACH YEAR", width / 2, 70);
+  text("TATAL BOMBS IN EACH YEAR", width-80, 70);
   textSize(60);
-  text(total, width / 2, 90);
+  text(total, width-80 , 90);
 
   textAlign(LEFT, TOP);
   fill(0, 255, 255);
@@ -254,16 +250,6 @@ function mouseWheel(event) {
   return false;
 }
 
-function drawGrid() {
-  let spacing = 20;
-  stroke(110, 133, 219, 100);
-  strokeWeight(0.5);
-  for (let x = 0; x <= width; x += spacing) line(x, 0, x, height);
-  for (let y = 0; y <= height; y += spacing) line(0, y, width, y);
-  tint(255, 180);
-  //if (img1) image(img1, 13 * spacing, 3 * spacing, 45 * spacing, 35 * spacing);
-}
-
 function mousePressed() {
   // freccia sinistra <
   if (
@@ -298,84 +284,9 @@ function mousePressed() {
     }
   }
 
-  // -----------------------------
-  // Common to all pages: menu
-  // -----------------------------
-  let d = dist(mouseX, mouseY, 50, 50);
-  if (d < 15) {
-    menuOpen = !menuOpen;
-    return;
-  }
-
-  // -----------------------------
-  // menuopen
-  // -----------------------------
-  if (menuOpen) {
-    // HOMEPAGE
-    if (mouseX > 20 && mouseX < 300 && mouseY > 75 && mouseY < 95) {
-      window.location.href = "index.html";
-      menuOpen = false;
-      return;
-    }
-
-    // GENERAL VISUALIZATION
-    if (mouseX > 20 && mouseX < 300 && mouseY > 105 && mouseY < 125) {
-      window.location.href = "index.html#page2";
-      menuOpen = false;
-      return;
-    }
-
-    // BOMBS IN ONE YEAR
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 155) {
-      window.location.href = "year.html?id=1";
-      menuOpen = false;
-      return;
-    }
-  }
-
-  // SINGLE BOMB
-  if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 185) {
-    window.location.href = "single.html";
-    menuOpen = false;
-    return;
-  }
-
-  // INSIGHT
-  if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 215) {
-    window.location.href = "insight.html";
-    menuOpen = false;
-    return;
-  }
-
-  // ABOUT
-  if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 245) {
-    window.location.href = "about.html";
-    menuOpen = false;
-    return;
-  }
 }
-
-function drawMenuIcon() {
-  fill(0, 255, 255);
-  noStroke();
-  ellipse(50, 50, 20, 20);
-
-  // menuopen
-  if (menuOpen) {
-    fill(200);
-    rect(0, 0, 300, windowHeight);
-    textFont(myFont2);
-    textSize(12);
-    fill(110, 133, 219);
-    textAlign(LEFT, TOP);
-    fill(110, 133, 219);
-    noStroke();
-    ellipse(50, 50, 20, 20);
-    text("HOMEPAGE", 50, 80);
-    text("GENERAL VISUALIZATION", 50, 110);
-    text("BOMBS IN ONE YEAR", 50, 140);
-    text("SINGLE BOMB", 50, 170);
-    text("INSIGHT", 50, 200);
-    text("ABOUT", 50, 230);
+window.addEventListener("load", () => {
+  if (window.location.hash === "#page2") {
+    window.location.href = "index.html#page2";
   }
-}
+});

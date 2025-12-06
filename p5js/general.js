@@ -50,13 +50,37 @@ let UGTypes = [
   "SHAFT/LG",
 ];
 
+// ===============================
+// NUOVA FUNZIONE — vai alla overview
+// ===============================
+function goToOverview() {
+  page = 2;
+
+  // Inizializza animazione particelle
+  scrollProgress = startYear - 1;
+
+  // Aziona animazione graduale
+  let interval = setInterval(() => {
+    scrollProgress += 1;
+    if (scrollProgress >= endYear) {
+      scrollProgress = endYear;
+      clearInterval(interval);
+    }
+    for (let p of particles2) {
+      p.active = p.year <= scrollProgress;
+    }
+  }, 20);
+}
+
+// ===============================
+// Caricamento
+// ===============================
 function preload() {
   // pagina1
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
   myFont2 = loadFont("fonts/LibreFranklin-Regular.otf");
   myFont3 = loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
   img1 = loadImage("images/bleauuu.png");
-
 
   // pagina2
   table = loadTable("dataset/dataset.csv", "csv", "header");
@@ -68,14 +92,14 @@ function setup() {
   for (let i = 0; i < table.getRowCount(); i++) {
     let row = table.getRow(i);
     data.push({
-      id: i, // Definisci l'ID in base al numero della riga
+      id: i, 
       year: row.getNum("year"),
       type: row.getString("type"),
       yield: row.getNum("yield_u"),
     });
   }
 
-  // -------- Inizializza le particelle della pagina 1 --------
+  // -------- Inizializza particelle pagina 1 --------
   for (let r = 0; r < radii.length; r++) {
     for (let i = 0; i < numParticles1; i++) {
       let angle = random(TWO_PI);
@@ -92,7 +116,7 @@ function setup() {
   }
   maxScroll = height * 4;
 
-  // -------- Inizializza le particelle della pagina 2 --------
+  // -------- pagina 2 --------
   yAxis = height / 2 + 70;
   scrollProgress = startYear - 1;
 
@@ -111,7 +135,25 @@ function setup() {
   }
 
   creaParticlesDaTabella();
+
+  checkHashNavigation();  // <<< IMPORTANTE
 }
+
+// ===============================
+// Se URL contiene #page2 → apri ovverview SUBITO
+// ===============================
+function checkHashNavigation() {
+  if (window.location.hash === "#page2") {
+    page = 2;
+
+    // Avvia subito le particelle attive
+    scrollProgress = endYear; // imposta tutte le particelle come “attive”
+    for (let p of particles2) {
+      p.active = true;
+    }
+  }
+}
+
 
 // ===============================
 // Ciclo principale
@@ -126,7 +168,6 @@ function draw() {
 // ===============================
 function drawPage1() {
   background(20);
-  // drawGrid();
   imageMode(CENTER);
   tint(255, 180);
   image(img1, width / 2, height / 2, 1200, 900);
@@ -165,17 +206,15 @@ function drawPage1() {
   // particelle centrale
   push();
   let scaledSize = centerCircleSize;
-  //Scala lentamente solo se la sfera non è stata ancora ingrandita
+
   if (centerCircleSize <= 10) {
     let scaleFactor = 2 + 2 * sin(frameCount * 0.01);
     scaledSize *= scaleFactor;
   }
 
-  // --- Automatic circle expansion after full scroll ---
   if (autoExpandStarted) {
     centerCircleSize = lerp(centerCircleSize, max(width, height) * 2, 0.03);
 
-    // When fully expanded, go to next page
     if (centerCircleSize > max(width, height)) {
       goNextPage();
     }
@@ -193,8 +232,6 @@ function drawPage1() {
   pop();
 
   spreadSpeed = lerp(spreadSpeed, 0, 0.1);
-
-  drawMenuIcon();
 }
 
 // ===============================
@@ -202,12 +239,6 @@ function drawPage1() {
 // ===============================
 function drawPage2() {
   background(20);
-  // drawGrid();
-  textFont(myFont1);
-  fill(110, 133, 219);
-  textSize(20);
-  textAlign(CENTER, TOP);
-  text("GENERAL VISUALIZATION", width / 2, 20);
 
   // -----------------------------
   // LEGENDA POTENZA
@@ -266,7 +297,6 @@ function drawPage2() {
     let x = map(y, startYear, endYear, margin, width - margin);
 
     if (scrollProgress >= y) {
-      // Visualizza solo al raggiungimento di quell’anno
       stroke(0, 255, 255);
       strokeWeight(1);
       noFill();
@@ -298,10 +328,11 @@ function drawPage2() {
     p.update();
     p.draw();
   }
-
-  drawMenuIcon();
 }
 
+// ===============================
+// mouse & scroll
+// ===============================
 function mouseWheel(event) {
   if (page === 1) {
     spreadSpeed += event.delta * 0.05;
@@ -310,7 +341,6 @@ function mouseWheel(event) {
       scrollOffset += event.delta * 0.5;
       scrollOffset = constrain(scrollOffset, 0, maxScroll);
     } else {
-      // Start automatic animation once max scroll reached
       if (!autoExpandStarted) {
         autoExpandStarted = true;
         expandStartFrame = frameCount;
@@ -324,9 +354,6 @@ function mouseWheel(event) {
 }
 
 function mousePressed() {
-  // -----------------------------
-  // Common to all pages: menu
-  // -----------------------------
   let d = dist(mouseX, mouseY, 50, 50);
   if (d < 15) {
     menuOpen = !menuOpen;
@@ -334,42 +361,36 @@ function mousePressed() {
   }
 
   if (menuOpen) {
-    // HOMEPAGE
     if (mouseX > 20 && mouseX < 300 && mouseY > 75 && mouseY < 95) {
       window.location.href = "index.html";
       menuOpen = false;
       return;
     }
 
-    // GENERAL VISUALIZATION
     if (mouseX > 20 && mouseX < 300 && mouseY > 105 && mouseY < 125) {
       goNextPage();
       menuOpen = false;
       return;
     }
 
-    // BOMBS IN ONE YEAR
     if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 155) {
       window.location.href = "year.html?id=1";
       menuOpen = false;
       return;
     }
 
-    // SINGLE BOMB
     if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 185) {
       window.location.href = "single.html";
       menuOpen = false;
       return;
     }
 
-    // INSIGHT
     if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 215) {
       window.location.href = "insight.html";
       menuOpen = false;
       return;
     }
 
-    // ABOUT
     if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 245) {
       window.location.href = "about.html";
       menuOpen = false;
@@ -377,7 +398,6 @@ function mousePressed() {
     }
   }
 
-  // ------------ page 2 ------------
   if (page === 2) {
     for (let p of particles2) {
       let d = dist(mouseX, mouseY, p.x, p.y);
@@ -391,7 +411,7 @@ function mousePressed() {
       let x = map(year, startYear, endYear, margin, width - margin) + 3;
       let y = yAxis;
       let tw = textWidth(year);
-      let th = 12; // textSize
+      let th = 12;
 
       let dx = mouseX - x;
       let dy = mouseY - y;
@@ -488,7 +508,7 @@ class Particle2 {
 }
 
 // ===============================
-// Funzioni di supporto per la pagina2
+// Funzioni supporto pagina2
 // ===============================
 function getYieldColor(y) {
   if (y >= 0 && y <= 19) return "#fcddbfff";
@@ -576,7 +596,19 @@ function disegnaAsseEAnni() {
 
 function goNextPage() {
   page = 2;
+
+  // Graduale animazione particelle
+  scrollProgress = startYear - 1;
+  let interval = setInterval(() => {
+    scrollProgress += 1;
+    if (scrollProgress >= endYear) {
+      scrollProgress = endYear;
+      clearInterval(interval);
+    }
+    for (let p of particles2) p.active = p.year <= scrollProgress;
+  }, 20);
 }
+
 
 // ===============================
 // menu
@@ -586,7 +618,6 @@ function drawMenuIcon() {
   noStroke();
   ellipse(50, 50, 20, 20);
 
-  // menuopen
   if (menuOpen) {
     fill(200);
     rect(0, 0, 300, windowHeight);
@@ -605,3 +636,14 @@ function drawMenuIcon() {
     text("ABOUT", 50, 230);
   }
 }
+
+// ===============================
+// LISTENER MENU → CAMBIO PAGINA
+// ===============================
+window.addEventListener("changePage", (e) => {   // <<< AGGIORNATO
+  if (e.detail.page === 2) {
+    goToOverview();
+  } else {
+    page = e.detail.page;
+  }
+});
