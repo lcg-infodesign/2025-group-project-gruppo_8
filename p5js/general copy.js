@@ -49,7 +49,6 @@ let UGTypes = [
   "SHAFT/GR",
   "SHAFT/LG",
 ];
-
 // ===============================
 // NUOVA FUNZIONE — vai alla overview
 // ===============================
@@ -58,29 +57,14 @@ function goToOverview() {
 
   // Inizializza animazione particelle
   scrollProgress = startYear - 1;
-
-  // Aziona animazione graduale
-  let interval = setInterval(() => {
-    scrollProgress += 1;
-    if (scrollProgress >= endYear) {
-      scrollProgress = endYear;
-      clearInterval(interval);
-    }
-    for (let p of particles2) {
-      p.active = p.year <= scrollProgress;
-    }
-  }, 20);
 }
-
-// ===============================
-// Caricamento
-// ===============================
 function preload() {
   // pagina1
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
   myFont2 = loadFont("fonts/LibreFranklin-Regular.otf");
   myFont3 = loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
   img1 = loadImage("images/bleauuu.png");
+
 
   // pagina2
   table = loadTable("dataset/dataset.csv", "csv", "header");
@@ -92,14 +76,14 @@ function setup() {
   for (let i = 0; i < table.getRowCount(); i++) {
     let row = table.getRow(i);
     data.push({
-      id: i, 
+      id: i, // Definisci l'ID in base al numero della riga
       year: row.getNum("year"),
       type: row.getString("type"),
       yield: row.getNum("yield_u"),
     });
   }
 
-  // -------- Inizializza particelle pagina 1 --------
+  // -------- Inizializza le particelle della pagina 1 --------
   for (let r = 0; r < radii.length; r++) {
     for (let i = 0; i < numParticles1; i++) {
       let angle = random(TWO_PI);
@@ -116,7 +100,7 @@ function setup() {
   }
   maxScroll = height * 4;
 
-  // -------- pagina 2 --------
+  // -------- Inizializza le particelle della pagina 2 --------
   yAxis = height / 2 + 70;
   scrollProgress = startYear - 1;
 
@@ -135,11 +119,9 @@ function setup() {
   }
 
   creaParticlesDaTabella();
-
-  checkHashNavigation();  // <<< IMPORTANTE
+  checkHashNavigation();
 }
-
-// ===============================
+  // ===============================
 // Se URL contiene #page2 → apri ovverview SUBITO
 // ===============================
 function checkHashNavigation() {
@@ -154,7 +136,6 @@ function checkHashNavigation() {
   }
 }
 
-
 // ===============================
 // Ciclo principale
 // ===============================
@@ -168,6 +149,7 @@ function draw() {
 // ===============================
 function drawPage1() {
   background(20);
+  // drawGrid();
   imageMode(CENTER);
   tint(255, 180);
   image(img1, width / 2, height / 2, 1200, 900);
@@ -206,15 +188,17 @@ function drawPage1() {
   // particelle centrale
   push();
   let scaledSize = centerCircleSize;
-
+  //Scala lentamente solo se la sfera non è stata ancora ingrandita
   if (centerCircleSize <= 10) {
     let scaleFactor = 2 + 2 * sin(frameCount * 0.01);
     scaledSize *= scaleFactor;
   }
 
+  // --- Automatic circle expansion after full scroll ---
   if (autoExpandStarted) {
     centerCircleSize = lerp(centerCircleSize, max(width, height) * 2, 0.03);
 
+    // When fully expanded, go to next page
     if (centerCircleSize > max(width, height)) {
       goNextPage();
     }
@@ -243,12 +227,17 @@ function drawPage2() {
   // -----------------------------
   // LEGENDA POTENZA
   // -----------------------------
+  
+  // Coordinate di riferimento in basso a destra
+let offsetX = width - 150; // distanza dal bordo destro
+let offsetY = height - 150; // distanza dal bordo inferiore
+  
   noStroke();
   fill(0, 255, 255);
   textFont(myFont3);
   textSize(14);
   textAlign(LEFT, TOP);
-  text("YIELD", 80, 70);
+  text("YIELD (kt)", offsetX, offsetY - 40);
   textAlign(RIGHT, TOP);
   text("SOME INFORMATION??", width - 80, 70);
 
@@ -270,33 +259,36 @@ function drawPage2() {
   );
 
   let legend = [
-    { range: "0-19 kt", y: 10 },
-    { range: "20 kt", y: 20 },
-    { range: "21-150 kt", y: 100 },
-    { range: "151-4999 kt", y: 1000 },
-    { range: "5000+ kt", y: 5000 },
-  ];
-  textFont(myFont2);
-  textSize(12);
-  let circleSize = 10;
-  let lineSpacing = 20;
+  { range: "0-19", y: 10 },
+  { range: "20", y: 20 },
+  { range: "21-150", y: 100 },
+  { range: "151-4999", y: 1000 },
+  { range: "5000+", y: 5000 },
+];
 
-  legend.forEach((item, i) => {
-    fill(getYieldColor(item.y));
-    let cx = 80 + circleSize / 2;
-    let cy = 80 + 25 + i * lineSpacing;
-    circle(cx, cy, circleSize);
+textFont(myFont2);
+textSize(12);
+let circleSize = 10;
+let lineSpacing = 20;
 
-    fill(200, 200, 200);
-    textAlign(LEFT, CENTER);
-    text(item.range, cx + circleSize + 5, cy);
-  });
+legend.forEach((item, i) => {
+  fill(getYieldColor(item.y));
+  let cx = offsetX + circleSize / 2;
+  let cy = offsetY + i * lineSpacing;
+  circle(cx, cy, circleSize);
+
+  fill(200, 200, 200);
+  textAlign(LEFT, CENTER);
+  text(item.range, cx + circleSize + 5, cy);
+});
+
 
   let yearsToMark = [1950, 1963, 1990];
   yearsToMark.forEach((y) => {
     let x = map(y, startYear, endYear, margin, width - margin);
 
     if (scrollProgress >= y) {
+      // Visualizza solo al raggiungimento di quell’anno
       stroke(0, 255, 255);
       strokeWeight(1);
       noFill();
@@ -328,11 +320,9 @@ function drawPage2() {
     p.update();
     p.draw();
   }
+
 }
 
-// ===============================
-// mouse & scroll
-// ===============================
 function mouseWheel(event) {
   if (page === 1) {
     spreadSpeed += event.delta * 0.05;
@@ -341,6 +331,7 @@ function mouseWheel(event) {
       scrollOffset += event.delta * 0.5;
       scrollOffset = constrain(scrollOffset, 0, maxScroll);
     } else {
+      // Start automatic animation once max scroll reached
       if (!autoExpandStarted) {
         autoExpandStarted = true;
         expandStartFrame = frameCount;
@@ -354,6 +345,9 @@ function mouseWheel(event) {
 }
 
 function mousePressed() {
+  // -----------------------------
+  // Common to all pages: menu
+  // -----------------------------
   let d = dist(mouseX, mouseY, 50, 50);
   if (d < 15) {
     menuOpen = !menuOpen;
@@ -361,36 +355,42 @@ function mousePressed() {
   }
 
   if (menuOpen) {
+    // HOMEPAGE
     if (mouseX > 20 && mouseX < 300 && mouseY > 75 && mouseY < 95) {
       window.location.href = "index.html";
       menuOpen = false;
       return;
     }
 
+    // GENERAL VISUALIZATION
     if (mouseX > 20 && mouseX < 300 && mouseY > 105 && mouseY < 125) {
       goNextPage();
       menuOpen = false;
       return;
     }
 
+    // BOMBS IN ONE YEAR
     if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 155) {
       window.location.href = "year.html?id=1";
       menuOpen = false;
       return;
     }
 
+    // SINGLE BOMB
     if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 185) {
       window.location.href = "single.html";
       menuOpen = false;
       return;
     }
 
+    // INSIGHT
     if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 215) {
       window.location.href = "insight.html";
       menuOpen = false;
       return;
     }
 
+    // ABOUT
     if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 245) {
       window.location.href = "about.html";
       menuOpen = false;
@@ -398,6 +398,7 @@ function mousePressed() {
     }
   }
 
+  // ------------ page 2 ------------
   if (page === 2) {
     for (let p of particles2) {
       let d = dist(mouseX, mouseY, p.x, p.y);
@@ -411,7 +412,7 @@ function mousePressed() {
       let x = map(year, startYear, endYear, margin, width - margin) + 3;
       let y = yAxis;
       let tw = textWidth(year);
-      let th = 12;
+      let th = 12; // textSize
 
       let dx = mouseX - x;
       let dy = mouseY - y;
@@ -419,7 +420,7 @@ function mousePressed() {
       let ry = dx * sin(-HALF_PI) + dy * cos(-HALF_PI);
 
       if (rx >= -tw / 2 && rx <= tw / 2 && ry >= 0 && ry <= th) {
-        window.location.href = `year.html?year=${year}`;
+      window.location.href = `year.html?year=${year}`;
         break;
       }
     }
@@ -508,7 +509,7 @@ class Particle2 {
 }
 
 // ===============================
-// Funzioni supporto pagina2
+// Funzioni di supporto per la pagina2
 // ===============================
 function getYieldColor(y) {
   if (y >= 0 && y <= 19) return "#fcddbfff";
@@ -596,19 +597,35 @@ function disegnaAsseEAnni() {
 
 function goNextPage() {
   page = 2;
-
-  // Graduale animazione particelle
-  scrollProgress = startYear - 1;
-  let interval = setInterval(() => {
-    scrollProgress += 1;
-    if (scrollProgress >= endYear) {
-      scrollProgress = endYear;
-      clearInterval(interval);
-    }
-    for (let p of particles2) p.active = p.year <= scrollProgress;
-  }, 20);
 }
 
+// ===============================
+// menu
+// ===============================
+function drawMenuIcon() {
+  fill(0, 255, 255);
+  noStroke();
+  ellipse(50, 50, 20, 20);
+
+  // menuopen
+  if (menuOpen) {
+    fill(200);
+    rect(0, 0, 300, windowHeight);
+    textFont(myFont2);
+    textSize(12);
+    fill(110, 133, 219);
+    textAlign(LEFT, TOP);
+    fill(110, 133, 219);
+    noStroke();
+    ellipse(50, 50, 20, 20);
+    text("HOMEPAGE", 50, 80);
+    text("GENERAL VISUALIZATION", 50, 110);
+    text("BOMBS IN ONE YEAR", 50, 140);
+    text("SINGLE BOMB", 50, 170);
+    text("INSIGHT", 50, 200);
+    text("ABOUT", 50, 230);
+  }
+}
 
 // ===============================
 // LISTENER MENU → CAMBIO PAGINA

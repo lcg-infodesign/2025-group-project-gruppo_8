@@ -1,17 +1,22 @@
 let bombID;
 let table;
 let bombData = null;
-let menuOpen = false;
+let typeImages = {};
+let typeImg = null;
+let myFont1, myFont2, myFont3;
+let animR = 0;
 
 // Map variables
 let mapImg;
-let IMG_W = 1024;
-let IMG_H = 512;
-let LON_MIN = -180,
-  LON_MAX = 180;
-let LAT_MIN = -90,
-  LAT_MAX = 90;
-let offsetX, offsetY, scaledW, scaledH;
+let scaledW, scaledH, offsetX, offsetY;
+const LON_MIN = -180;
+const LON_MAX = 180;
+const LAT_MIN = -90;
+const LAT_MAX = 90;
+
+let yieldList = [50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100, 50, 20, 10];
+let radii = []; // 存每个圈的半径
+let centerX, centerY;
 
 function preload() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -23,9 +28,29 @@ function preload() {
   myFont3 = loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
 
   table = loadTable("dataset/dataset.csv", "csv", "header");
+  mapImg = loadImage("images/mappa.png");
 
-  mapImg = loadImage("images/worldmap.png");
-  typeImg = loadImage("images/airdrop.png");
+  typeImages["AIRDROP"] = loadImage("images/airdrop.png");
+  typeImages["ATMOSPH"] = loadImage("images/atmosph.png");
+  typeImages["SPACE"] = loadImage("images/atmosph.png");
+  typeImages["BALLOON"] = loadImage("images/balloon.png");
+  typeImages["BARGE"] = loadImage("images/barge.png");
+  typeImages["SHIP"] = loadImage("images/barge.png");
+  typeImages["ROCKET"] = loadImage("images/rocket.png");
+  typeImages["SHAFT"] = loadImage("images/shaft.png");
+  typeImages["SHAFT/GR"] = loadImage("images/shaft.png");
+  typeImages["SHAFT/LG"] = loadImage("images/shaft.png");
+  typeImages["SURFACE"] = loadImage("images/surface.png");
+  typeImages["TOWER"] = loadImage("images/tower.png");
+  typeImages["TUNNEL"] = loadImage("images/tunnel AND gallery.png");
+  typeImages["GALLERY"] = loadImage("images/tunnel AND gallery.png");
+  typeImages["UW"] = loadImage("images/uw.png");
+  typeImages["UG"] = loadImage("images/ug.png");
+  typeImages["WATERSUR"] = loadImage("images/watersurface.png");
+  typeImages["WATER SU"] = loadImage("images/watersurface.png");
+  typeImages["CRATER"] = loadImage("images/crater.png");
+  typeImages["MINE"] = loadImage("images/mine.png");
+  typeImages["SPACE"] = loadImage("images/space.png");
 }
 
 function getBombData(row) {
@@ -44,9 +69,15 @@ function getBombData(row) {
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+
+  radii = yieldList.map(y => mapYieldToRadius(y));
+centerX = width / 2;
+centerY = height;
+
   noFill();
   strokeCap(SQUARE);
   textFont(myFont2);
+  
   // Cerca i dati della bomba corrispondente all'ID
   for (let i = 0; i < table.getRowCount(); i++) {
     if (table.getString(i, "id_no").trim() === bombID) {
@@ -59,12 +90,15 @@ function setup() {
     bombData = getBombData(table.getRow(0)); // Torna alla prima pagina
   }
 
+  if (bombData) {
+    typeImg = typeImages[bombData.type];
+  }
+
   calculateMapDimensions();
 }
 
 function draw() {
   background(20);
-  drawGrid();
 
   if (!bombData) {
     fill(255);
@@ -73,80 +107,74 @@ function draw() {
     text("No bomb data available", width / 2, height / 2);
     return;
   }
-
-  textFont(myFont1);
-  fill(110, 133, 219);
-  textSize(20);
-  noStroke();
-  textAlign(CENTER, TOP);
-  text("SINGLE BOMB", width / 2, 20);
-
-  // --- Titolo ---
+  // name
   fill(0, 255, 255);
   textFont(myFont3);
-  textAlign(LEFT, TOP);
-  textSize(20);
-  text("Name: " + bombData.name, 50, 80);
+  textAlign(CENTER, TOP);
+  textSize(30);
+  text(bombData.name, width / 2, 20);
+let d = dist(mouseX, mouseY, centerX, centerY);
 
-  // --- Cerchi centrali ---
-  let centerX = (width - 562) / 2;
-  let centerY = height / 2;
+for (let i = 0; i < radii.length; i++) {
+  let r = radii[i];
+  let innerR = i < radii.length - 1 ? radii[i + 1] : 0;
 
-  let radiusOuter, outerMin, outerMax;
-
-  if (bombData.yield_u < 15) {
-    outerMin = 10;
-    outerMax = 50;
-    radiusOuter = map(bombData.yield_u, 0, 15, outerMin, outerMax);
-  } else if (bombData.yield_u <= 10000) {
-    outerMin = 50;
-    outerMax = 900;
-    radiusOuter = map(bombData.yield_u, 15, 10000, outerMin, outerMax);
+  if (d <= r && d > innerR) {
+    fill(0, 255, 255, 30); // hover
   } else {
-    outerMin = 900;
-    outerMax = 1000;
-    radiusOuter = map(bombData.yield_u, 10000, 50000, outerMin, outerMax);
+    noFill();
   }
 
-  let radiusInner = 50;
-  stroke(255);
+  stroke(150);
+  strokeWeight(1);
+  ellipse(centerX, centerY, r * 2);
+
+  noStroke();
+  fill(200);
+  textAlign(CENTER, CENTER);
+  textSize(12);
+  text(yieldList[i], centerX, centerY - r);
+}
+
+  let rOuter = mapYieldToRadius(bombData.yield_u); //bomb
+  let rInner = mapYieldToRadius(15); //hiroshima
+
+  // hirishima
+  stroke(0, 255, 255);
   strokeWeight(1);
   noFill();
-  ellipse(centerX, centerY, radiusInner * 2);
+  ellipse(centerX, centerY, rInner * 2);
 
+  // bomb
+  // ---- 动画：半径由小到大 ----
+let targetR = mapYieldToRadius(bombData.yield_u);
+animR = lerp(animR, targetR, 0.05);  // 越小越慢，0.05 = 缓慢变大
+  rOuter = animR;
   let c = color(getYieldColor(bombData.yield_u));
-  let thickness = max(3, radiusOuter * 0.1);
-  for (let r = radiusOuter; r > radiusOuter - thickness; r -= 0.5) {
-    let alpha = map(r, radiusOuter - thickness, radiusOuter, 0, 200);
+  let thickness = max(3, rOuter * 0.1);
+
+  for (let r = rOuter; r > rOuter - thickness; r -= 0.5) {
+    let alpha = map(r, rOuter - thickness, rOuter, 0, 200);
     stroke(red(c), green(c), blue(c), alpha);
     strokeWeight(2);
     noFill();
     ellipse(centerX, centerY, r * 2);
   }
 
-  fill(50);
-  noStroke();
-  textAlign(LEFT, TOP);
-  textSize(16);
-  fill(0, 255, 255);
-  text("Type: " + bombData.type, 50, height - 110);
-  text("Purpose: " + bombData.purpose, 50, height - 80);
-  text("Yield: " + bombData.yield_u, 50, height - 140);
-
   drawMap();
-
-  let boxW = 512,
-    boxH = 375,
+drawingContext.filter = 'blur(5px)';
+  let boxW = 300,
+    boxH = 300,
     boxX = width - boxW - 50,
-    boxY = 80;
+    boxY = 150;
   stroke(0, 255, 255, 150);
   strokeWeight(1);
   fill(0, 255, 255, 20);
   rect(boxX, boxY, boxW, boxH);
-
+drawingContext.filter = 'none';
   if (typeImg) {
-    let imgW = boxW * 0.8,
-      imgH = boxH * 0.8;
+    let imgW = boxW,
+      imgH = boxH;
     image(
       typeImg,
       boxX + (boxW - imgW) / 2,
@@ -156,66 +184,24 @@ function draw() {
     );
   }
 
-  drawMenuIcon();
 }
 
-function mousePressed() {
-  // -----------------------------
-  // Common to all pages: menu
-  // -----------------------------
-  let d = dist(mouseX, mouseY, 50, 50);
-  if (d < 15) {
-    menuOpen = !menuOpen;
-    return;
-  }
+function mapYieldToRadius(y) {
+  let minR = 5;
+  let maxR = min(width, height) * 0.8;
 
-  // -----------------------------
-  // menuopen
-  // -----------------------------
-  if (menuOpen) {
-    // HOMEPAGE
-    if (mouseX > 20 && mouseX < 300 && mouseY > 75 && mouseY < 95) {
-      window.location.href = "index.html";
-      menuOpen = false;
-      return;
-    }
-
-    // GENERAL VISUALIZATION
-    if (mouseX > 20 && mouseX < 300 && mouseY > 105 && mouseY < 125) {
-      window.location.href = "index.html#page2";
-      menuOpen = false;
-      return;
-    }
-
-    // BOMBS IN ONE YEAR
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 155) {
-      window.location.href = "year.html?id=1";
-      menuOpen = false;
-      return;
-    }
-
-    // SINGLE BOMB
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 185) {
-      window.location.href = "single.html";
-      menuOpen = false;
-      return;
-    }
-
-    // INSIGHT
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 215) {
-      window.location.href = "insight.html";
-      menuOpen = false;
-      return;
-    }
-
-    // ABOUT
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 245) {
-      window.location.href = "about.html";
-      menuOpen = false;
-      return;
-    }
+  if (y <= 20) {
+    // 0-20
+    return map(y, 0, 20, minR, minR + 50);
+  } else if (y <= 10000) {
+    // 20-10000
+    return map(y, 20, 10000, minR + 50, maxR - 100);
+  } else {
+    // 10000-50000
+    return map(y, 10000, 50000, maxR - 100, maxR);
   }
 }
+
 
 function getYieldColor(y) {
   if (y >= 0 && y <= 19) return "#fcddbfff";
@@ -225,17 +211,20 @@ function getYieldColor(y) {
   else if (y >= 5000) return "#c21d00ff";
 }
 
-// --- Funzioni mappa ---
+
 function calculateMapDimensions() {
   if (!mapImg) return;
 
-  scaledW = IMG_W * 0.5;
-  scaledH = IMG_H * 0.5;
+  // 固定宽度为600，高度根据图片比例计算
+  scaledW = 300;
+  scaledH = mapImg.height * (scaledW / mapImg.width);
 
+  // 右下角偏移一点
   offsetX = width - scaledW - 50;
   offsetY = height - scaledH - 50;
 }
 
+//mappa
 function lonToMapX(lon) {
   return map(lon, LON_MIN, LON_MAX, offsetX, offsetX + scaledW);
 }
@@ -247,19 +236,27 @@ function latToMapY(lat) {
 function drawMap() {
   if (!mapImg || !bombData) return;
 
-  // Mappa
-  tint(255, 100);
+  // 显示地图
+  // tint(255, 220);
   image(mapImg, offsetX, offsetY, scaledW, scaledH);
   noTint();
 
-  // Bordo mappa
+  // 地图边框
   stroke(0, 255, 255, 150);
-
   strokeWeight(1);
-  noFill();
+  fill(0, 255, 255, 20);
   rect(offsetX, offsetY, scaledW, scaledH);
 
-  // Punto bomba
+  fill(0, 255, 255);
+  textAlign(LEFT, TOP);
+  textSize(12);
+  noStroke();
+  text("Lat: " + bombData.latitude, offsetX, offsetY-20);
+  text("Lon: " + bombData.longitude, offsetX+100, offsetY-20);
+  text("Yield: " + bombData.yield_u, offsetX, 110);
+  text("Purpose: " + bombData.purpose, offsetX, 90);
+  text("Type: " + bombData.type, offsetX, 130);
+  // 炸弹点
   let px = lonToMapX(bombData.longitude);
   let py = latToMapY(bombData.latitude);
 
@@ -269,36 +266,9 @@ function drawMap() {
   circle(px, py, 10);
 }
 
-function drawGrid() {
-  let spacing = 20;
-  stroke(110, 133, 219, 100);
-  strokeWeight(0.5);
-  for (let x = 0; x <= width; x += spacing) line(x, 0, x, height);
-  for (let y = 0; y <= height; y += spacing) line(0, y, width, y);
-  tint(255, 180);
-  //if (img1) image(img1, 13 * spacing, 3 * spacing, 45 * spacing, 35 * spacing);
-}
 
-function drawMenuIcon() {
-  fill(0, 255, 255);
-  noStroke();
-  ellipse(50, 50, 20, 20);
-
-  if (menuOpen) {
-    fill(200);
-    rect(0, 0, 300, windowHeight);
-    textFont(myFont2);
-    textSize(12);
-    fill(110, 133, 219);
-    textAlign(LEFT, TOP);
-    fill(110, 133, 219);
-    noStroke();
-    ellipse(50, 50, 20, 20);
-    text("HOMEPAGE", 50, 80);
-    text("GENERAL VISUALIZATION", 50, 110);
-    text("BOMBS IN ONE YEAR", 50, 140);
-    text("SINGLE BOMB", 50, 170);
-    text("INSIGHT", 50, 200);
-    text("ABOUT", 50, 230);
+window.addEventListener("load", () => {
+  if (window.location.hash === "#page2") {
+    window.location.href = "index.html#page2";
   }
-}
+});

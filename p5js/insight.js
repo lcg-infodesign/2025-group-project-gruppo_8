@@ -342,22 +342,25 @@ function drawThumbnails(y) {
 function drawPreviewOverlay() {
   push();
   noStroke();
-  fill(0, 200);
+  fill(0, 220);
   rect(0, 0, width, height);
   drawingContext.filter = "none";
 
+  // ---- 大图尺寸适配 ----
   // ---- 大图尺寸适配（固定高度，高度一样，宽度自适应） ----
-  const targetHeight = 600;  // 大图高度
+  const targetHeight = 600;  // 你想要的大图高度
   let pw, ph;
 
   // 高度固定
   ph = targetHeight;
 
   // 按原图比例计算宽度
-  pw = (previewImg.width / previewImg.height) * ph;  
+  pw = (previewImg.width / previewImg.height) * ph;
 
-  // 居中绘制
-  image(previewImg, (width - pw) / 2, (height - ph) / 2, pw, ph);
+  
+
+// 居中绘制
+image(previewImg, (width - pw) / 2, (height - ph) / 2, pw, ph);
 
   // ---- 显示大图 ----
   let imgX = (width - pw) / 2;
@@ -419,6 +422,7 @@ function drawPreviewOverlay() {
 
   pop();
 }
+
 
 // ==============================
 // drawTextInteractive: 字体渐显与微动
