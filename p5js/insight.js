@@ -414,7 +414,7 @@ image(previewImg, (width - pw) / 2, (height - ph) / 2, pw, ph);
   "From notes by LIFE’s Bernard Hoffman\nto the magazine’s long-time picture editor,\nWilson Hicks, in New York, September 1945",
   "Mother and child in Hiroshima, \nJapan, December 1945 Alfred Eisenstaedt",
   "A correspondent stands in the rubble in Hiroshima on Sept. 8, 1945, a month \nafter the first atomic bomb ever used in warfare was dropped by the U.S.\nStanley Troutman / AP",
-  "The devastated city of Nagasaki after an atomic bomb \nwas dropped on it by a US Air Force B-29 bomber",
+  "The devastated city of Nagasaki after an atomic bomb \nwas dropped on it by a US Air Force B-29 bomber  \n—AFP",
   "The mushroom cloud rising over Hiroshima, Japan \nThe city of Hiroshima was the target of the worlds \nfirst atomic bomb attack at 0816 am on August 6, 1945",
 
   ];
