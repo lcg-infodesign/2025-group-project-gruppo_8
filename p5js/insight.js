@@ -50,7 +50,7 @@ function preload() {
   img3 = loadImage(`images/insight_img3.jpg`);
 
   // thumbs and largeImages (7 thumbnails expected)
-  for (let i = 4; i <= 9; i++) {
+  for (let i = 4; i <= 10; i++) {
     let t = loadImage(`images/insight_img${i}.jpg`);
     thumbs.push(t);
     // for preview we reuse the same images (or replace with high-res paths)
@@ -348,8 +348,13 @@ function drawPreviewOverlay() {
 
   // ---- 大图尺寸适配 ----
   // ---- 大图尺寸适配（固定高度，高度一样，宽度自适应） ----
-  const targetHeight = 600;  // 你想要的大图高度
+  let targetHeight = 600;  // 你想要的大图高度
   let pw, ph;
+
+  
+
+ph = targetHeight;
+pw = (previewImg.width / previewImg.height) * ph;
 
   // 高度固定
   ph = targetHeight;
@@ -361,6 +366,7 @@ function drawPreviewOverlay() {
 
 // 居中绘制
 image(previewImg, (width - pw) / 2, (height - ph) / 2, pw, ph);
+
 
   // ---- 显示大图 ----
   let imgX = (width - pw) / 2;
@@ -408,8 +414,9 @@ image(previewImg, (width - pw) / 2, (height - ph) / 2, pw, ph);
   "From notes by LIFE’s Bernard Hoffman\nto the magazine’s long-time picture editor,\nWilson Hicks, in New York, September 1945",
   "Mother and child in Hiroshima, \nJapan, December 1945 Alfred Eisenstaedt",
   "A correspondent stands in the rubble in Hiroshima on Sept. 8, 1945, a month \nafter the first atomic bomb ever used in warfare was dropped by the U.S.\nStanley Troutman / AP",
+  "The devastated city of Nagasaki after an atomic bomb \nwas dropped on it by a US Air Force B-29 bomber",
   "The mushroom cloud rising over Hiroshima, Japan \nThe city of Hiroshima was the target of the worlds \nfirst atomic bomb attack at 0816 am on August 6, 1945",
-  "Fat_Man_(replica_of_nuclear_bomb)"
+
   ];
   // 获取当前图片对应文字
   let currentBottomText = bottomTexts[previewIndex] || "";
