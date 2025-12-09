@@ -13,6 +13,15 @@
   </head>
 
   <body>
+     <div class="skip-intro" id="skip-intro">
+      <button
+        id="skipIntroBtn"
+        onclick="window.dispatchEvent(new CustomEvent('changePage', { detail: { page: 2 } }))">
+        SKIP
+      </button>
+    </div>
+
+
        <script src="p5js/menu.js"></script>
     <script src="p5js/general copy.js"></script>
   </body>

@@ -1,8 +1,67 @@
 html, body {
   margin: 0;
   padding: 0;
+  background-color: #161616;  /* aggiungi questa riga */
+  color: #ffffff;             /* opzionale, così il testo di default è bianco */
 }
 
 canvas {
   display: block;
 }
+
+.skip-intro {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+.skip-intro button {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+
+  color: #ffffff;              /* bianco di default */
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  transition: color 0.25s ease, text-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.skip-intro button:hover {
+  color: #7fefff;              /* azzurrino brillante */
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+ 
+}
+
+/* BACK BUTTON — minimal, bianco → azzurrino all'hover */
+.back-btn {
+  position: fixed;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2000;
+
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+
+  color: #ffffff;              /* bianco di default */
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  transition: color 0.25s ease, text-shadow 0.25s ease, transform 0.25s ease;
+}
+
+/* Hover: diventa azzurrino + leggero glow */
+.back-btn:hover {
+  color: #7fefff;              /* azzurrino brillante */
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+  transform: translateY(-50%) translateX(3px);
+}
+
