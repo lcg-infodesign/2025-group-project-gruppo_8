@@ -30,6 +30,7 @@ let previewIndex = -1;     // 当前预览的大图索引
 let previewArrowSize = 20; // 左右箭头尺寸
 
 
+
 // thumbnails
 let thumbOffset = 0;
 let targetThumbOffset = 0;
@@ -37,6 +38,8 @@ let thumbSize = 120;
 let thumbGap = 30;
 
 let myFont1, myFont2, myFont3;
+
+let titleAlpha = map(scrollY, 0, 200, 255, 0, true);
 
 function preload() {
   // fonts (keep same filenames in your project)
@@ -81,7 +84,8 @@ function draw() {
 
   // top title
   textFont(myFont1);
-  fill(110, 133, 219);
+  let titleAlpha = map(scrollY, 0, 200, 255, 0, true); 
+  fill(110, 133, 219, titleAlpha);
   textSize(20);
   textAlign(CENTER, TOP);
   text(topText, width / 2, 20);
