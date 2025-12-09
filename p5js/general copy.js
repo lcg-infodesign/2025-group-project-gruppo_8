@@ -49,15 +49,31 @@ let UGTypes = [
   "SHAFT/GR",
   "SHAFT/LG",
 ];
-// ===============================
+
 // NUOVA FUNZIONE — vai alla overview
 // ===============================
 function goToOverview() {
+  // Vai alla pagina 2 (grafico)
   page = 2;
 
-  // Inizializza animazione particelle
-  scrollProgress = startYear - 1;
+  // Porta subito la timeline alla fine: grafico "attivo"
+  scrollProgress = endYear;
+
+  // Attiva tutte le particelle (bombe) in page 2
+  if (particles2 && particles2.length > 0) {
+    for (let p of particles2) {
+      p.active = true;
+    }
+  }
+
+  // Nascondi il bottone "CLICK TO CONTINUE", se esiste
+  const skipBtn = document.getElementById("skipIntroBtn");
+  if (skipBtn && skipBtn.parentElement) {
+    skipBtn.parentElement.style.display = "none";
+  }
 }
+
+
 function preload() {
   // pagina1
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
@@ -154,11 +170,11 @@ function drawPage1() {
   tint(255, 180);
   image(img1, width / 2, height / 2, 1200, 900);
 
-  textFont(myFont2);
-  fill(150);
-  textSize(16);
-  textAlign(CENTER, BOTTOM);
-  text("SCROLL DOWN FOR MORE", width / 2, height - 40);
+  //textFont(myFont2);
+  //fill(150);
+  //textSize(16);
+  //textAlign(CENTER, BOTTOM);
+  //text("SCROLL DOWN FOR MORE", width / 2, height - 40);
 
   textFont(myFont1);
   noStroke();
@@ -596,8 +612,26 @@ function disegnaAsseEAnni() {
 }
 
 function goNextPage() {
+  // Vai alla pagina 2 (grafico)
   page = 2;
+
+  // Stessa logica di goToOverview:
+  // porta subito la timeline alla fine
+  scrollProgress = endYear;
+
+  if (particles2 && particles2.length > 0) {
+    for (let p of particles2) {
+      p.active = true;
+    }
+  }
+
+  // Nascondi il bottone se per caso è ancora visibile
+  const skipBtn = document.getElementById("skipIntroBtn");
+  if (skipBtn && skipBtn.parentElement) {
+    skipBtn.parentElement.style.display = "none";
+  }
 }
+
 
 // ===============================
 // menu

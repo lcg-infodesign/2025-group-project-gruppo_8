@@ -70,7 +70,7 @@ function processData() {
     }
   }
 
-  allTests.forEach((test) => {
+   allTests.forEach((test) => {
     if (!testsByYear[test.year]) {
       testsByYear[test.year] = {};
       years.push(test.year);
@@ -85,9 +85,28 @@ function processData() {
     });
   });
 
+  // 🔹 Aggiungo anche gli anni "vuoti" tra il primo e l'ultimo
   years.sort((a, b) => a - b);
+
+  if (years.length > 0) {
+    const minYear = years[0];
+    const maxYear = years[years.length - 1];
+
+    for (let y = minYear; y <= maxYear; y++) {
+      if (!testsByYear[y]) {
+        // Nessun test in quell'anno → creo un anno vuoto
+        testsByYear[y] = {};
+        years.push(y);
+      }
+    }
+
+    years.sort((a, b) => a - b);
+  }
+
   countries.sort();
 }
+
+
 
 function getYieldColor(y) {
   if (isNaN(y) || y === null || y === undefined) y = 0;
