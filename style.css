@@ -1,6 +1,8 @@
 html, body {
   margin: 0;
   padding: 0;
+  background-color: #161616;  /* aggiungi questa riga */
+  color: #ffffff;             /* opzionale, così il testo di default è bianco */
 }
 
 canvas {
