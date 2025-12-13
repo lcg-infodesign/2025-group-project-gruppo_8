@@ -4,25 +4,23 @@ let currentYearIndex = 0;
 let testsByYear = {};
 let countries = [];
 let dots = [];
+let mushroomImg;
 
 function preload() {
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
   myFont2 = loadFont("fonts/LibreFranklin-Regular.otf");
   myFont3 = loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
   img1 = loadImage("images/bleauuu.png");
-
+  mushroomImg = loadImage("images/bleauuu.png");
   table = loadTable("dataset/dataset.csv", "csv", "header");
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-
-  processData(); // Prima elabora i dati per generare l'array years
-
+  processData();
   const urlParams = new URLSearchParams(window.location.search);
   const yearParam = urlParams.get("year");
   console.log(yearParam);
-
   if (yearParam) {
     const parsedYear = parseInt(yearParam);
     const index = years.indexOf(parsedYear);
@@ -33,15 +31,25 @@ function setup() {
 }
 
 function draw() {
-  background(20)
+  background(20);
 
+  // Fungo atomico come sfondo
   if (mushroomImg) {
     push();
+    tint(255, 100, 0);
     imageMode(CENTER);
-    tint(255, 30); // Opacità bassa per lo sfondo
-    image(mushroomImg, width / 2, height / 2, width, height);
+    // Adatta in altezza
+    let imgH = height;
+    let imgW = height * (mushroomImg.width / mushroomImg.height);
+    image(mushroomImg, width / 2, height / 2, imgW, imgH);
     pop();
   }
+
+  textFont(myFont3);
+  fill(0, 255, 255);
+  textAlign(CENTER, TOP);
+  textSize(33);
+  text("NUCLEAR TEST EACH YEAR", width / 2, 40);
 
   if (years.length === 0) {
     fill(255);
@@ -57,28 +65,28 @@ function draw() {
   drawYearNavigation(currentYear);
   drawTestDots(yearData);
   drawBottomInfo(yearData);
+  drawLegend();
 }
 
 function processData() {
   let allTests = [];
-
   for (let i = 0; i < table.getRowCount(); i++) {
     let id_no = table.getString(i, "id_no");
     let year = parseInt(table.getString(i, "year"));
     let country = table.getString(i, "country");
     let yield_u = parseFloat(table.getString(i, "yield_u"));
-
+    let type = table.getString(i, "type");
     if (!isNaN(year) && year > 0 && country && country.trim() !== "") {
       allTests.push({
         id: id_no,
         year: year,
         country: country.trim(),
         yield: isNaN(yield_u) || yield_u < 0 ? 0 : yield_u,
+        type: type || "ATMOSPH",
       });
     }
   }
-
-   allTests.forEach((test) => {
+  allTests.forEach((test) => {
     if (!testsByYear[test.year]) {
       testsByYear[test.year] = {};
       years.push(test.year);
@@ -90,35 +98,35 @@ function processData() {
     testsByYear[test.year][test.country].push({
       id: test.id,
       yield: test.yield,
+      type: test.type,
     });
   });
-
-  // 🔹 Aggiungo anche gli anni "vuoti" tra il primo e l'ultimo
   years.sort((a, b) => a - b);
-
   if (years.length > 0) {
     const minYear = years[0];
     const maxYear = years[years.length - 1];
-
     for (let y = minYear; y <= maxYear; y++) {
       if (!testsByYear[y]) {
-        // Nessun test in quell'anno → creo un anno vuoto
         testsByYear[y] = {};
         years.push(y);
       }
     }
-
     years.sort((a, b) => a - b);
   }
-
   countries.sort();
+  const countryOrder = ["INDIA", "PAKIST", "USA", "USSR", "FRANCE", "UK", "CHINA"];
+  countries.sort((a, b) => {
+    const indexA = countryOrder.indexOf(a);
+    const indexB = countryOrder.indexOf(b);
+    if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+    if (indexA === -1) return 1;
+    if (indexB === -1) return -1;
+    return indexA - indexB;
+  });
 }
-
-
 
 function getYieldColor(y) {
   if (isNaN(y) || y === null || y === undefined) y = 0;
-
   if (y >= 0 && y <= 19) return color("#fcddbfff");
   else if (y === 20) return color("#FFB873");
   else if (y >= 21 && y <= 150) return color("#ff7a22ff");
@@ -137,36 +145,36 @@ function getColorLevel(y) {
 
 function drawYearNavigation(currentYear) {
   textAlign(CENTER, TOP);
-  textSize(32);
+  textSize(48);
   fill(200);
   textFont(myFont2);
-  text(currentYear, width/2,110);
+  text(currentYear, width / 2, 120);
   textFont(myFont3);
   fill(0, 255, 255);
   textSize(14);
-  text("YEAR", width/2, 90);
+  text("YEAR", width / 2, 100);
 
-  // Freccia sinistra <
-  fill(
-    mouseX > width / 2 - 150 &&
-      mouseX < width / 2 - 90 &&
-      mouseY > 110 &&
-      mouseY < 150
-      ? 255
-      : 150
-  );
-  triangle(width / 2 - 130, 130, width / 2 - 100, 115, width / 2 - 100, 145);
+  // Freccia sinistra < (invertita rispetto a prima)
+  let hoverLeft = mouseX > width / 2 - 150 && mouseX < width / 2 - 90 && mouseY > 120 && mouseY < 170;
+  stroke(hoverLeft ? 255 : 150);
+  strokeWeight(2);
+  noFill();
+  beginShape();
+  vertex(width / 2 - 125, 145);
+  vertex(width / 2 - 100, 130);
+  vertex(width / 2 - 100, 160);
+  endShape(CLOSE);
 
-  // Freccia destra >
-  fill(
-    mouseX > width / 2 + 90 &&
-      mouseX < width / 2 + 150 &&
-      mouseY > 110 &&
-      mouseY < 150
-      ? 255
-      : 150
-  );
-  triangle(width / 2 + 130, 130, width / 2 + 100, 115, width / 2 + 100, 145);
+  // Freccia destra > (invertita rispetto a prima)
+  let hoverRight = mouseX > width / 2 + 90 && mouseX < width / 2 + 150 && mouseY > 120 && mouseY < 170;
+  stroke(hoverRight ? 255 : 150);
+  strokeWeight(2);
+  noFill();
+  beginShape();
+  vertex(width / 2 + 125, 145);
+  vertex(width / 2 + 100, 130);
+  vertex(width / 2 + 100, 160);
+  endShape(CLOSE);
 }
 
 function drawTestDots(yearData) {
@@ -174,145 +182,174 @@ function drawTestDots(yearData) {
   let cellSize = 15;
   let gap = 8;
   let cols = 5;
-  let lineY = height - 150; // linea di base
-  let fixedSpacing = 150; // spaziatura fissa tra i nomi dei paesi
+  let lineY = height / 2 + 50;
+  let fixedSpacing = 150;
+
+  // Testo "ATM / SOTT" a sinistra
+  textFont(myFont3);
+  fill(0, 255, 255);
+  textAlign(RIGHT, CENTER);
+  textSize(14);
+  noStroke();
+  text("ATM", 230, lineY - 40);
+  text("SOTT", 230, lineY + 40);
+
+  let hoveredDot = null;
 
   countries.forEach((country, idx) => {
     let tests = yearData[country] || [];
     let x = width / 2 + (idx - (countries.length - 1) / 2) * fixedSpacing;
 
-    // Ordinare per livello di colore, dal più basso al più alto
-    tests.sort((a, b) => getColorLevel(a.yield) - getColorLevel(b.yield));
+    tests.sort((a, b) => {
+      let levelDiff = getColorLevel(a.yield) - getColorLevel(b.yield);
+      if (levelDiff !== 0) return levelDiff;
+      if (a.type === "ATMOSPH" && b.type !== "ATMOSPH") return -1;
+      if (a.type !== "ATMOSPH" && b.type === "ATMOSPH") return 1;
+      return 0;
+    });
 
     let numCols = Math.max(1, Math.min(cols, tests.length));
     let colWidth = (numCols - 1) * (cellSize + gap);
 
-    tests.forEach((yieldVal, i) => {
+    tests.forEach((test, i) => {
       let col = i % cols;
       let row = Math.floor(i / cols);
-
-      // Allineare il centro della colonna con il centro del testo
       let cx = x - colWidth / 2 + col * (cellSize + gap);
-      let cy = lineY - row * (cellSize + gap);
+      let cy;
+      if (test.type === "ATMOSPH") {
+        cy = lineY - (cellSize + gap) - row * (cellSize + gap);
+      } else {
+        cy = lineY + (cellSize + gap) + row * (cellSize + gap);
+      }
 
-      fill(getYieldColor(yieldVal.yield));
+      // Check hover
+      let d = dist(mouseX, mouseY, cx, cy);
+      let isHovered = d < cellSize / 2;
+      let size = isHovered ? cellSize * 1.5 : cellSize;
+
+      fill(getYieldColor(test.yield));
       noStroke();
-      circle(cx, cy, cellSize);
+      circle(cx, cy, size);
 
-      // Salva l’area cliccabile
       dots.push({
         cx: cx,
         cy: cy,
         r: cellSize / 2,
-        id: yieldVal.id,
+        id: test.id,
       });
+
+      if (isHovered) {
+        hoveredDot = { cx, cy };
+      }
     });
 
-    // Disegna il nome del paese
+    // Nome paese al centro sulla linea
     noStroke();
-    textAlign(CENTER);
-    textSize(13);
+    textAlign(CENTER, CENTER);
+    textSize(14);
     fill(200);
-    text(country, x, lineY + 30);
+    text(country, x, lineY);
   });
+
+  // Cambia cursore se hover su dot
+  if (hoveredDot) {
+    cursor(HAND);
+  } else {
+    cursor(ARROW);
+  }
+
+  // Call to action
+  textFont(myFont3);
+  fill(0, 255, 255);
+  textAlign(CENTER);
+  textSize(14);
+  text("CLICK ON ANY DOT TO VIEW DETAILS", width / 2, height - 50);
 }
 
 function drawBottomInfo(yearData) {
-  let total = Object.values(yearData).reduce(
-    (sum, tests) => sum + tests.length,
-    0
-  );
+  let total = Object.values(yearData).reduce((sum, tests) => sum + tests.length, 0);
 
   fill(0, 255, 255);
   textAlign(RIGHT, TOP);
   textSize(14);
-  text("TOTAL BOMBS IN THAT YEAR", width-80, 70);
-  textSize(60);
-  text(total, width-80 , 90);
+  textFont(myFont3);
+  text("TOTAL BOMBS", width - 80, 70);
+  textSize(48);
+  textFont(myFont2);
+  text(total, width - 80, 90);
+}
 
- 
-  // Coordinate di riferimento in basso a destra
-let offsetX = width - 150; // distanza dal bordo destro
-let offsetY = height - 150; // distanza dal bordo inferiore
+function drawLegend() {
+  let offsetX = 80;
+  let offsetY = height - 200;
 
+  textFont(myFont3);
   textAlign(LEFT, TOP);
   fill(0, 255, 255);
   textSize(14);
   text("YIELD (kt)", offsetX, offsetY - 40);
 
-  
   let legend = [
-  { range: "0-19", y: 10 },
-  { range: "20", y: 20 },
-  { range: "21-150", y: 100 },
-  { range: "151-4999", y: 1000 },
-  { range: "5000+", y: 5000 },
-];
+    { range: "0-19", y: 10 },
+    { range: "20", y: 20 },
+    { range: "21-150", y: 100 },
+    { range: "151-4999", y: 1000 },
+    { range: "5000+", y: 5000 },
+  ];
 
-textFont(myFont2);
-textSize(12);
-let circleSize = 10;
-let lineSpacing = 20;
+  textFont(myFont2);
+  textSize(12);
+  let circleSize = 15;
+  let lineSpacing = 30;
 
-legend.forEach((item, i) => {
-  fill(getYieldColor(item.y));
-  let cx = offsetX + circleSize / 2;
-  let cy = offsetY + i * lineSpacing;
-  circle(cx, cy, circleSize);
-
-  fill(200, 200, 200);
-  textAlign(LEFT, CENTER);
-  text(item.range, cx + circleSize + 5, cy);
-});
+  legend.forEach((item, i) => {
+    fill(getYieldColor(item.y));
+    let cx = offsetX + circleSize / 2;
+    let cy = offsetY + i * lineSpacing + circleSize / 2;
+    circle(cx, cy, circleSize);
+    fill(200, 200, 200);
+    textAlign(LEFT, CENTER);
+    text(item.range, cx + circleSize + 10, cy);
+  });
 }
 
 function mouseWheel(event) {
-  if (event.delta > 0) {
-    // Scorrendo verso il basso → incremento dell’anno
-    if (currentYearIndex < years.length - 1) currentYearIndex++;
-  } else if (event.delta < 0) {
-    // Scorrendo verso l’alto → decremento dell’anno
-    if (currentYearIndex > 0) currentYearIndex--;
-  }
-  // impedire lo scorrimento predefinito della pagina
   return false;
 }
 
 function mousePressed() {
-  // freccia sinistra <
-  if (
-    mouseX > width / 2 - 150 &&
-    mouseX < width / 2 - 90 &&
-    mouseY > 110 &&
-    mouseY < 150
-  ) {
+  if (mouseX > width / 2 - 150 && mouseX < width / 2 - 90 && mouseY > 120 && mouseY < 170) {
     if (currentYearIndex > 0) {
       currentYearIndex--;
     }
     return;
   }
-
-  // freccia destra >
-  if (
-    mouseX > width / 2 + 90 &&
-    mouseX < width / 2 + 150 &&
-    mouseY > 110 &&
-    mouseY < 150
-  ) {
+  if (mouseX > width / 2 + 90 && mouseX < width / 2 + 150 && mouseY > 120 && mouseY < 170) {
     if (currentYearIndex < years.length - 1) {
       currentYearIndex++;
     }
     return;
   }
-
   for (let d of dots) {
     if (dist(mouseX, mouseY, d.cx, d.cy) < d.r) {
       window.location.href = `single.html?id=${d.id}`;
       return;
     }
   }
-
 }
+
+function keyPressed() {
+  if (keyCode === LEFT_ARROW) {
+    if (currentYearIndex > 0) {
+      currentYearIndex--;
+    }
+  } else if (keyCode === RIGHT_ARROW) {
+    if (currentYearIndex < years.length - 1) {
+      currentYearIndex++;
+    }
+  }
+}
+
 window.addEventListener("load", () => {
   if (window.location.hash === "#page2") {
     window.location.href = "index.html#page2";
