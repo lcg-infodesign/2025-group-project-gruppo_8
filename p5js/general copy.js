@@ -479,59 +479,7 @@ function mouseWheel(event) {
 }
 
 function mousePressed() {
-  // -----------------------------
-  // Common to all pages: menu
-  // -----------------------------
-  let d = dist(mouseX, mouseY, 50, 50);
-  if (d < 15) {
-    menuOpen = !menuOpen;
-    return;
-  }
-
-  if (menuOpen) {
-    // HOMEPAGE
-    if (mouseX > 20 && mouseX < 300 && mouseY > 75 && mouseY < 95) {
-      window.location.href = "index.html";
-      menuOpen = false;
-      return;
-    }
-
-    // GENERAL VISUALIZATION
-    if (mouseX > 20 && mouseX < 300 && mouseY > 105 && mouseY < 125) {
-      goNextPage();
-      menuOpen = false;
-      return;
-    }
-
-    // BOMBS IN ONE YEAR
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 155) {
-      window.location.href = "year.html?id=1";
-      menuOpen = false;
-      return;
-    }
-
-    // SINGLE BOMB
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 185) {
-      window.location.href = "single.html";
-      menuOpen = false;
-      return;
-    }
-
-    // INSIGHT
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 215) {
-      window.location.href = "insight.html";
-      menuOpen = false;
-      return;
-    }
-
-    // ABOUT
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 245) {
-      window.location.href = "about.html";
-      menuOpen = false;
-      return;
-    }
-  }
-
+  
   // ------------ page 2 ------------
   if (page === 2) {
     for (let p of particles2) {
@@ -599,17 +547,6 @@ class Particle1 {
     fill(0, 255, 255);
     ellipse(xr, yr, this.size, this.size);
   }
-}
-
-// ===============================
-// grid
-// ===============================
-function drawGrid() {
-  let spacing = 20;
-  stroke(110, 133, 219, 100);
-  strokeWeight(0.5);
-  for (let x = 0; x <= width; x += spacing) line(x, 0, x, height);
-  for (let y = 0; y <= height; y += spacing) line(0, y, width, y);
 }
 
 // ===============================
@@ -751,34 +688,6 @@ function goNextPage() {
   }
 }
 
-
-// ===============================
-// menu
-// ===============================
-function drawMenuIcon() {
-  fill(0, 255, 255);
-  noStroke();
-  ellipse(50, 50, 20, 20);
-
-  // menuopen
-  if (menuOpen) {
-    fill(200);
-    rect(0, 0, 300, windowHeight);
-    textFont(myFont2);
-    textSize(12);
-    fill(110, 133, 219);
-    textAlign(LEFT, TOP);
-    fill(110, 133, 219);
-    noStroke();
-    ellipse(50, 50, 20, 20);
-    text("HOMEPAGE", 50, 80);
-    text("GENERAL VISUALIZATION", 50, 110);
-    text("BOMBS IN ONE YEAR", 50, 140);
-    text("SINGLE BOMB", 50, 170);
-    text("INSIGHT", 50, 200);
-    text("ABOUT", 50, 230);
-  }
-}
 
 // ===============================
 // LISTENER MENU → CAMBIO PAGINA
