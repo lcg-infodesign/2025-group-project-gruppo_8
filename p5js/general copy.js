@@ -166,9 +166,9 @@ function draw() {
 function drawPage1() {
   background(20);
   // drawGrid();
-  imageMode(CENTER);
-  tint(255, 180);
-  image(img1, width / 2, height / 2, 1200, 900);
+  //imageMode(CENTER);
+  //tint(255, 180);
+  //image(img1, width / 2, height / 2, 1200, 900);
 
   //textFont(myFont2);
   //fill(150);
@@ -178,7 +178,7 @@ function drawPage1() {
 
   textFont(myFont1);
   noStroke();
-  fill(110, 133, 219);
+  fill(255);
   textSize(20);
   textAlign(CENTER, TOP);
   text("NUCLEAR EXPLOSIONS ARCHIVE", width / 2, 20 - scrollOffset);
