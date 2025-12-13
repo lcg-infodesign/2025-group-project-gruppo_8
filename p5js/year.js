@@ -35,6 +35,14 @@ function setup() {
 function draw() {
   background(20)
 
+  if (mushroomImg) {
+    push();
+    imageMode(CENTER);
+    tint(255, 30); // Opacità bassa per lo sfondo
+    image(mushroomImg, width / 2, height / 2, width, height);
+    pop();
+  }
+
   if (years.length === 0) {
     fill(255);
     textAlign(CENTER, CENTER);
