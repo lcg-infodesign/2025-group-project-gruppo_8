@@ -31,8 +31,20 @@ let UGBombsPerYear = {};
 let particles2 = [];
 let startYear = 1945;
 let endYear = 1998;
-let margin = 100;
+// Use the same lateral spacing across pages (matches Insight style)
+let margin = 80;
 let yAxis;
+
+// UI alignment (must match p5js/menu.js button position/size)
+const MENU_BTN_X = 25;
+const MENU_BTN_Y = 25;
+const MENU_BTN_SIZE = 60;
+const UI_GAP = 20;
+
+// Shared layout spacing
+const SIDE_MARGIN = 80;
+const MAX_TEXT_W = 420;
+
 
 let scrollProgress;
 let lastStepTime = 0;
@@ -176,30 +188,52 @@ function drawPage1() {
   //textAlign(CENTER, BOTTOM);
   //text("SCROLL DOWN FOR MORE", width / 2, height - 40);
 
+  // Title: vertically aligned with menu, horizontally centered
   textFont(myFont1);
   noStroke();
   fill(255);
   textSize(20);
-  textAlign(CENTER, TOP);
-  text("NUCLEAR EXPLOSIONS ARCHIVE", width / 2, 20 - scrollOffset);
+  textAlign(CENTER, CENTER);
+
+  // same vertical rhythm as menu icon
+  const titleY = MENU_BTN_Y + MENU_BTN_SIZE / 2;
+
+  text("NUCLEAR EXPLOSIONS ARCHIVE", width / 2, titleY);
+
+
 
   textFont(myFont2);
   textSize(16);
   fill(200, 200, 200);
 
-  textAlign(LEFT, BOTTOM);
-  let str1 =
+  // Intro texts — same spacing logic as Insight (consistent margins + max width)
+  const str1 =
     "Between 1945 and 1998, over two thousand nuclear explosions \nleft a lasting mark on the planet.";
-  let str2 =
+  const str2 =
     "This archive turns those events into a dynamic map \nof the atomic era.";
-  let str3 =
+  const str3 =
     "The atom breaks: each particle is a real test. \nHistory unfolds before your eyes.";
-  let str4 = "Datas from the SIPRI-FOA Report";
+  const str4 = "Data from the SIPRI-FOA Report";
 
-  text(str1, 50, height + 100 - scrollOffset, 500);
-  text(str2, width - 550, height * 2 - scrollOffset, 500);
-  text(str3, 50, height * 3 - scrollOffset, 500);
-  text(str4, width - 550, height * 4 - scrollOffset, 500);
+  // Bring the two columns closer to the center
+  const GUTTER = 200; // space between left/right columns (smaller = closer to center)
+  const leftX = width / 2 - GUTTER / 2 - MAX_TEXT_W;
+  const rightX = width / 2 + GUTTER / 2;
+
+  // Make blocks closer vertically
+  const introStartY = height + 120;          // where the first text appears
+  const introStepY = height * 0.75;          // distance between blocks (smaller = closer)
+
+  textAlign(LEFT, TOP);
+  drawIntroBlock(str1, leftX,  introStartY + introStepY * 0 - scrollOffset, MAX_TEXT_W);
+  drawIntroBlock(str2, rightX, introStartY + introStepY * 1 - scrollOffset, MAX_TEXT_W);
+  drawIntroBlock(str3, leftX,  introStartY + introStepY * 2 - scrollOffset, MAX_TEXT_W);
+  drawIntroBlock(str4, rightX, introStartY + introStepY * 3 - scrollOffset, MAX_TEXT_W);
+
+
+  // Scroll hint arrow (bottom center) — hidden once the user scrolls a bit
+  drawScrollHintArrow();
+
 
   // particelle centrale
   push();
@@ -234,6 +268,43 @@ function drawPage1() {
   spreadSpeed = lerp(spreadSpeed, 0, 0.1);
 }
 
+function drawIntroBlock(str, x, y, w) {
+  // Map y position to alpha (similar to Insight)
+  const a = map(y, height, 0, 0, 255, true);
+  fill(255, a);
+  textFont(myFont2);
+  textSize(21);
+  text(str, x, y, w);
+}
+
+function drawScrollHintArrow() {
+  // Only show at the very start
+  const visible = scrollOffset < 80;
+  if (!visible) return;
+
+  const alpha = map(scrollOffset, 0, 80, 255, 0, true);
+  const bob = sin(frameCount * 0.08) * 4;
+
+  const cx = width / 2;
+  const cy = height - 44 + bob;
+
+  const halfW = 10;  // half width of the chevron (smaller = less wide)
+  const h = 8;       // height of the chevron (smaller = less tall)
+
+  push();
+  stroke(0, 255, 255, alpha);
+  strokeWeight(2);
+  noFill();
+
+  // chevron only (no vertical stem)
+  line(cx - halfW, cy - h, cx, cy);
+  line(cx + halfW, cy - h, cx, cy);
+
+  pop();
+}
+
+
+
 // ===============================
 // pagina2draw
 // ===============================
@@ -244,19 +315,22 @@ function drawPage2() {
   // LEGENDA POTENZA
   // -----------------------------
   
-  // Coordinate di riferimento in basso a destra
-let offsetX = width - 150; // distanza dal bordo destro
-let offsetY = height - 150; // distanza dal bordo inferiore
+  
+  // Coordinate legenda: a sinistra (pulita e coerente)
+  let offsetX = margin - 8;                 // usa lo stesso margin del grafico
+  let offsetY = height - margin - 80;  // base, poi la sistemiamo con lineSpacing
+
   
   noStroke();
   fill(0, 255, 255);
   textFont(myFont3);
-  textSize(14);
+  textSize(20);
   textAlign(LEFT, TOP);
   text("YIELD (kt)", offsetX, offsetY - 40);
   textAlign(RIGHT, TOP);
-  text("SOME INFORMATION??", width - 80, 70);
+  //text("SOME INFORMATION??", width - 80, 70);
 
+  textSize(24);
   textAlign(CENTER, TOP);
   text("TOTAL AMOUNT OF BOMBS", width / 2, 70);
   let activeParticles = particles2.filter((p) => p.active).length;
@@ -264,7 +338,7 @@ let offsetY = height - 150; // distanza dal bordo inferiore
   fill(0, 255, 255);
   text(activeParticles, width / 2, 90);
 
-  fill(200, 200, 200);
+  /*fill(200, 200, 200);
   textSize(14);
   textFont(myFont2);
   textAlign(RIGHT, TOP);
@@ -272,7 +346,7 @@ let offsetY = height - 150; // distanza dal bordo inferiore
     "Lorum Ipsum Dolor Sit\nAmet Consectetur Adipiscing Elit\nSed Do Eiusmod Tempor?",
     width - 80,
     105
-  );
+  );*/
 
   let legend = [
   { range: "0-19", y: 10 },
@@ -286,6 +360,22 @@ textFont(myFont2);
 textSize(12);
 let circleSize = 10;
 let lineSpacing = 20;
+
+// Etichette ATM / SOTT allineate alla legenda
+noStroke();
+fill(200, 200, 200);
+textFont(myFont2);
+textSize(14);
+textAlign(LEFT, TOP);
+
+// "ATM" in alto a sinistra, stesso x della legenda
+text("ATM", offsetX, margin + 280);
+
+// "SOTT" poco sopra la legenda
+textAlign(LEFT, BOTTOM);
+text("SOTT", offsetX, offsetY - 85);
+
+
 
 legend.forEach((item, i) => {
   fill(getYieldColor(item.y));
@@ -309,7 +399,7 @@ legend.forEach((item, i) => {
       strokeWeight(1);
       noFill();
 
-      if (y === 1950) {
+      /*if (y === 1950) {
         line(x, yAxis + 30, x, yAxis + 90);
         rect(x - 75, yAxis + 90, 150, 100);
       } else if (y === 1963) {
@@ -319,7 +409,7 @@ legend.forEach((item, i) => {
       } else if (y === 1990) {
         line(x, yAxis - 30, x, yAxis - 120);
         rect(x - 75, yAxis - 220, 150, 100);
-      }
+      }*/
     }
   });
 
@@ -337,7 +427,35 @@ legend.forEach((item, i) => {
     p.draw();
   }
 
+  // CTA bottom-right (glow/pulse)
+  drawColumnCTA();
+
 }
+
+function drawColumnCTA() {
+  const msg = "click a column to see more";
+
+  const x = width - margin;
+  const y = height - margin;
+
+  // pulsazione automatica
+  const pulse = (sin(frameCount * 0.08) + 1) / 2; // 0..1
+  const a = 80 + pulse * 175; // alpha
+
+  textFont(myFont2);
+  textSize(14);
+  textAlign(RIGHT, BOTTOM);
+
+  // "glow" finto: 2 passate morbide + 1 netta
+  noStroke();
+  fill(0, 255, 255, a * 0.25);
+  text(msg, x + 1, y + 1);
+  text(msg, x - 1, y - 1);
+
+  fill(0, 255, 255, a);
+  text(msg, x, y);
+}
+
 
 function mouseWheel(event) {
   if (page === 1) {
@@ -543,6 +661,7 @@ function getColorLevel(y) {
   else if (y >= 5000) return 4;
   else return 5;
 }
+
 
 function creaParticlesDaTabella() {
   let cellSize = 5,
