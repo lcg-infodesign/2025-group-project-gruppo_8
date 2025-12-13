@@ -137,7 +137,7 @@ let menuSketch = function (p) {
       let x = menuX + 38;
 
       let displayLabel =
-        label === "home" ? "NUCLEAR EXPLOSIONS ARCHIVE" : label;
+        label === "home" ? "NE ARCHIVE" : label;
 
       let w = p.textWidth(displayLabel);
       let h = 18;
@@ -164,7 +164,7 @@ let menuSketch = function (p) {
       let x = menuX + 38;
 
       let displayLabel =
-        label === "home" ? "NUCLEAR EXPLOSIONS ARCHIVE" : label;
+        label === "home" ? "NE ARCHIVE" : label;
 
       let w = p.textWidth(displayLabel);
       let h = 18;
