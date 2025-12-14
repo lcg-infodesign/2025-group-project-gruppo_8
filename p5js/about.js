@@ -1,8 +1,17 @@
-let myFont1, myFont2, myFont3;
-let projectText, aboutUsText;
 
-let fadeIn = 0;         // 控制透明度
-let floatOffset = 20;   // 控制上浮偏移（初始向下 20px）
+let myFont1, myFont2, myFont3;
+let projectText, datasetText, aboutUsText;
+
+let fadeIn = 0;
+let floatOffset = 20;
+
+let iconProject, iconData, iconUs;
+
+// Parametri layout icone
+const ICON_SIZE = 72;
+const ICON_GAP = 90;
+const VISUAL_SHIFT_RIGHT = 22;
+const STROKE_THIN = "1.4";
 
 function preload() {
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
@@ -11,98 +20,154 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  let c = createCanvas(windowWidth, windowHeight);
+  c.style("z-index", "1");
 
+  // Inizializza icone Lucide (CDN globale)
+  if (window.lucide) lucide.createIcons();
+
+  // --- Testi (EN) ---
   projectText =
     "This project visualizes the global history of nuclear testing through an interactive and minimal system. " +
     "By mapping tests across years, countries, and yields, it reveals patterns that raw data alone cannot show. " +
     "The aim is to make a complex historical timeline accessible, readable, and reflective.";
 
+  datasetText =
+    "This project uses the file “sipri-report-explosions.csv”, derived from the official SIPRI report " +
+    "“Nuclear Explosions, 1945–1998”. For field definitions and documentation, please refer to the original reports.";
+
   aboutUsText =
-    "We are a group of seven from Politecnico di Milano. " +
-    "United by our interest in data visualization and interactive storytelling, " +
-    "we developed this project to explore how design can make complex information understandable and meaningful.";
+    "We are a group of seven students from Politecnico di Milano. " +
+    "Through this project, we explore how data visualization and interaction design " +
+    "can transform complex historical datasets into meaningful narratives.";
+
+  // Riferimenti DOM alle icone
+  iconProject = select("#icon-project");
+  iconData = select("#icon-data");
+  iconUs = select("#icon-us");
+
+  // Stile icone
+  [iconProject, iconData, iconUs].forEach(icon => {
+    icon.style("position", "absolute");
+    icon.style("z-index", "10");
+    icon.style("color", "#6e85db");
+    icon.style("opacity", "0.6");
+    icon.style("width", ICON_SIZE + "px");
+    icon.style("height", ICON_SIZE + "px");
+    icon.style("stroke-width", STROKE_THIN);
+  });
 }
 
 function draw() {
   background(0);
 
-  // ----------- 淡入 + 上浮动画控制逻辑 -----------
+  // Animazione fade + leggero movimento verticale
   fadeIn = min(fadeIn + 3, 255);
-  floatOffset = max(floatOffset - 0.6, 0); 
-  // 越小越快，你可以把 0.6 改大，让上浮更快
+  floatOffset = max(floatOffset - 0.6, 0);
 
+  // Il menu è gestito da menuVersion2.js
   drawAboutContent();
+  drawFooter();
 }
 
 function drawAboutContent() {
-
-  // ----------------------------------------
-  // ① 主标题 ABOUT（不淡入，不上浮，立即显示）
-  // ----------------------------------------
+  // Titolo pagina
   textFont(myFont1);
-  fill(110, 133, 219);   // ★ 固定颜色，不使用 fadeIn
+  fill(110, 133, 219);
   textSize(20);
   textAlign(CENTER, TOP);
-  text("ABOUT", width / 2, 20); // 永远固定，不动
+  text("ABOUT", width / 2, 20);
 
-  // ----------------------------------------
-  // 内容区居中计算
-  // ----------------------------------------
-  let boxWidth = width * 0.55;
-  let x = width / 2 - boxWidth / 2;
+  // Impostazioni tipografiche
+  const titleSize = 16;
+  const bodySize = 13;
+  const titleH = 24;
+  const titleBodyGap = 10;
+  const spacingBetween = 90;
+
+  const boxWidth = width * 0.45;
+
+  // Calcolo del gruppo (testo + icona) centrato visivamente
+  const groupWidth = boxWidth + ICON_GAP + ICON_SIZE;
+  const groupLeft = (width - groupWidth) / 2 + VISUAL_SHIFT_RIGHT;
+  const x = groupLeft;
 
   textFont(myFont1);
-  textSize(18);
-  let titleH = 28;
+  textAlign(LEFT, TOP);
+  textSize(bodySize);
 
-  textSize(14);
-  let p1H = textHeight(projectText, boxWidth);
-  let p2H = textHeight(aboutUsText, boxWidth);
+  // Altezze dei blocchi di testo
+  let p1H = textHeight(projectText, boxWidth, bodySize);
+  let p2H = textHeight(datasetText, boxWidth, bodySize);
+  let p3H = textHeight(aboutUsText, boxWidth, bodySize);
 
-  let spacingBetween = 180;
-
+  // Altezza totale contenuto
   let totalH =
-      titleH + p1H +
-      spacingBetween +
-      titleH + p2H;
+    titleH + titleBodyGap + p1H +
+    spacingBetween +
+    titleH + titleBodyGap + p2H +
+    spacingBetween +
+    titleH + titleBodyGap + p3H;
 
-  // ★ 内容整体垂直居中，但加入 floatOffset 上浮动画
   let startY = (height - totalH) / 2 + 40 + floatOffset;
 
-  // ----------------------------------------
-  // ② ABOUT THE PROJECT（淡入 + 上浮）
-  // ----------------------------------------
   fill(255, fadeIn);
-  textFont(myFont1);
-  textSize(18);
-  textAlign(CENTER, TOP);
-  text("ABOUT THE PROJECT", width / 2, startY);
 
-  // 正文段落 1（淡入 + 上浮）
-  textSize(14);
-  textAlign(LEFT, TOP);
-  text(projectText, x, startY + titleH, boxWidth);
+  // ABOUT THE PROJECT
+  textSize(titleSize);
+  text("ABOUT THE PROJECT", x, startY);
 
-  // ----------------------------------------
-  // ③ ABOUT US（淡入 + 上浮）
-  // ----------------------------------------
-  let y2 = startY + titleH + p1H + spacingBetween;
+  textSize(bodySize);
+  text(projectText, x, startY + titleH + titleBodyGap, boxWidth);
 
-  textAlign(CENTER, TOP);
-  textSize(18);
-  text("ABOUT US", width / 2, y2);
+  positionIcon(iconProject, x + boxWidth + ICON_GAP, startY, titleH + titleBodyGap + p1H);
 
-  // 正文段落 2
-  textSize(14);
-  textAlign(LEFT, TOP);
-  text(aboutUsText, x, y2 + titleH, boxWidth);
+  // ABOUT THE DATASET
+  let y2 = startY + titleH + titleBodyGap + p1H + spacingBetween;
+
+  textSize(titleSize);
+  text("ABOUT THE DATASET", x, y2);
+
+  textSize(bodySize);
+  text(datasetText, x, y2 + titleH + titleBodyGap, boxWidth);
+
+  positionIcon(iconData, x + boxWidth + ICON_GAP, y2, titleH + titleBodyGap + p2H);
+
+  // ABOUT US
+  let y3 = y2 + titleH + titleBodyGap + p2H + spacingBetween;
+
+  textSize(titleSize);
+  text("ABOUT US", x, y3);
+
+  textSize(bodySize);
+  text(aboutUsText, x, y3 + titleH + titleBodyGap, boxWidth);
+
+  positionIcon(iconUs, x + boxWidth + ICON_GAP, y3, titleH + titleBodyGap + p3H);
 }
 
-function textHeight(txt, boxWidth) {
-  let bbox = myFont1.textBounds(txt, 0, 0, 14);
-  let approxLines = ceil(bbox.w / boxWidth);
-  return approxLines * 18;
+function positionIcon(icon, x, y, blockHeight) {
+  if (!icon) return;
+  icon.position(x, y + blockHeight / 2 - ICON_SIZE / 2);
+}
+
+function drawFooter() {
+  // Footer discreto
+  fill(110);
+  textFont(myFont3);
+  textSize(10);
+  textAlign(CENTER, BOTTOM);
+
+  text(
+    "Politecnico di Milano · Information Design · Group 8 · A.A. 2025–2026",
+    width / 2,
+    height - 14
+  );
+}
+
+function textHeight(txt, boxWidth, fontSize) {
+  let bbox = myFont1.textBounds(txt, 0, 0, fontSize);
+  let lines = ceil(bbox.w / boxWidth);
+  return lines * (fontSize * 1.35);
 }
 
 function windowResized() {
