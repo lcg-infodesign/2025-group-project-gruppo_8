@@ -4,6 +4,20 @@
 let page = 1;
 let data = [];
 let menuOpen = false;
+
+// Page2 top-right text carousel (4 steps)
+let infoStep = 0; // 0..3
+const infoTexts = [
+  "The 1958 nuclear test moratoria was\n a response to Cold War tensions and nuclear proliferation, and initiated\n negotiations that led to the future anti-nuclear treaties (PTBT and NPT)",
+  "Placeholder text 2\n(2 3 lines max)\nSame box size always.",
+  "Placeholder text 3\n(2 3 lines max)\nSame box size always.",
+  "Placeholder text 4\n(2 3 lines max)\nSame box size always.",
+];
+
+// Hover state (page2: years/columns)
+let hoveredYear = null;
+let isHoveringInteractive = false;
+
 // Automatic circle expansion control
 let autoExpandStarted = false;
 let expandStartFrame = 0;
@@ -31,8 +45,20 @@ let UGBombsPerYear = {};
 let particles2 = [];
 let startYear = 1945;
 let endYear = 1998;
-let margin = 100;
+// Use the same lateral spacing across pages (matches Insight style)
+let margin = 80;
 let yAxis;
+
+// UI alignment (must match p5js/menu.js button position/size)
+const MENU_BTN_X = 25;
+const MENU_BTN_Y = 25;
+const MENU_BTN_SIZE = 60;
+const UI_GAP = 20;
+
+// Shared layout spacing
+const SIDE_MARGIN = 80;
+const MAX_TEXT_W = 420;
+
 
 let scrollProgress;
 let lastStepTime = 0;
@@ -166,9 +192,9 @@ function draw() {
 function drawPage1() {
   background(20);
   // drawGrid();
-  imageMode(CENTER);
-  tint(255, 180);
-  image(img1, width / 2, height / 2, 1200, 900);
+  //imageMode(CENTER);
+  //tint(255, 180);
+  //image(img1, width / 2, height / 2, 1200, 900);
 
   //textFont(myFont2);
   //fill(150);
@@ -176,30 +202,52 @@ function drawPage1() {
   //textAlign(CENTER, BOTTOM);
   //text("SCROLL DOWN FOR MORE", width / 2, height - 40);
 
+  // Title: vertically aligned with menu, horizontally centered
   textFont(myFont1);
   noStroke();
-  fill(110, 133, 219);
+  fill(255);
   textSize(20);
-  textAlign(CENTER, TOP);
-  text("NUCLEAR EXPLOSIONS ARCHIVE", width / 2, 20 - scrollOffset);
+  textAlign(CENTER, CENTER);
+
+  // same vertical rhythm as menu icon
+  const titleY = MENU_BTN_Y + MENU_BTN_SIZE / 2;
+
+  text("NUCLEAR EXPLOSIONS ARCHIVE", width / 2, titleY);
+
+
 
   textFont(myFont2);
   textSize(16);
   fill(200, 200, 200);
 
-  textAlign(LEFT, BOTTOM);
-  let str1 =
+  // Intro texts — same spacing logic as Insight (consistent margins + max width)
+  const str1 =
     "Between 1945 and 1998, over two thousand nuclear explosions \nleft a lasting mark on the planet.";
-  let str2 =
+  const str2 =
     "This archive turns those events into a dynamic map \nof the atomic era.";
-  let str3 =
+  const str3 =
     "The atom breaks: each particle is a real test. \nHistory unfolds before your eyes.";
-  let str4 = "Datas from the SIPRI-FOA Report";
+  const str4 = "Data from the SIPRI-FOA Report";
 
-  text(str1, 50, height + 100 - scrollOffset, 500);
-  text(str2, width - 550, height * 2 - scrollOffset, 500);
-  text(str3, 50, height * 3 - scrollOffset, 500);
-  text(str4, width - 550, height * 4 - scrollOffset, 500);
+  // Bring the two columns closer to the center
+  const GUTTER = 200; // space between left/right columns (smaller = closer to center)
+  const leftX = width / 2 - GUTTER / 2 - MAX_TEXT_W;
+  const rightX = width / 2 + GUTTER / 2;
+
+  // Make blocks closer vertically
+  const introStartY = height + 120;          // where the first text appears
+  const introStepY = height * 0.60;          // distance between blocks (smaller = closer)
+
+  textAlign(LEFT, TOP);
+  drawIntroBlock(str1, leftX,  introStartY + introStepY * 0 - scrollOffset, MAX_TEXT_W);
+  drawIntroBlock(str2, rightX, introStartY + introStepY * 1 - scrollOffset, MAX_TEXT_W);
+  drawIntroBlock(str3, leftX,  introStartY + introStepY * 2 - scrollOffset, MAX_TEXT_W);
+  drawIntroBlock(str4, rightX, introStartY + introStepY * 3 - scrollOffset, MAX_TEXT_W);
+
+
+  // Scroll hint arrow (bottom center) — hidden once the user scrolls a bit
+  drawScrollHintArrow();
+
 
   // particelle centrale
   push();
@@ -234,37 +282,91 @@ function drawPage1() {
   spreadSpeed = lerp(spreadSpeed, 0, 0.1);
 }
 
+function drawIntroBlock(str, x, y, w) {
+  // y is the top of the text block; fade should depend on its position in the viewport.
+  // 0% alpha at top (0) and bottom (height), 100% alpha at center (height/2).
+  const centerY = height / 2;
+  const d = abs(y - centerY);              // distanza dal centro
+  const a = map(d, 0, centerY, 255, 0, true); // 255 al centro, 0 agli estremi
+
+  textFont(myFont2);
+  textSize(21);
+  noStroke();
+  fill(255, a);
+
+  text(str, x, y, w);
+}
+
+
+function drawScrollHintArrow() {
+  // Only show at the very start
+  const visible = scrollOffset < 80;
+  if (!visible) return;
+
+  const alpha = map(scrollOffset, 0, 80, 255, 0, true);
+  const bob = sin(frameCount * 0.08) * 4;
+
+  const cx = width / 2;
+  const cy = height - 44 + bob;
+
+  const halfW = 10;  // half width of the chevron (smaller = less wide)
+  const h = 8;       // height of the chevron (smaller = less tall)
+
+  push();
+  stroke(0, 255, 255, alpha);
+  strokeWeight(2);
+  noFill();
+
+  // chevron only (no vertical stem)
+  line(cx - halfW, cy - h, cx, cy);
+  line(cx + halfW, cy - h, cx, cy);
+
+  pop();
+}
+
+
+
 // ===============================
 // pagina2draw
 // ===============================
 function drawPage2() {
   background(20);
 
+  // Hover detection for years/columns + cursor
+  updateHoverPage2();
+
   // -----------------------------
   // LEGENDA POTENZA
   // -----------------------------
   
-  // Coordinate di riferimento in basso a destra
-let offsetX = width - 150; // distanza dal bordo destro
-let offsetY = height - 150; // distanza dal bordo inferiore
+  
+  // Coordinate legenda: a sinistra (pulita e coerente)
+  let offsetX = margin - 8;                 // usa lo stesso margin del grafico
+  let offsetY = height - margin - 80;  // base, poi la sistemiamo con lineSpacing
+
   
   noStroke();
   fill(0, 255, 255);
-  textFont(myFont3);
-  textSize(14);
+  textFont(myFont2);
+  textSize(20);
   textAlign(LEFT, TOP);
   text("YIELD (kt)", offsetX, offsetY - 40);
   textAlign(RIGHT, TOP);
-  text("SOME INFORMATION??", width - 80, 70);
+  //text("SOME INFORMATION??", width - 80, 70);
 
+  textSize(24);
   textAlign(CENTER, TOP);
-  text("TOTAL AMOUNT OF BOMBS", width / 2, 70);
+  text("TOTAL AMOUNT OF BOMBS", width / 2, 45);
   let activeParticles = particles2.filter((p) => p.active).length;
+  textFont(myFont3);
   textSize(60);
   fill(0, 255, 255);
   text(activeParticles, width / 2, 90);
 
-  fill(200, 200, 200);
+  // Top-right text carousel (line + text + arrows)
+  drawTopRightInfoCarousel();
+
+  /*fill(200, 200, 200);
   textSize(14);
   textFont(myFont2);
   textAlign(RIGHT, TOP);
@@ -272,7 +374,7 @@ let offsetY = height - 150; // distanza dal bordo inferiore
     "Lorum Ipsum Dolor Sit\nAmet Consectetur Adipiscing Elit\nSed Do Eiusmod Tempor?",
     width - 80,
     105
-  );
+  );*/
 
   let legend = [
   { range: "0-19", y: 10 },
@@ -286,6 +388,22 @@ textFont(myFont2);
 textSize(12);
 let circleSize = 10;
 let lineSpacing = 20;
+
+// Etichette ATM / SOTT allineate alla legenda
+noStroke();
+fill(200, 200, 200);
+textFont(myFont2);
+textSize(14);
+textAlign(LEFT, TOP);
+
+// "ATM" in alto a sinistra, stesso x della legenda
+text("ATMOSPHERIC", offsetX, margin + 280);
+
+// "SOTT" poco sopra la legenda
+textAlign(LEFT, BOTTOM);
+text("UNDERGROUND", offsetX, offsetY - 85);
+
+
 
 legend.forEach((item, i) => {
   fill(getYieldColor(item.y));
@@ -309,7 +427,7 @@ legend.forEach((item, i) => {
       strokeWeight(1);
       noFill();
 
-      if (y === 1950) {
+      /*if (y === 1950) {
         line(x, yAxis + 30, x, yAxis + 90);
         rect(x - 75, yAxis + 90, 150, 100);
       } else if (y === 1963) {
@@ -319,7 +437,7 @@ legend.forEach((item, i) => {
       } else if (y === 1990) {
         line(x, yAxis - 30, x, yAxis - 120);
         rect(x - 75, yAxis - 220, 150, 100);
-      }
+      }*/
     }
   });
 
@@ -337,7 +455,216 @@ legend.forEach((item, i) => {
     p.draw();
   }
 
+  // CTA bottom-right (glow/pulse)
+  drawColumnCTA();
+
 }
+
+function drawColumnCTA() {
+  const msg = "Click a column to see more";
+
+  const x = width - margin;
+  const y = height - margin;
+
+  // pulsazione automatica
+  const pulse = (sin(frameCount * 0.08) + 1) / 2; // 0..1
+  const a = 80 + pulse * 175; // alpha
+
+  textFont(myFont2);
+  textSize(14);
+  textAlign(RIGHT, BOTTOM);
+
+  // "glow" finto: 2 passate morbide + 1 netta
+  noStroke();
+  fill(0, 255, 255, a * 0.25);
+  text(msg, x + 1, y + 1);
+  text(msg, x - 1, y - 1);
+
+  fill(0, 255, 255, a);
+  text(msg, x, y);
+}
+
+function updateHoverPage2() {
+  hoveredYear = null;
+  isHoveringInteractive = false;
+
+  // --- PRIORITY: top-right carousel arrows hover => HAND (must run BEFORE exclusions) ---
+const lineX = width / 2 + 260;
+const boxX = lineX + 18;
+const boxY = 40;
+const boxW = 280;
+const boxH = 96;
+
+const arrowsY = boxY + boxH + 18;
+const hitW = 34, hitH = 34;
+
+const rightCx = boxX + boxW - 4;
+const leftCx = boxX + 4;
+
+const overRight =
+  (infoStep < 3) &&
+  mouseX >= rightCx - hitW / 2 && mouseX <= rightCx + hitW / 2 &&
+  mouseY >= arrowsY - hitH / 2 && mouseY <= arrowsY + hitH / 2;
+
+const overLeft =
+  (infoStep > 0) &&
+  mouseX >= leftCx - hitW / 2 && mouseX <= leftCx + hitW / 2 &&
+  mouseY >= arrowsY - hitH / 2 && mouseY <= arrowsY + hitH / 2;
+
+if (overRight || overLeft) {
+  cursor(HAND);
+  return;
+}
+
+
+  // spazio orizzontale tra anni (colonne)
+  const yearStep = (width - 2 * margin) / (endYear - startYear);
+  const hitX = yearStep * 0.45; // quanto "larga" è l'area hover della colonna
+
+  // aree sensibili (anni e colonna)
+  const labelTop = yAxis - 40;
+  const labelBottom = yAxis + 40;
+  // area del grafico (colonne) — NON include bottom UI (legenda/CTA)
+  const columnTop = 80;            // sopra l'asse (puoi ritoccare)
+  const columnBottom = yAxis + 200;
+
+  // EXCLUDE bottom-left legend area
+  const legendLeft = margin - 10;
+  const legendRight = margin + 220;                 // allarga se la legenda è più larga
+  const legendTop = height - margin - 150;          // alza/abbassa in base alla tua legenda
+  const legendBottom = height;
+
+  // EXCLUDE bottom-right CTA area
+  const ctaLeft = width - margin - 320;
+  const ctaRight = width;
+  const ctaTop = height - margin - 60;
+  const ctaBottom = height;
+
+  // EXCLUDE top-center total bombs UI (title + number)
+  const topLeft = width / 2 - 220;   // larghezza box (tweak se serve)
+  const topRight = width / 2 + 900;
+  const topTop = 0;
+  const topBottom = 350;            // altezza box (tweak se serve)
+
+
+  // se sei sopra legenda o CTA, niente hover e niente hand cursor
+  const overLegend =
+    mouseX >= legendLeft && mouseX <= legendRight &&
+    mouseY >= legendTop && mouseY <= legendBottom;
+
+  const overCTA =
+    mouseX >= ctaLeft && mouseX <= ctaRight &&
+    mouseY >= ctaTop && mouseY <= ctaBottom;
+
+  const overTopUI =
+  mouseX >= topLeft && mouseX <= topRight &&
+  mouseY >= topTop && mouseY <= topBottom;
+
+  if (overLegend || overCTA || overTopUI) {
+    cursor(ARROW);
+    return;
+  }
+
+  for (let year = startYear; year <= endYear; year++) {
+    const x = map(year, startYear, endYear, margin, width - margin) + 3;
+
+    const overX = abs(mouseX - x) <= hitX;
+    const overLabelY = mouseY >= labelTop && mouseY <= labelBottom;
+    const overColumnY = mouseY >= columnTop && mouseY <= columnBottom;
+
+    if (overX && (overLabelY || overColumnY)) {
+      hoveredYear = year;
+      isHoveringInteractive = true;
+      break;
+    }
+  }
+
+  // Cursor
+  if (isHoveringInteractive) cursor(HAND);
+  else cursor(ARROW);
+}
+
+function drawTopRightInfoCarousel() {
+  // Layout (tweak safe)
+  const lineX = width / 2 + 260;  // “a destra” del blocco centrale
+  const topY = 0;
+
+  const boxX = lineX + 18;
+  const boxY = 40;
+  const boxW = 280;
+  const boxH = 96;
+
+  // Vertical cyan line from top
+  push();
+  stroke(0, 255, 255, 160);
+  strokeWeight(2);
+  line(lineX, topY, lineX, boxY + boxH);
+  pop();
+
+  // Text block
+  push();
+  noStroke();
+  textFont(myFont2);
+  textSize(14);
+  fill(200, 200, 200);
+  textAlign(LEFT, TOP);
+  text(infoTexts[infoStep], boxX, boxY, boxW, boxH);
+  pop();
+
+ // Arrows under the text block
+  const arrowsY = boxY + boxH + 18;
+  const chevronW = 10;
+  const chevronH = 8;
+
+  // right arrow under-right
+  if (infoStep < 3) {
+    drawGlowingChevronRight(boxX + boxW - 4, arrowsY, chevronW, chevronH);
+  }
+  // left arrow under-left
+  if (infoStep > 0) {
+    drawGlowingChevronLeft(boxX + 4, arrowsY, chevronW, chevronH);
+  }
+
+  
+}
+
+function drawGlowingChevronRight(cx, cy, halfW, h) {
+  const pulse = (sin(frameCount * 0.08) + 1) / 2; // 0..1
+  const a = 90 + pulse * 165;
+
+  // glow (2 passate) + netta
+  push();
+  strokeWeight(2);
+  noFill();
+
+  stroke(0, 255, 255, a * 0.25);
+  line(cx - halfW, cy - h, cx, cy);
+  line(cx - halfW, cy + h, cx, cy);
+
+  stroke(0, 255, 255, a);
+  line(cx - halfW, cy - h, cx, cy);
+  line(cx - halfW, cy + h, cx, cy);
+  pop();
+}
+
+function drawGlowingChevronLeft(cx, cy, halfW, h) {
+  const pulse = (sin(frameCount * 0.08) + 1) / 2;
+  const a = 90 + pulse * 165;
+
+  push();
+  strokeWeight(2);
+  noFill();
+
+  stroke(0, 255, 255, a * 0.25);
+  line(cx + halfW, cy - h, cx, cy);
+  line(cx + halfW, cy + h, cx, cy);
+
+  stroke(0, 255, 255, a);
+  line(cx + halfW, cy - h, cx, cy);
+  line(cx + halfW, cy + h, cx, cy);
+  pop();
+}
+
 
 function mouseWheel(event) {
   if (page === 1) {
@@ -361,61 +688,40 @@ function mouseWheel(event) {
 }
 
 function mousePressed() {
-  // -----------------------------
-  // Common to all pages: menu
-  // -----------------------------
-  let d = dist(mouseX, mouseY, 50, 50);
-  if (d < 15) {
-    menuOpen = !menuOpen;
-    return;
-  }
-
-  if (menuOpen) {
-    // HOMEPAGE
-    if (mouseX > 20 && mouseX < 300 && mouseY > 75 && mouseY < 95) {
-      window.location.href = "index.html";
-      menuOpen = false;
-      return;
-    }
-
-    // GENERAL VISUALIZATION
-    if (mouseX > 20 && mouseX < 300 && mouseY > 105 && mouseY < 125) {
-      goNextPage();
-      menuOpen = false;
-      return;
-    }
-
-    // BOMBS IN ONE YEAR
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 155) {
-      window.location.href = "year.html?id=1";
-      menuOpen = false;
-      return;
-    }
-
-    // SINGLE BOMB
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 185) {
-      window.location.href = "single.html";
-      menuOpen = false;
-      return;
-    }
-
-    // INSIGHT
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 215) {
-      window.location.href = "insight.html";
-      menuOpen = false;
-      return;
-    }
-
-    // ABOUT
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 245) {
-      window.location.href = "about.html";
-      menuOpen = false;
-      return;
-    }
-  }
-
+  
   // ------------ page 2 ------------
   if (page === 2) {
+
+    // --- click on top-right carousel arrows ---
+    const lineX = width / 2 + 260;
+  const boxX = lineX + 18;
+  const boxY = 40;
+  const boxW = 280;
+  const boxH = 96;
+
+  const arrowsY = boxY + boxH + 18;
+
+  const hitW = 34, hitH = 34;
+
+  // freccia destra sotto-dx del box
+  const rightCx = boxX + boxW - 4;
+  // freccia sinistra sotto-sx del box
+  const leftCx = boxX + 4;
+
+  const overRight =
+    (infoStep < 3) &&
+    mouseX >= rightCx - hitW / 2 && mouseX <= rightCx + hitW / 2 &&
+    mouseY >= arrowsY - hitH / 2 && mouseY <= arrowsY + hitH / 2;
+
+  const overLeft =
+    (infoStep > 0) &&
+    mouseX >= leftCx - hitW / 2 && mouseX <= leftCx + hitW / 2 &&
+    mouseY >= arrowsY - hitH / 2 && mouseY <= arrowsY + hitH / 2;
+
+    if (overRight) { infoStep++; return; }
+    if (overLeft) { infoStep--; return; }
+
+
     for (let p of particles2) {
       let d = dist(mouseX, mouseY, p.x, p.y);
       if (d < p.r) {
@@ -442,6 +748,18 @@ function mousePressed() {
     }
   }
 }
+
+function keyPressed() {
+  // Only on page2 and when menu is not open
+  if (page !== 2 || menuOpen) return;
+
+  if (keyCode === RIGHT_ARROW && infoStep < 3) {
+    infoStep++;
+  } else if (keyCode === LEFT_ARROW && infoStep > 0) {
+    infoStep--;
+  }
+}
+
 
 function mouseReleased() {
   if (page === 2) scrollDirection = 0;
@@ -484,17 +802,6 @@ class Particle1 {
 }
 
 // ===============================
-// grid
-// ===============================
-function drawGrid() {
-  let spacing = 20;
-  stroke(110, 133, 219, 100);
-  strokeWeight(0.5);
-  for (let x = 0; x <= width; x += spacing) line(x, 0, x, height);
-  for (let y = 0; y <= height; y += spacing) line(0, y, width, y);
-}
-
-// ===============================
 // particles in page2
 // ===============================
 class Particle2 {
@@ -518,9 +825,13 @@ class Particle2 {
   }
   draw() {
     if (!this.active) return;
+
+    const isHover = (hoveredYear === this.year);
+    const rr = isHover ? this.r * 1.25 : this.r;
+
     noStroke();
     fill(this.col);
-    circle(this.x, this.y, this.r);
+    circle(this.x, this.y, rr);
   }
 }
 
@@ -543,6 +854,7 @@ function getColorLevel(y) {
   else if (y >= 5000) return 4;
   else return 5;
 }
+
 
 function creaParticlesDaTabella() {
   let cellSize = 5,
@@ -595,21 +907,32 @@ function creaParticlesDaTabella() {
 
 function disegnaAsseEAnni() {
   textAlign(CENTER, TOP);
-  textSize(12);
-  fill(0, 255, 255);
   noStroke();
 
   for (let year = startYear; year <= endYear; year++) {
     let x = map(year, startYear, endYear, margin, width - margin) + 3;
     let y = yAxis;
 
+    const isHover = (hoveredYear === year);
+
     push();
     translate(x + 3, y);
     rotate(HALF_PI);
+
+    if (isHover) {
+      fill(255);
+      textSize(14);
+      scale(1.06); // ingrandimento leggero
+    } else {
+      fill(0, 255, 255);
+      textSize(12);
+    }
+
     text(year, 0, 0);
     pop();
   }
 }
+
 
 function goNextPage() {
   // Vai alla pagina 2 (grafico)
@@ -632,34 +955,6 @@ function goNextPage() {
   }
 }
 
-
-// ===============================
-// menu
-// ===============================
-function drawMenuIcon() {
-  fill(0, 255, 255);
-  noStroke();
-  ellipse(50, 50, 20, 20);
-
-  // menuopen
-  if (menuOpen) {
-    fill(200);
-    rect(0, 0, 300, windowHeight);
-    textFont(myFont2);
-    textSize(12);
-    fill(110, 133, 219);
-    textAlign(LEFT, TOP);
-    fill(110, 133, 219);
-    noStroke();
-    ellipse(50, 50, 20, 20);
-    text("HOMEPAGE", 50, 80);
-    text("GENERAL VISUALIZATION", 50, 110);
-    text("BOMBS IN ONE YEAR", 50, 140);
-    text("SINGLE BOMB", 50, 170);
-    text("INSIGHT", 50, 200);
-    text("ABOUT", 50, 230);
-  }
-}
 
 // ===============================
 // LISTENER MENU → CAMBIO PAGINA

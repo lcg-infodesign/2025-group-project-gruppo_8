@@ -1,5 +1,5 @@
 // ===============================
-// Variabili globali
+// Variabili globali lll
 // ===============================
 let page = 1;
 let data = [];
