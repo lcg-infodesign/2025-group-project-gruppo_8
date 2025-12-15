@@ -222,7 +222,7 @@ function drawPage1() {
 
   // Make blocks closer vertically
   const introStartY = height + 120;          // where the first text appears
-  const introStepY = height * 0.75;          // distance between blocks (smaller = closer)
+  const introStepY = height * 0.60;          // distance between blocks (smaller = closer)
 
   textAlign(LEFT, TOP);
   drawIntroBlock(str1, leftX,  introStartY + introStepY * 0 - scrollOffset, MAX_TEXT_W);
@@ -269,13 +269,20 @@ function drawPage1() {
 }
 
 function drawIntroBlock(str, x, y, w) {
-  // Map y position to alpha (similar to Insight)
-  const a = map(y, height, 0, 0, 255, true);
-  fill(255, a);
+  // y is the top of the text block; fade should depend on its position in the viewport.
+  // 0% alpha at top (0) and bottom (height), 100% alpha at center (height/2).
+  const centerY = height / 2;
+  const d = abs(y - centerY);              // distanza dal centro
+  const a = map(d, 0, centerY, 255, 0, true); // 255 al centro, 0 agli estremi
+
   textFont(myFont2);
   textSize(21);
+  noStroke();
+  fill(255, a);
+
   text(str, x, y, w);
 }
+
 
 function drawScrollHintArrow() {
   // Only show at the very start
@@ -323,7 +330,7 @@ function drawPage2() {
   
   noStroke();
   fill(0, 255, 255);
-  textFont(myFont3);
+  textFont(myFont2);
   textSize(20);
   textAlign(LEFT, TOP);
   text("YIELD (kt)", offsetX, offsetY - 40);
@@ -334,6 +341,7 @@ function drawPage2() {
   textAlign(CENTER, TOP);
   text("TOTAL AMOUNT OF BOMBS", width / 2, 70);
   let activeParticles = particles2.filter((p) => p.active).length;
+  textFont(myFont3);
   textSize(60);
   fill(0, 255, 255);
   text(activeParticles, width / 2, 90);
@@ -369,11 +377,11 @@ textSize(14);
 textAlign(LEFT, TOP);
 
 // "ATM" in alto a sinistra, stesso x della legenda
-text("ATM", offsetX, margin + 280);
+text("ATMOSPHERIC", offsetX, margin + 280);
 
 // "SOTT" poco sopra la legenda
 textAlign(LEFT, BOTTOM);
-text("SOTT", offsetX, offsetY - 85);
+text("UNDERGROUND", offsetX, offsetY - 85);
 
 
 
