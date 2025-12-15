@@ -4,6 +4,20 @@
 let page = 1;
 let data = [];
 let menuOpen = false;
+
+// Page2 top-right text carousel (4 steps)
+let infoStep = 0; // 0..3
+const infoTexts = [
+  "Placeholder text 1\n(2 3 lines max)\nSame box size always.",
+  "Placeholder text 2\n(2 3 lines max)\nSame box size always.",
+  "Placeholder text 3\n(2 3 lines max)\nSame box size always.",
+  "Placeholder text 4\n(2 3 lines max)\nSame box size always.",
+];
+
+// Hover state (page2: years/columns)
+let hoveredYear = null;
+let isHoveringInteractive = false;
+
 // Automatic circle expansion control
 let autoExpandStarted = false;
 let expandStartFrame = 0;
@@ -318,6 +332,9 @@ function drawScrollHintArrow() {
 function drawPage2() {
   background(20);
 
+  // Hover detection for years/columns + cursor
+  updateHoverPage2();
+
   // -----------------------------
   // LEGENDA POTENZA
   // -----------------------------
@@ -345,6 +362,9 @@ function drawPage2() {
   textSize(60);
   fill(0, 255, 255);
   text(activeParticles, width / 2, 90);
+
+  // Top-right text carousel (line + text + arrows)
+  drawTopRightInfoCarousel();
 
   /*fill(200, 200, 200);
   textSize(14);
@@ -441,7 +461,7 @@ legend.forEach((item, i) => {
 }
 
 function drawColumnCTA() {
-  const msg = "click a column to see more";
+  const msg = "Click a column to see more";
 
   const x = width - margin;
   const y = height - margin;
@@ -462,6 +482,187 @@ function drawColumnCTA() {
 
   fill(0, 255, 255, a);
   text(msg, x, y);
+}
+
+function updateHoverPage2() {
+  hoveredYear = null;
+  isHoveringInteractive = false;
+
+  // --- PRIORITY: top-right carousel arrows hover => HAND (must run BEFORE exclusions) ---
+const lineX = width / 2 + 260;
+const boxX = lineX + 18;
+const boxY = 40;
+const boxW = 280;
+const boxH = 96;
+
+const arrowsY = boxY + boxH + 18;
+const hitW = 34, hitH = 34;
+
+const rightCx = boxX + boxW - 4;
+const leftCx = boxX + 4;
+
+const overRight =
+  (infoStep < 3) &&
+  mouseX >= rightCx - hitW / 2 && mouseX <= rightCx + hitW / 2 &&
+  mouseY >= arrowsY - hitH / 2 && mouseY <= arrowsY + hitH / 2;
+
+const overLeft =
+  (infoStep > 0) &&
+  mouseX >= leftCx - hitW / 2 && mouseX <= leftCx + hitW / 2 &&
+  mouseY >= arrowsY - hitH / 2 && mouseY <= arrowsY + hitH / 2;
+
+if (overRight || overLeft) {
+  cursor(HAND);
+  return;
+}
+
+
+  // spazio orizzontale tra anni (colonne)
+  const yearStep = (width - 2 * margin) / (endYear - startYear);
+  const hitX = yearStep * 0.45; // quanto "larga" è l'area hover della colonna
+
+  // aree sensibili (anni e colonna)
+  const labelTop = yAxis - 40;
+  const labelBottom = yAxis + 40;
+  // area del grafico (colonne) — NON include bottom UI (legenda/CTA)
+  const columnTop = 80;            // sopra l'asse (puoi ritoccare)
+  const columnBottom = yAxis + 200;
+
+  // EXCLUDE bottom-left legend area
+  const legendLeft = margin - 10;
+  const legendRight = margin + 220;                 // allarga se la legenda è più larga
+  const legendTop = height - margin - 150;          // alza/abbassa in base alla tua legenda
+  const legendBottom = height;
+
+  // EXCLUDE bottom-right CTA area
+  const ctaLeft = width - margin - 320;
+  const ctaRight = width;
+  const ctaTop = height - margin - 60;
+  const ctaBottom = height;
+
+  // EXCLUDE top-center total bombs UI (title + number)
+  const topLeft = width / 2 - 220;   // larghezza box (tweak se serve)
+  const topRight = width / 2 + 900;
+  const topTop = 0;
+  const topBottom = 350;            // altezza box (tweak se serve)
+
+
+  // se sei sopra legenda o CTA, niente hover e niente hand cursor
+  const overLegend =
+    mouseX >= legendLeft && mouseX <= legendRight &&
+    mouseY >= legendTop && mouseY <= legendBottom;
+
+  const overCTA =
+    mouseX >= ctaLeft && mouseX <= ctaRight &&
+    mouseY >= ctaTop && mouseY <= ctaBottom;
+
+  const overTopUI =
+  mouseX >= topLeft && mouseX <= topRight &&
+  mouseY >= topTop && mouseY <= topBottom;
+
+  if (overLegend || overCTA || overTopUI) {
+    cursor(ARROW);
+    return;
+  }
+
+  for (let year = startYear; year <= endYear; year++) {
+    const x = map(year, startYear, endYear, margin, width - margin) + 3;
+
+    const overX = abs(mouseX - x) <= hitX;
+    const overLabelY = mouseY >= labelTop && mouseY <= labelBottom;
+    const overColumnY = mouseY >= columnTop && mouseY <= columnBottom;
+
+    if (overX && (overLabelY || overColumnY)) {
+      hoveredYear = year;
+      isHoveringInteractive = true;
+      break;
+    }
+  }
+
+  // Cursor
+  if (isHoveringInteractive) cursor(HAND);
+  else cursor(ARROW);
+}
+
+function drawTopRightInfoCarousel() {
+  // Layout (tweak safe)
+  const lineX = width / 2 + 260;  // “a destra” del blocco centrale
+  const topY = 0;
+
+  const boxX = lineX + 18;
+  const boxY = 40;
+  const boxW = 280;
+  const boxH = 96;
+
+  // Vertical cyan line from top
+  push();
+  stroke(0, 255, 255, 160);
+  strokeWeight(2);
+  line(lineX, topY, lineX, boxY + boxH);
+  pop();
+
+  // Text block
+  push();
+  noStroke();
+  textFont(myFont2);
+  textSize(14);
+  fill(200, 200, 200);
+  textAlign(LEFT, TOP);
+  text(infoTexts[infoStep], boxX, boxY, boxW, boxH);
+  pop();
+
+ // Arrows under the text block
+  const arrowsY = boxY + boxH + 18;
+  const chevronW = 10;
+  const chevronH = 8;
+
+  // right arrow under-right
+  if (infoStep < 3) {
+    drawGlowingChevronRight(boxX + boxW - 4, arrowsY, chevronW, chevronH);
+  }
+  // left arrow under-left
+  if (infoStep > 0) {
+    drawGlowingChevronLeft(boxX + 4, arrowsY, chevronW, chevronH);
+  }
+
+  
+}
+
+function drawGlowingChevronRight(cx, cy, halfW, h) {
+  const pulse = (sin(frameCount * 0.08) + 1) / 2; // 0..1
+  const a = 90 + pulse * 165;
+
+  // glow (2 passate) + netta
+  push();
+  strokeWeight(2);
+  noFill();
+
+  stroke(0, 255, 255, a * 0.25);
+  line(cx - halfW, cy - h, cx, cy);
+  line(cx - halfW, cy + h, cx, cy);
+
+  stroke(0, 255, 255, a);
+  line(cx - halfW, cy - h, cx, cy);
+  line(cx - halfW, cy + h, cx, cy);
+  pop();
+}
+
+function drawGlowingChevronLeft(cx, cy, halfW, h) {
+  const pulse = (sin(frameCount * 0.08) + 1) / 2;
+  const a = 90 + pulse * 165;
+
+  push();
+  strokeWeight(2);
+  noFill();
+
+  stroke(0, 255, 255, a * 0.25);
+  line(cx + halfW, cy - h, cx, cy);
+  line(cx + halfW, cy + h, cx, cy);
+
+  stroke(0, 255, 255, a);
+  line(cx + halfW, cy - h, cx, cy);
+  line(cx + halfW, cy + h, cx, cy);
+  pop();
 }
 
 
@@ -490,6 +691,37 @@ function mousePressed() {
   
   // ------------ page 2 ------------
   if (page === 2) {
+
+    // --- click on top-right carousel arrows ---
+    const lineX = width / 2 + 260;
+  const boxX = lineX + 18;
+  const boxY = 40;
+  const boxW = 280;
+  const boxH = 96;
+
+  const arrowsY = boxY + boxH + 18;
+
+  const hitW = 34, hitH = 34;
+
+  // freccia destra sotto-dx del box
+  const rightCx = boxX + boxW - 4;
+  // freccia sinistra sotto-sx del box
+  const leftCx = boxX + 4;
+
+  const overRight =
+    (infoStep < 3) &&
+    mouseX >= rightCx - hitW / 2 && mouseX <= rightCx + hitW / 2 &&
+    mouseY >= arrowsY - hitH / 2 && mouseY <= arrowsY + hitH / 2;
+
+  const overLeft =
+    (infoStep > 0) &&
+    mouseX >= leftCx - hitW / 2 && mouseX <= leftCx + hitW / 2 &&
+    mouseY >= arrowsY - hitH / 2 && mouseY <= arrowsY + hitH / 2;
+
+    if (overRight) { infoStep++; return; }
+    if (overLeft) { infoStep--; return; }
+
+
     for (let p of particles2) {
       let d = dist(mouseX, mouseY, p.x, p.y);
       if (d < p.r) {
@@ -516,6 +748,18 @@ function mousePressed() {
     }
   }
 }
+
+function keyPressed() {
+  // Only on page2 and when menu is not open
+  if (page !== 2 || menuOpen) return;
+
+  if (keyCode === RIGHT_ARROW && infoStep < 3) {
+    infoStep++;
+  } else if (keyCode === LEFT_ARROW && infoStep > 0) {
+    infoStep--;
+  }
+}
+
 
 function mouseReleased() {
   if (page === 2) scrollDirection = 0;
@@ -581,9 +825,13 @@ class Particle2 {
   }
   draw() {
     if (!this.active) return;
+
+    const isHover = (hoveredYear === this.year);
+    const rr = isHover ? this.r * 1.25 : this.r;
+
     noStroke();
     fill(this.col);
-    circle(this.x, this.y, this.r);
+    circle(this.x, this.y, rr);
   }
 }
 
@@ -659,21 +907,32 @@ function creaParticlesDaTabella() {
 
 function disegnaAsseEAnni() {
   textAlign(CENTER, TOP);
-  textSize(12);
-  fill(0, 255, 255);
   noStroke();
 
   for (let year = startYear; year <= endYear; year++) {
     let x = map(year, startYear, endYear, margin, width - margin) + 3;
     let y = yAxis;
 
+    const isHover = (hoveredYear === year);
+
     push();
     translate(x + 3, y);
     rotate(HALF_PI);
+
+    if (isHover) {
+      fill(255);
+      textSize(14);
+      scale(1.06); // ingrandimento leggero
+    } else {
+      fill(0, 255, 255);
+      textSize(12);
+    }
+
     text(year, 0, 0);
     pop();
   }
 }
+
 
 function goNextPage() {
   // Vai alla pagina 2 (grafico)
