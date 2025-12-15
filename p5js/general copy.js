@@ -8,7 +8,7 @@ let menuOpen = false;
 // Page2 top-right text carousel (4 steps)
 let infoStep = 0; // 0..3
 const infoTexts = [
-  "Placeholder text 1\n(2 3 lines max)\nSame box size always.",
+  "The 1958 nuclear test moratoria was\n a response to Cold War tensions and nuclear proliferation, and initiated\n negotiations that led to the future anti-nuclear treaties (PTBT and NPT)",
   "Placeholder text 2\n(2 3 lines max)\nSame box size always.",
   "Placeholder text 3\n(2 3 lines max)\nSame box size always.",
   "Placeholder text 4\n(2 3 lines max)\nSame box size always.",
@@ -356,7 +356,7 @@ function drawPage2() {
 
   textSize(24);
   textAlign(CENTER, TOP);
-  text("TOTAL AMOUNT OF BOMBS", width / 2, 70);
+  text("TOTAL AMOUNT OF BOMBS", width / 2, 45);
   let activeParticles = particles2.filter((p) => p.active).length;
   textFont(myFont3);
   textSize(60);
