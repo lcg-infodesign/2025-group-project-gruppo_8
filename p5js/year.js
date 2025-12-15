@@ -45,10 +45,10 @@ function draw() {
     pop();
   }
 
-  textFont(myFont3);
+  textFont(myFont1);
   fill(0, 255, 255);
   textAlign(CENTER, TOP);
-  textSize(33);
+  textSize(20);
   text("NUCLEAR TEST EACH YEAR", width / 2, 40);
 
   if (years.length === 0) {
@@ -147,124 +147,177 @@ function drawYearNavigation(currentYear) {
   textAlign(CENTER, TOP);
   textSize(48);
   fill(200);
-  textFont(myFont2);
-  text(currentYear, width / 2, 120);
   textFont(myFont3);
+  text(currentYear, width / 2, 110);
+  textFont(myFont2);
   fill(0, 255, 255);
   textSize(14);
   text("YEAR", width / 2, 100);
 
-  // Freccia sinistra < (invertita rispetto a prima)
-  let hoverLeft = mouseX > width / 2 - 150 && mouseX < width / 2 - 90 && mouseY > 120 && mouseY < 170;
-  stroke(hoverLeft ? 255 : 150);
-  strokeWeight(2);
-  noFill();
-  beginShape();
-  vertex(width / 2 - 125, 145);
-  vertex(width / 2 - 100, 130);
-  vertex(width / 2 - 100, 160);
-  endShape(CLOSE);
+// animazione
+const alphaBase = 200;
+const pulse = sin(frameCount * 0.08) * 55;
+const alpha = constrain(alphaBase + pulse, 80, 255);
 
-  // Freccia destra > (invertita rispetto a prima)
-  let hoverRight = mouseX > width / 2 + 90 && mouseX < width / 2 + 150 && mouseY > 120 && mouseY < 170;
-  stroke(hoverRight ? 255 : 150);
-  strokeWeight(2);
-  noFill();
-  beginShape();
-  vertex(width / 2 + 125, 145);
-  vertex(width / 2 + 100, 130);
-  vertex(width / 2 + 100, 160);
-  endShape(CLOSE);
+// dimensioni chevron
+const halfW = 12; // apertura
+const h = 10;     // altezza
+
+push();
+strokeWeight(2);
+noFill();
+
+// ====================
+// FRECCIA SINISTRA
+// ====================
+let hoverLeft =
+  mouseX > width / 2 - 150 &&
+  mouseX < width / 2 - 90 &&
+  mouseY > 120 &&
+  mouseY < 170;
+
+stroke(0, 255, 255, hoverLeft ? 255 : alpha);
+
+const cxL = width / 2 - 120;
+const cyL = 145;
+
+// chevron sinistra <
+line(cxL + halfW, cyL - h, cxL, cyL);
+line(cxL + halfW, cyL + h, cxL, cyL);
+
+// ====================
+// FRECCIA DESTRA
+// ====================
+let hoverRight =
+  mouseX > width / 2 + 90 &&
+  mouseX < width / 2 + 150 &&
+  mouseY > 120 &&
+  mouseY < 170;
+
+stroke(0, 255, 255, hoverRight ? 255 : alpha);
+
+const cxR = width / 2 + 120;
+const cyR = 145;
+
+// chevron destra >
+line(cxR - halfW, cyR - h, cxR, cyR);
+line(cxR - halfW, cyR + h, cxR, cyR);
+
+pop();
 }
+
 
 function drawTestDots(yearData) {
   dots = [];
+
   let cellSize = 15;
   let gap = 8;
   let cols = 5;
   let lineY = height / 2 + 50;
   let fixedSpacing = 150;
 
-  // Testo "ATM / SOTT" a sinistra
-  textFont(myFont3);
-  fill(0, 255, 255);
+  // Testo ATM / SOTT a sinistra
+  textFont(myFont2);
+  fill(200,200,200);
   textAlign(RIGHT, CENTER);
   textSize(14);
   noStroke();
-  text("ATM", 230, lineY - 40);
-  text("SOTT", 230, lineY + 40);
+  text("ATMOSPHERIC", 230, lineY - 40);
+  text("UNDERGROUND", 230, lineY + 40);
 
   let hoveredDot = null;
 
   countries.forEach((country, idx) => {
     let tests = yearData[country] || [];
+
+    //  DIVISIONE PRIMA DEL DISEGNO
+    
+  // array dei tipi sotterranei
+const undergroundTypes = [
+  "UG",
+  "SHAFT",
+  "TUNNEL",
+  "GALLERY",
+  "MINE",
+  "SHAFT/GR",
+  "SHAFT/LG"
+];
+
+// test sotterranei
+let sottTests = tests.filter(t => undergroundTypes.includes(t.type));
+
+// test atmosferici (tutti gli altri)
+let atmTests = tests.filter(t => !undergroundTypes.includes(t.type));
+
+
+
+    //  ORDINAMENTO SOLO PER YIELD
+    atmTests.sort((a, b) => getColorLevel(a.yield) - getColorLevel(b.yield));
+    sottTests.sort((a, b) => getColorLevel(a.yield) - getColorLevel(b.yield));
+
     let x = width / 2 + (idx - (countries.length - 1) / 2) * fixedSpacing;
 
-    tests.sort((a, b) => {
-      let levelDiff = getColorLevel(a.yield) - getColorLevel(b.yield);
-      if (levelDiff !== 0) return levelDiff;
-      if (a.type === "ATMOSPH" && b.type !== "ATMOSPH") return -1;
-      if (a.type !== "ATMOSPH" && b.type === "ATMOSPH") return 1;
-      return 0;
-    });
-
-    let numCols = Math.max(1, Math.min(cols, tests.length));
+    let maxTests = Math.max(atmTests.length, sottTests.length);
+    let numCols = Math.max(1, Math.min(cols, maxTests));
     let colWidth = (numCols - 1) * (cellSize + gap);
 
-    tests.forEach((test, i) => {
-      let col = i % cols;
-      let row = Math.floor(i / cols);
-      let cx = x - colWidth / 2 + col * (cellSize + gap);
-      let cy;
-      if (test.type === "ATMOSPH") {
-        cy = lineY - (cellSize + gap) - row * (cellSize + gap);
-      } else {
-        cy = lineY + (cellSize + gap) + row * (cellSize + gap);
-      }
+    //  FUNZIONE DI DISEGNO
+    function drawGroup(testArray, isAtmosph) {
+      testArray.forEach((test, i) => {
+        let col = i % cols;
+        let row = Math.floor(i / cols);
 
-      // Check hover
-      let d = dist(mouseX, mouseY, cx, cy);
-      let isHovered = d < cellSize / 2;
-      let size = isHovered ? cellSize * 1.5 : cellSize;
+        let cx = x - colWidth / 2 + col * (cellSize + gap);
+        let cy = isAtmosph
+          ? lineY - (cellSize + gap) - row * (cellSize + gap)
+          : lineY + (cellSize + gap) + row * (cellSize + gap);
 
-      fill(getYieldColor(test.yield));
-      noStroke();
-      circle(cx, cy, size);
+        let d = dist(mouseX, mouseY, cx, cy);
+        let isHovered = d < cellSize / 2;
+        let size = isHovered ? cellSize * 1.5 : cellSize;
 
-      dots.push({
-        cx: cx,
-        cy: cy,
-        r: cellSize / 2,
-        id: test.id,
+        fill(getYieldColor(test.yield));
+        noStroke();
+        circle(cx, cy, size);
+
+        dots.push({
+          cx: cx,
+          cy: cy,
+          r: cellSize / 2,
+          id: test.id,
+        });
+
+        if (isHovered) {
+          hoveredDot = { cx, cy };
+        }
       });
+    }
 
-      if (isHovered) {
-        hoveredDot = { cx, cy };
-      }
-    });
+    // DISEGNO
+    drawGroup(atmTests, true);   // SOPRA
+    drawGroup(sottTests, false); // SOTTO
 
-    // Nome paese al centro sulla linea
-    noStroke();
+    // Nome paese sulla linea
+    fill(0,255,255);
     textAlign(CENTER, CENTER);
     textSize(14);
-    fill(200);
     text(country, x, lineY);
   });
 
-  // Cambia cursore se hover su dot
-  if (hoveredDot) {
-    cursor(HAND);
-  } else {
-    cursor(ARROW);
-  }
+  // Cursore
+  cursor(hoveredDot ? HAND : ARROW);
 
   // Call to action
-  textFont(myFont3);
-  fill(0, 255, 255);
-  textAlign(CENTER);
-  textSize(14);
-  text("CLICK ON ANY DOT TO VIEW DETAILS", width / 2, height - 50);
+const pulse = sin(frameCount * 0.08) * 55; // oscillazione tra -55 e +55
+const alpha = constrain(200 + pulse, 80, 255); // base 200, min 80, max 255
+
+textFont(myFont2);
+textSize(14);
+textAlign(CENTER, CENTER);
+fill(0, 255, 255, alpha);
+text("CLICK A BOMB FOR MORE", windowWidth - 200, height - 50);
 }
+
 
 function drawBottomInfo(yearData) {
   let total = Object.values(yearData).reduce((sum, tests) => sum + tests.length, 0);
@@ -272,10 +325,10 @@ function drawBottomInfo(yearData) {
   fill(0, 255, 255);
   textAlign(RIGHT, TOP);
   textSize(14);
-  textFont(myFont3);
+  textFont(myFont2);
   text("TOTAL BOMBS", width - 80, 70);
   textSize(48);
-  textFont(myFont2);
+  textFont(myFont3);
   text(total, width - 80, 90);
 }
 
@@ -283,7 +336,7 @@ function drawLegend() {
   let offsetX = 80;
   let offsetY = height - 200;
 
-  textFont(myFont3);
+  textFont(myFont2);
   textAlign(LEFT, TOP);
   fill(0, 255, 255);
   textSize(14);
