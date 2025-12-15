@@ -185,7 +185,7 @@ function draw() {
   fill(200);
   textSize(20);
   textAlign(CENTER, TOP);
-  text("SINGLE BOMBS", width / 2, 30);
+  text("SINGLE BOMB", width / 2, 30);
 
   drawBombRing();
   if (!bombData) {
