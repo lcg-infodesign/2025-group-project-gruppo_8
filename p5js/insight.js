@@ -30,7 +30,6 @@ let previewIndex = -1;     // 当前预览的大图索引
 let previewArrowSize = 20; // 左右箭头尺寸
 
 
-
 // thumbnails
 let thumbOffset = 0;
 let targetThumbOffset = 0;
@@ -41,6 +40,10 @@ let myFont1, myFont2, myFont3;
 
 let titleAlpha = map(scrollY, 0, 200, 255, 0, true);
 
+let previewBottomTextPadding = 40; // distance from bottom of image
+let screenBottomPadding = 20;      // distance from bottom of the canvas
+
+
 function preload() {
   // fonts (keep same filenames in your project)
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
@@ -48,9 +51,9 @@ function preload() {
   myFont3 = loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
 
   // main images — ensure these exist in images/
-  img1 = loadImage(`images/insight_img1.jpg`);
+  img1 = loadImage(`images/hiroshima-bombing-article-about-atomic-bomb.jpg`);
   img2 = loadImage(`images/insight_img2.jpg`);
-  img3 = loadImage(`images/insight_img3.jpg`);
+  img3 = loadImage(`images/hiding_the_radiation_of_the_atomic_bombs_1050x700.avif`);
 
   // thumbs and largeImages (7 thumbnails expected)
   for (let i = 4; i <= 10; i++) {
@@ -116,7 +119,7 @@ function draw() {
   image(img2, imgX2, y2 - scrollY * 0.9, imgW, imgH);
   noTint();
 
-  let textX2 = sideMargin + 200;
+  let textX2 = sideMargin + 100;
   let textW2 = min(imgX2 - textX2 - textGap, maxTextWidth);
   let alpha2 = map(y2 - scrollY, height, 0, 0, 255, true);
   drawTextInteractive(Text2, textX2, y2 + 200 - scrollY, textW2, alpha2, 20, -20);
@@ -414,23 +417,21 @@ image(previewImg, (width - pw) / 2, (height - ph) / 2, pw, ph);
   // 根据 previewIndex 显示不同文字
   let bottomTexts = [
   "Carl Mydans Hiroshima Japan 1947, Atomic",
-  "A barefoot boy waiting in line and staring ahead at a crematorium \nafter the Nagasaki bombing, with his dead baby brother strapped to his back. \nPhoto by US Marine photographer Joe O’Donnell",
-  "From notes by LIFE’s Bernard Hoffman\nto the magazine’s long-time picture editor,\nWilson Hicks, in New York, September 1945",
-  "Mother and child in Hiroshima, \nJapan, December 1945 Alfred Eisenstaedt",
-  "A correspondent stands in the rubble in Hiroshima on Sept. 8, 1945, a month \nafter the first atomic bomb ever used in warfare was dropped by the U.S.\nStanley Troutman / AP",
-  "The devastated city of Nagasaki after an atomic bomb \nwas dropped on it by a US Air Force B-29 bomber  \n—AFP",
-  "The mushroom cloud rising over Hiroshima, Japan \nThe city of Hiroshima was the target of the worlds \nfirst atomic bomb attack at 0816 am on August 6, 1945",
+  "A barefoot boy waiting in line and staring ahead at a crematorium after the Nagasaki bombing, with his dead baby brother strapped to his back. \nPhoto by US Marine photographer Joe O’Donnell",
+  "From notes by LIFE’s Bernard Hoffman to the magazine’s long-time picture editor, Wilson Hicks, in New York, September 1945",
+  "Mother and child in Hiroshima, Japan, December 1945 Alfred Eisenstaedt",
+  "A correspondent stands in the rubble in Hiroshima on Sept. 8, 1945, a month after the first atomic bomb ever used in warfare was dropped by the U.S.\nStanley Troutman / AP",
+  "The devastated city of Nagasaki after an atomic bomb was dropped on it by a US Air Force B-29 bomber —AFP",
+  "The mushroom cloud rising over Hiroshima, Japan on August 6, 1945",
 
   ];
   // 获取当前图片对应文字
   let currentBottomText = bottomTexts[previewIndex] || "";
+  
 
-  // 绘制底部文字
-  fill(255, 180);
   textSize(14);
   textAlign(CENTER, CENTER);
-  text(currentBottomText, width / 2, imgY + ph + 40);
-
+  text(currentBottomText, width / 2, imgY + ph + 40 - 15 );
   pop();
 }
 
@@ -444,7 +445,7 @@ function drawTextInteractive(txt, x, y, maxW, alpha, o1, o2) {
   let offset = map(alpha, 0, 255, o1, o2);
   translate(offset, 0);
   textSize(18);
-  textFont(myFont1);
+  textFont(myFont2);
   textAlign(LEFT, TOP);
   textLeading(24);
   text(txt, x, y, maxW);
@@ -456,7 +457,7 @@ function drawTextInteractive(txt, x, y, maxW, alpha, o1, o2) {
 // ==============================
 function estimateTextHeight(txt, maxW) {
   // ensure text metrics match drawing settings
-  textFont(myFont1);
+  textFont(myFont2);
   textSize(22);
   textLeading(24);
 
