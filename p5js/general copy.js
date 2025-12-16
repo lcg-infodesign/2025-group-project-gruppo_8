@@ -103,7 +103,6 @@ function preload() {
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
   myFont2 = loadFont("fonts/LibreFranklin-Regular.otf");
   myFont3 = loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
-  img1 = loadImage("images/bleauuu.png");
 
   // pagina2
   table = loadTable("dataset/dataset.csv", "csv", "header");
