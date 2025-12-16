@@ -133,7 +133,7 @@ let menuSketch = function (p) {
     for (let i = 0; i < items.length; i++) {
 
       let label = items[i];
-      let y = 120 + i * 28;
+      let y = 110 + i * 28;
       let x = menuX + 38;
 
       let displayLabel =
@@ -167,7 +167,7 @@ let menuSketch = function (p) {
         label === "home" ? "NE ARCHIVE" : label;
 
       let w = p.textWidth(displayLabel);
-      let h = 18;
+      let h = 10;
 
       let hovering =
         p.mouseX >= x &&
