@@ -8,10 +8,10 @@ let menuOpen = false;
 // Page2 top-right text carousel (4 steps)
 let infoStep = 0; // 0..3
 const infoTexts = [
-  "The 1958 nuclear test moratoria was\n a response to Cold War tensions and nuclear proliferation, and initiated\n negotiations that led to the future anti-nuclear treaties (PTBT and NPT)",
-  "Placeholder text 2\n(2 3 lines max)\nSame box size always.",
-  "Placeholder text 3\n(2 3 lines max)\nSame box size always.",
-  "Placeholder text 4\n(2 3 lines max)\nSame box size always.",
+  "The first nuclear explosions mark a historical turning point.\n After the end of World War II, the atomic bomb becomes a tool of power and deterrence.\n Testing is limited, but a new form of global threat begins.",
+  "Competition between superpowers leads to a rapid increase in nuclear tests.\nExplosions become more frequent and more powerful, often atmospheric.\nNuclear testing is used as a political and military demonstration.",
+  "After the first international restrictions, many tests move underground.\nThe number of explosions decreases, but technological development continues.\nDeterrence remains central throughout the Cold War.",
+  "With the end of the Cold War, nuclear explosions decrease significantly.\nIn 1996, the Comprehensive Nuclear-Test-Ban Treaty (CTBT) is adopted, aiming to ban all nuclear test explosions.\n1998 marks the last officially certified nuclear tests.",
 ];
 
 // Hover state (page2: years/columns)
@@ -217,11 +217,11 @@ function drawPage1() {
 
   // Intro texts — same spacing logic as Insight (consistent margins + max width)
   const str1 =
-    "Between 1945 and 1998, over two thousand nuclear explosions \nleft a lasting mark on the planet.";
+    "The atom breaks: each particle is a real test. History unfolds before your eyes.";
   const str2 =
-    "This archive turns those events into a dynamic map \nof the atomic era.";
+    "Between 1945 and 1998, nuclear testing reshaped geopolitics, science, and the environment. Over two thousand explosions left a lasting mark on the planet.";
   const str3 =
-    "The atom breaks: each particle is a real test. \nHistory unfolds before your eyes.";
+    "This website is a digital archive that presents nuclear testing as an interactive timeline. \nIt traces the evolution of nuclear explosions over the second half of the twentieth century.";
   const str4 = "Data from the SIPRI-FOA Report";
 
   // Bring the two columns closer to the center
