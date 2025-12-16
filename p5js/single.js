@@ -324,7 +324,10 @@ function drawInfo() {
     mouseY >= offsetY &&
     mouseY <= offsetY + scaledH;
 
+
+    
   if (isHoverMap) {
+    cursor(HAND);
     fill(0, 150);
     rect(offsetX, offsetY, scaledW, scaledH);
 
@@ -367,7 +370,9 @@ function drawInfo() {
       offsetX + scaledW - 10,
       offsetY + 16
     );
-  }
+  } else {
+  cursor(ARROW);  
+}
   stroke(0, 255, 255, 150);
   strokeWeight(1);
   fill(0, 255, 255, 20);
@@ -448,10 +453,10 @@ function mousePressed() {
   let iconSize = 10;
 
   let clickedIcon =
-    mouseX >= iconX &&
-    mouseX <= iconX + iconSize &&
-    mouseY >= iconY &&
-    mouseY <= iconY + iconSize;
+    mouseX >= offsetX &&
+    mouseX <= offsetX + scaledW &&
+    mouseY >= offsetY &&
+    mouseY <= offsetY + scaledH;
 
   if (clickedIcon) {
     mapZoomed = !mapZoomed;
