@@ -86,12 +86,13 @@ function draw() {
   thumbOffset += (targetThumbOffset - thumbOffset) * 0.18;
 
   // top title
-  textFont(myFont1);
   let titleAlpha = map(scrollY, 0, 200, 255, 0, true); 
-  fill(110, 133, 219, titleAlpha);
-  textSize(20);
+  fill(200, titleAlpha);
   textAlign(CENTER, TOP);
-  text(topText, width / 2, 20);
+textFont(myFont1);
+  noStroke();
+  textSize(20);
+  text(topText, width / 2, 30);
 
   // compute top text width & height
   let topTextW = width - topTextSideMargin * 2;

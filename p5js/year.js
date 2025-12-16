@@ -46,10 +46,11 @@ function draw() {
   }
 
   textFont(myFont1);
-  fill(0, 255, 255);
-  textAlign(CENTER, TOP);
+  noStroke();
+  fill(200);
   textSize(20);
-  text("NUCLEAR TEST EACH YEAR", width / 2, 40);
+  textAlign(CENTER, TOP);
+  text("NUCLEAR TEST EACH YEAR", width / 2, 30);
 
   if (years.length === 0) {
     fill(255);
@@ -146,13 +147,13 @@ function getColorLevel(y) {
 function drawYearNavigation(currentYear) {
   textAlign(CENTER, TOP);
   textSize(48);
-  fill(200);
+  fill(0,255,255);
   textFont(myFont3);
-  text(currentYear, width / 2, 110);
+  text(currentYear, width / 2, 90);
   textFont(myFont2);
   fill(0, 255, 255);
   textSize(14);
-  text("YEAR", width / 2, 100);
+  text("YEAR", width / 2, 70);
 
 // animazione
 const alphaBase = 200;
@@ -179,7 +180,7 @@ let hoverLeft =
 stroke(0, 255, 255, hoverLeft ? 255 : alpha);
 
 const cxL = width / 2 - 120;
-const cyL = 145;
+const cyL = 130;
 
 // chevron sinistra <
 line(cxL + halfW, cyL - h, cxL, cyL);
@@ -197,7 +198,7 @@ let hoverRight =
 stroke(0, 255, 255, hoverRight ? 255 : alpha);
 
 const cxR = width / 2 + 120;
-const cyR = 145;
+const cyR = 130;
 
 // chevron destra >
 line(cxR - halfW, cyR - h, cxR, cyR);
@@ -352,17 +353,17 @@ function drawLegend() {
 
   textFont(myFont2);
   textSize(12);
-  let circleSize = 15;
-  let lineSpacing = 30;
+  let circleSize = 10;
+  let lineSpacing = 20;
 
   legend.forEach((item, i) => {
     fill(getYieldColor(item.y));
     let cx = offsetX + circleSize / 2;
-    let cy = offsetY + i * lineSpacing + circleSize / 2;
+    let cy = offsetY + i * lineSpacing;
     circle(cx, cy, circleSize);
     fill(200, 200, 200);
     textAlign(LEFT, CENTER);
-    text(item.range, cx + circleSize + 10, cy);
+    text(item.range, cx + circleSize + 5, cy);
   });
 }
 

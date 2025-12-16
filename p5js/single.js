@@ -327,6 +327,7 @@ function drawInfo() {
 
     
   if (isHoverMap) {
+    cursor(HAND);
     fill(0, 150);
     rect(offsetX, offsetY, scaledW, scaledH);
 
@@ -369,8 +370,10 @@ function drawInfo() {
       offsetX + scaledW - 10,
       offsetY + 16
     );
-  } 
-  
+  } else {
+  cursor(ARROW);  
+}
+
   stroke(0, 255, 255, 150);
   strokeWeight(1);
   fill(0, 255, 255, 20);

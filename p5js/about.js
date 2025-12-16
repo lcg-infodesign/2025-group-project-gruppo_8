@@ -100,11 +100,13 @@ function drawAboutContent() {
   const x = (width - groupWidth) / 2 + VISUAL_SHIFT_RIGHT;
 
   // PAGE TITLE
+
   textFont(myFont1);
+  noStroke();
+  fill(200);
   textSize(20);
-  fill(...PURPLE);
-  textAlign(CENTER, CENTER);
-  text("ABOUT", width / 2, 55);
+  textAlign(CENTER, TOP);
+  text("ABOUT", width / 2, 30);
 
   textFont(myFont1);
   textSize(bodySize);

@@ -59,7 +59,6 @@ const UI_GAP = 20;
 const SIDE_MARGIN = 80;
 const MAX_TEXT_W = 420;
 
-
 let scrollProgress;
 let lastStepTime = 0;
 let STEP_DELAY = 50;
@@ -99,14 +98,12 @@ function goToOverview() {
   }
 }
 
-
 function preload() {
   // pagina1
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
   myFont2 = loadFont("fonts/LibreFranklin-Regular.otf");
   myFont3 = loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
   img1 = loadImage("images/bleauuu.png");
-
 
   // pagina2
   table = loadTable("dataset/dataset.csv", "csv", "header");
@@ -163,7 +160,7 @@ function setup() {
   creaParticlesDaTabella();
   checkHashNavigation();
 }
-  // ===============================
+// ===============================
 // Se URL contiene #page2 → apri ovverview SUBITO
 // ===============================
 function checkHashNavigation() {
@@ -205,16 +202,14 @@ function drawPage1() {
   // Title: vertically aligned with menu, horizontally centered
   textFont(myFont1);
   noStroke();
-  fill(255);
+  fill(200);
   textSize(20);
-  textAlign(CENTER, CENTER);
+  textAlign(CENTER, TOP);
 
   // same vertical rhythm as menu icon
-  const titleY = MENU_BTN_Y + MENU_BTN_SIZE / 2;
+  // const titleY = MENU_BTN_Y + MENU_BTN_SIZE / 2;
 
-  text("NUCLEAR EXPLOSIONS ARCHIVE", width / 2, titleY);
-
-
+  text("NUCLEAR EXPLOSIONS ARCHIVE", width / 2, 30);
 
   textFont(myFont2);
   textSize(16);
@@ -235,19 +230,37 @@ function drawPage1() {
   const rightX = width / 2 + GUTTER / 2;
 
   // Make blocks closer vertically
-  const introStartY = height + 120;          // where the first text appears
-  const introStepY = height * 0.60;          // distance between blocks (smaller = closer)
+  const introStartY = height + 120; // where the first text appears
+  const introStepY = height * 0.6; // distance between blocks (smaller = closer)
 
   textAlign(LEFT, TOP);
-  drawIntroBlock(str1, leftX,  introStartY + introStepY * 0 - scrollOffset, MAX_TEXT_W);
-  drawIntroBlock(str2, rightX, introStartY + introStepY * 1 - scrollOffset, MAX_TEXT_W);
-  drawIntroBlock(str3, leftX,  introStartY + introStepY * 2 - scrollOffset, MAX_TEXT_W);
-  drawIntroBlock(str4, rightX, introStartY + introStepY * 3 - scrollOffset, MAX_TEXT_W);
-
+  drawIntroBlock(
+    str1,
+    leftX,
+    introStartY + introStepY * 0 - scrollOffset,
+    MAX_TEXT_W
+  );
+  drawIntroBlock(
+    str2,
+    rightX,
+    introStartY + introStepY * 1 - scrollOffset,
+    MAX_TEXT_W
+  );
+  drawIntroBlock(
+    str3,
+    leftX,
+    introStartY + introStepY * 2 - scrollOffset,
+    MAX_TEXT_W
+  );
+  drawIntroBlock(
+    str4,
+    rightX,
+    introStartY + introStepY * 3 - scrollOffset,
+    MAX_TEXT_W
+  );
 
   // Scroll hint arrow (bottom center) — hidden once the user scrolls a bit
   drawScrollHintArrow();
-
 
   // particelle centrale
   push();
@@ -286,7 +299,7 @@ function drawIntroBlock(str, x, y, w) {
   // y is the top of the text block; fade should depend on its position in the viewport.
   // 0% alpha at top (0) and bottom (height), 100% alpha at center (height/2).
   const centerY = height / 2;
-  const d = abs(y - centerY);              // distanza dal centro
+  const d = abs(y - centerY); // distanza dal centro
   const a = map(d, 0, centerY, 255, 0, true); // 255 al centro, 0 agli estremi
 
   textFont(myFont2);
@@ -296,7 +309,6 @@ function drawIntroBlock(str, x, y, w) {
 
   text(str, x, y, w);
 }
-
 
 function drawScrollHintArrow() {
   // Only show at the very start
@@ -309,8 +321,8 @@ function drawScrollHintArrow() {
   const cx = width / 2;
   const cy = height - 44 + bob;
 
-  const halfW = 10;  // half width of the chevron (smaller = less wide)
-  const h = 8;       // height of the chevron (smaller = less tall)
+  const halfW = 10; // half width of the chevron (smaller = less wide)
+  const h = 8; // height of the chevron (smaller = less tall)
 
   push();
   stroke(0, 255, 255, alpha);
@@ -324,8 +336,6 @@ function drawScrollHintArrow() {
   pop();
 }
 
-
-
 // ===============================
 // pagina2draw
 // ===============================
@@ -338,25 +348,29 @@ function drawPage2() {
   // -----------------------------
   // LEGENDA POTENZA
   // -----------------------------
-  
-  
-  // Coordinate legenda: a sinistra (pulita e coerente)
-  let offsetX = margin - 8;                 // usa lo stesso margin del grafico
-  let offsetY = height - margin - 80;  // base, poi la sistemiamo con lineSpacing
 
-  
+  // Coordinate legenda: a sinistra (pulita e coerente)
+  let offsetX = margin - 8; // usa lo stesso margin del grafico
+  let offsetY = height - margin - 80; // base, poi la sistemiamo con lineSpacing
+
+  textFont(myFont1);
+  noStroke();
+  fill(200);
+  textSize(20);
+  textAlign(CENTER, TOP);
+  text("TITOLO", width / 2, 35);
+
   noStroke();
   fill(0, 255, 255);
   textFont(myFont2);
-  textSize(20);
+  textSize(14);
   textAlign(LEFT, TOP);
   text("YIELD (kt)", offsetX, offsetY - 40);
   textAlign(RIGHT, TOP);
-  //text("SOME INFORMATION??", width - 80, 70);
 
-  textSize(24);
+  textSize(14);
   textAlign(CENTER, TOP);
-  text("TOTAL AMOUNT OF BOMBS", width / 2, 45);
+  text("TOTAL AMOUNT OF BOMBS", width / 2, 80);
   let activeParticles = particles2.filter((p) => p.active).length;
   textFont(myFont3);
   textSize(60);
@@ -377,45 +391,42 @@ function drawPage2() {
   );*/
 
   let legend = [
-  { range: "0-19", y: 10 },
-  { range: "20", y: 20 },
-  { range: "21-150", y: 100 },
-  { range: "151-4999", y: 1000 },
-  { range: "5000+", y: 5000 },
-];
+    { range: "0-19", y: 10 },
+    { range: "20", y: 20 },
+    { range: "21-150", y: 100 },
+    { range: "151-4999", y: 1000 },
+    { range: "5000+", y: 5000 },
+  ];
 
-textFont(myFont2);
-textSize(12);
-let circleSize = 10;
-let lineSpacing = 20;
+  textFont(myFont2);
+  textSize(12);
+  let circleSize = 10;
+  let lineSpacing = 20;
 
-// Etichette ATM / SOTT allineate alla legenda
-noStroke();
-fill(200, 200, 200);
-textFont(myFont2);
-textSize(14);
-textAlign(LEFT, TOP);
-
-// "ATM" in alto a sinistra, stesso x della legenda
-text("ATMOSPHERIC", offsetX, margin + 280);
-
-// "SOTT" poco sopra la legenda
-textAlign(LEFT, BOTTOM);
-text("UNDERGROUND", offsetX, offsetY - 85);
-
-
-
-legend.forEach((item, i) => {
-  fill(getYieldColor(item.y));
-  let cx = offsetX + circleSize / 2;
-  let cy = offsetY + i * lineSpacing;
-  circle(cx, cy, circleSize);
-
+  // Etichette ATM / SOTT allineate alla legenda
+  noStroke();
   fill(200, 200, 200);
-  textAlign(LEFT, CENTER);
-  text(item.range, cx + circleSize + 5, cy);
-});
+  textFont(myFont2);
+  textSize(14);
+  textAlign(LEFT, TOP);
 
+  // "ATM" in alto a sinistra, stesso x della legenda
+  text("ATMOSPHERIC", offsetX, margin + 280);
+
+  // "SOTT" poco sopra la legenda
+  textAlign(LEFT, BOTTOM);
+  text("UNDERGROUND", offsetX, offsetY - 85);
+
+  legend.forEach((item, i) => {
+    fill(getYieldColor(item.y));
+    let cx = offsetX + circleSize / 2;
+    let cy = offsetY + i * lineSpacing;
+    circle(cx, cy, circleSize);
+
+    fill(200, 200, 200);
+    textAlign(LEFT, CENTER);
+    text(item.range, cx + circleSize + 5, cy);
+  });
 
   let yearsToMark = [1950, 1963, 1990];
   yearsToMark.forEach((y) => {
@@ -457,7 +468,6 @@ legend.forEach((item, i) => {
 
   // CTA bottom-right (glow/pulse)
   drawColumnCTA();
-
 }
 
 function drawColumnCTA() {
@@ -489,33 +499,37 @@ function updateHoverPage2() {
   isHoveringInteractive = false;
 
   // --- PRIORITY: top-right carousel arrows hover => HAND (must run BEFORE exclusions) ---
-const lineX = width / 2 + 260;
-const boxX = lineX + 18;
-const boxY = 40;
-const boxW = 280;
-const boxH = 96;
+  const lineX = width / 2 + 260;
+  const boxX = lineX + 18;
+  const boxY = 40;
+  const boxW = 280;
+  const boxH = 96;
 
-const arrowsY = boxY + boxH + 18;
-const hitW = 34, hitH = 34;
+  const arrowsY = boxY + boxH + 18;
+  const hitW = 34,
+    hitH = 34;
 
-const rightCx = boxX + boxW - 4;
-const leftCx = boxX + 4;
+  const rightCx = boxX + boxW - 4;
+  const leftCx = boxX + 4;
 
-const overRight =
-  (infoStep < 3) &&
-  mouseX >= rightCx - hitW / 2 && mouseX <= rightCx + hitW / 2 &&
-  mouseY >= arrowsY - hitH / 2 && mouseY <= arrowsY + hitH / 2;
+  const overRight =
+    infoStep < 3 &&
+    mouseX >= rightCx - hitW / 2 &&
+    mouseX <= rightCx + hitW / 2 &&
+    mouseY >= arrowsY - hitH / 2 &&
+    mouseY <= arrowsY + hitH / 2;
 
-const overLeft =
-  (infoStep > 0) &&
-  mouseX >= leftCx - hitW / 2 && mouseX <= leftCx + hitW / 2 &&
-  mouseY >= arrowsY - hitH / 2 && mouseY <= arrowsY + hitH / 2;
+  const overLeft =
+    infoStep > 0 &&
+    mouseX >= leftCx - hitW / 2 &&
+    mouseX <= leftCx + hitW / 2 &&
+    mouseY >= arrowsY - hitH / 2 &&
+    mouseY <= arrowsY + hitH / 2;
 
-if (overRight || overLeft) {
-  cursor(HAND);
-  return;
-}
-
+  if (overRight || overLeft) {
+    cursor(HAND);
+    return;
+  }
 
   // spazio orizzontale tra anni (colonne)
   const yearStep = (width - 2 * margin) / (endYear - startYear);
@@ -525,13 +539,13 @@ if (overRight || overLeft) {
   const labelTop = yAxis - 40;
   const labelBottom = yAxis + 40;
   // area del grafico (colonne) — NON include bottom UI (legenda/CTA)
-  const columnTop = 80;            // sopra l'asse (puoi ritoccare)
+  const columnTop = 80; // sopra l'asse (puoi ritoccare)
   const columnBottom = yAxis + 200;
 
   // EXCLUDE bottom-left legend area
   const legendLeft = margin - 10;
-  const legendRight = margin + 220;                 // allarga se la legenda è più larga
-  const legendTop = height - margin - 150;          // alza/abbassa in base alla tua legenda
+  const legendRight = margin + 220; // allarga se la legenda è più larga
+  const legendTop = height - margin - 150; // alza/abbassa in base alla tua legenda
   const legendBottom = height;
 
   // EXCLUDE bottom-right CTA area
@@ -541,24 +555,29 @@ if (overRight || overLeft) {
   const ctaBottom = height;
 
   // EXCLUDE top-center total bombs UI (title + number)
-  const topLeft = width / 2 - 220;   // larghezza box (tweak se serve)
+  const topLeft = width / 2 - 220; // larghezza box (tweak se serve)
   const topRight = width / 2 + 900;
   const topTop = 0;
-  const topBottom = 350;            // altezza box (tweak se serve)
-
+  const topBottom = 350; // altezza box (tweak se serve)
 
   // se sei sopra legenda o CTA, niente hover e niente hand cursor
   const overLegend =
-    mouseX >= legendLeft && mouseX <= legendRight &&
-    mouseY >= legendTop && mouseY <= legendBottom;
+    mouseX >= legendLeft &&
+    mouseX <= legendRight &&
+    mouseY >= legendTop &&
+    mouseY <= legendBottom;
 
   const overCTA =
-    mouseX >= ctaLeft && mouseX <= ctaRight &&
-    mouseY >= ctaTop && mouseY <= ctaBottom;
+    mouseX >= ctaLeft &&
+    mouseX <= ctaRight &&
+    mouseY >= ctaTop &&
+    mouseY <= ctaBottom;
 
   const overTopUI =
-  mouseX >= topLeft && mouseX <= topRight &&
-  mouseY >= topTop && mouseY <= topBottom;
+    mouseX >= topLeft &&
+    mouseX <= topRight &&
+    mouseY >= topTop &&
+    mouseY <= topBottom;
 
   if (overLegend || overCTA || overTopUI) {
     cursor(ARROW);
@@ -586,7 +605,7 @@ if (overRight || overLeft) {
 
 function drawTopRightInfoCarousel() {
   // Layout (tweak safe)
-  const lineX = width / 2 + 260;  // “a destra” del blocco centrale
+  const lineX = width / 2 + 260; // “a destra” del blocco centrale
   const topY = 0;
 
   const boxX = lineX + 18;
@@ -611,7 +630,7 @@ function drawTopRightInfoCarousel() {
   text(infoTexts[infoStep], boxX, boxY, boxW, boxH);
   pop();
 
- // Arrows under the text block
+  // Arrows under the text block
   const arrowsY = boxY + boxH + 18;
   const chevronW = 10;
   const chevronH = 8;
@@ -624,8 +643,6 @@ function drawTopRightInfoCarousel() {
   if (infoStep > 0) {
     drawGlowingChevronLeft(boxX + 4, arrowsY, chevronW, chevronH);
   }
-
-  
 }
 
 function drawGlowingChevronRight(cx, cy, halfW, h) {
@@ -665,7 +682,6 @@ function drawGlowingChevronLeft(cx, cy, halfW, h) {
   pop();
 }
 
-
 function mouseWheel(event) {
   if (page === 1) {
     spreadSpeed += event.delta * 0.05;
@@ -688,39 +704,47 @@ function mouseWheel(event) {
 }
 
 function mousePressed() {
-  
   // ------------ page 2 ------------
   if (page === 2) {
-
     // --- click on top-right carousel arrows ---
     const lineX = width / 2 + 260;
-  const boxX = lineX + 18;
-  const boxY = 40;
-  const boxW = 280;
-  const boxH = 96;
+    const boxX = lineX + 18;
+    const boxY = 40;
+    const boxW = 280;
+    const boxH = 96;
 
-  const arrowsY = boxY + boxH + 18;
+    const arrowsY = boxY + boxH + 18;
 
-  const hitW = 34, hitH = 34;
+    const hitW = 34,
+      hitH = 34;
 
-  // freccia destra sotto-dx del box
-  const rightCx = boxX + boxW - 4;
-  // freccia sinistra sotto-sx del box
-  const leftCx = boxX + 4;
+    // freccia destra sotto-dx del box
+    const rightCx = boxX + boxW - 4;
+    // freccia sinistra sotto-sx del box
+    const leftCx = boxX + 4;
 
-  const overRight =
-    (infoStep < 3) &&
-    mouseX >= rightCx - hitW / 2 && mouseX <= rightCx + hitW / 2 &&
-    mouseY >= arrowsY - hitH / 2 && mouseY <= arrowsY + hitH / 2;
+    const overRight =
+      infoStep < 3 &&
+      mouseX >= rightCx - hitW / 2 &&
+      mouseX <= rightCx + hitW / 2 &&
+      mouseY >= arrowsY - hitH / 2 &&
+      mouseY <= arrowsY + hitH / 2;
 
-  const overLeft =
-    (infoStep > 0) &&
-    mouseX >= leftCx - hitW / 2 && mouseX <= leftCx + hitW / 2 &&
-    mouseY >= arrowsY - hitH / 2 && mouseY <= arrowsY + hitH / 2;
+    const overLeft =
+      infoStep > 0 &&
+      mouseX >= leftCx - hitW / 2 &&
+      mouseX <= leftCx + hitW / 2 &&
+      mouseY >= arrowsY - hitH / 2 &&
+      mouseY <= arrowsY + hitH / 2;
 
-    if (overRight) { infoStep++; return; }
-    if (overLeft) { infoStep--; return; }
-
+    if (overRight) {
+      infoStep++;
+      return;
+    }
+    if (overLeft) {
+      infoStep--;
+      return;
+    }
 
     for (let p of particles2) {
       let d = dist(mouseX, mouseY, p.x, p.y);
@@ -742,7 +766,7 @@ function mousePressed() {
       let ry = dx * sin(-HALF_PI) + dy * cos(-HALF_PI);
 
       if (rx >= -tw / 2 && rx <= tw / 2 && ry >= 0 && ry <= th) {
-      window.location.href = `year.html?year=${year}`;
+        window.location.href = `year.html?year=${year}`;
         break;
       }
     }
@@ -759,7 +783,6 @@ function keyPressed() {
     infoStep--;
   }
 }
-
 
 function mouseReleased() {
   if (page === 2) scrollDirection = 0;
@@ -826,7 +849,7 @@ class Particle2 {
   draw() {
     if (!this.active) return;
 
-    const isHover = (hoveredYear === this.year);
+    const isHover = hoveredYear === this.year;
     const rr = isHover ? this.r * 1.25 : this.r;
 
     noStroke();
@@ -854,7 +877,6 @@ function getColorLevel(y) {
   else if (y >= 5000) return 4;
   else return 5;
 }
-
 
 function creaParticlesDaTabella() {
   let cellSize = 5,
@@ -913,7 +935,7 @@ function disegnaAsseEAnni() {
     let x = map(year, startYear, endYear, margin, width - margin) + 3;
     let y = yAxis;
 
-    const isHover = (hoveredYear === year);
+    const isHover = hoveredYear === year;
 
     push();
     translate(x + 3, y);
@@ -932,7 +954,6 @@ function disegnaAsseEAnni() {
     pop();
   }
 }
-
 
 function goNextPage() {
   // Vai alla pagina 2 (grafico)
@@ -955,11 +976,11 @@ function goNextPage() {
   }
 }
 
-
 // ===============================
 // LISTENER MENU → CAMBIO PAGINA
 // ===============================
-window.addEventListener("changePage", (e) => {   // <<< AGGIORNATO
+window.addEventListener("changePage", (e) => {
+  // <<< AGGIORNATO
   if (e.detail.page === 2) {
     goToOverview();
   } else {
