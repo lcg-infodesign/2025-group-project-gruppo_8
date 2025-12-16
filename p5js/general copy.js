@@ -501,9 +501,12 @@ function updateHoverPage2() {
   // --- PRIORITY: top-right carousel arrows hover => HAND (must run BEFORE exclusions) ---
   const lineX = width / 2 + 260;
   const boxX = lineX + 18;
-  const boxY = 40;
-  const boxW = 280;
-  const boxH = 96;
+  const titleY = 70;
+  const boxY = titleY;
+
+  const boxW = 340;
+  const boxH = 120;
+
 
   const arrowsY = boxY + boxH + 18;
   const hitW = 34,
@@ -609,9 +612,11 @@ function drawTopRightInfoCarousel() {
   const topY = 0;
 
   const boxX = lineX + 18;
-  const boxY = 40;
-  const boxW = 280;
-  const boxH = 96;
+  const titleY = 75;   // stessa y del "TOTAL AMOUNT OF BOMBS"
+  const boxY = titleY; // allineamento top testo
+
+  const boxW = 340;    // box più lunga
+  const boxH = 120;    // box più alta (più righe)
 
   // Vertical cyan line from top
   push();
@@ -631,7 +636,7 @@ function drawTopRightInfoCarousel() {
   pop();
 
   // Arrows under the text block
-  const arrowsY = boxY + boxH + 18;
+  const arrowsY = boxY + boxH + 4;
   const chevronW = 10;
   const chevronH = 8;
 
@@ -709,11 +714,14 @@ function mousePressed() {
     // --- click on top-right carousel arrows ---
     const lineX = width / 2 + 260;
     const boxX = lineX + 18;
-    const boxY = 40;
-    const boxW = 280;
-    const boxH = 96;
+    const titleY = 70;
+    const boxY = titleY;
+
+    const boxW = 340;
+    const boxH = 120;
 
     const arrowsY = boxY + boxH + 18;
+
 
     const hitW = 34,
       hitH = 34;
