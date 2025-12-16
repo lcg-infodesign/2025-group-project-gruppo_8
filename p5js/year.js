@@ -10,8 +10,7 @@ function preload() {
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
   myFont2 = loadFont("fonts/LibreFranklin-Regular.otf");
   myFont3 = loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
-  img1 = loadImage("images/bleauuu.png");
-  mushroomImg = loadImage("images/bleauuu.png");
+  mushroomImg = loadImage("images/mushroom.png");
   table = loadTable("dataset/dataset.csv", "csv", "header");
 }
 
@@ -36,11 +35,11 @@ function draw() {
   // Fungo atomico come sfondo
   if (mushroomImg) {
     push();
-    tint(200);
+    tint(80);
     imageMode(CENTER);
     // Adatta in altezza
-    let imgH = height;
-    let imgW = height * (mushroomImg.width / mushroomImg.height);
+    let imgH = 0.9*height;
+    let imgW = 1.2*height * (mushroomImg.width / mushroomImg.height);
     image(mushroomImg, width / 2, height / 2, imgW, imgH);
     pop();
   }
@@ -211,8 +210,8 @@ pop();
 function drawTestDots(yearData) {
   dots = [];
 
-  let cellSize = 15;
-  let gap = 8;
+  let cellSize = 13;
+  let gap = 7;
   let cols = 5;
   let lineY = height / 2 + 50;
   let fixedSpacing = 150;
@@ -270,8 +269,8 @@ let atmTests = tests.filter(t => !undergroundTypes.includes(t.type));
 
         let cx = x - colWidth / 2 + col * (cellSize + gap);
         let cy = isAtmosph
-          ? lineY - (cellSize + gap) - row * (cellSize + gap)
-          : lineY + (cellSize + gap) + row * (cellSize + gap);
+          ? lineY - (cellSize + 2*gap) - row * (cellSize + gap)
+          : lineY + (cellSize + 2*gap) + row * (cellSize + gap);
 
         let d = dist(mouseX, mouseY, cx, cy);
         let isHovered = d < cellSize / 2;
@@ -334,8 +333,11 @@ function drawBottomInfo(yearData) {
 }
 
 function drawLegend() {
-  let offsetX = 80;
-  let offsetY = height - 200;
+  let margin = 80;
+
+
+    let offsetX = margin - 8; // usa lo stesso margin del grafico
+  let offsetY = height - margin - 80;
 
   textFont(myFont2);
   textAlign(LEFT, TOP);
