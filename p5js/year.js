@@ -316,7 +316,7 @@ textFont(myFont2);
 textSize(14);
 textAlign(CENTER, CENTER);
 fill(0, 255, 255, alpha);
-text("CLICK A BOMB FOR MORE", windowWidth - 200, height - 50);
+text("Click a bomb to see more", windowWidth - 200, height - 50);
 }
 
 
