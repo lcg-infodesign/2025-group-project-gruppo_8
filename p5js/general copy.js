@@ -8,7 +8,7 @@ let menuOpen = false;
 // Page2 top-right text carousel (4 steps)
 let infoStep = 0; // 0..3
 const infoTexts = [
-  "The first nuclear explosions mark a historical turning point.\n After the end of World War II, the atomic bomb becomes a tool of power and deterrence.\n Testing is limited, but a new form of global threat begins.",
+  "The first nuclear explosions mark a historical turning point. After the end of World War II,\n the atomic bomb becomes a tool of power and deterrence.\n Testing is limited, but a new form of global threat begins.",
   "Competition between superpowers leads to a rapid increase in nuclear tests.\nExplosions become more frequent and more powerful, often atmospheric.\nNuclear testing is used as a political and military demonstration.",
   "After the first international restrictions, many tests move underground.\nThe number of explosions decreases, but technological development continues.\nDeterrence remains central throughout the Cold War.",
   "With the end of the Cold War, nuclear explosions decrease significantly.\nIn 1996, the Comprehensive Nuclear-Test-Ban Treaty (CTBT) is adopted, aiming to ban all nuclear test explosions.\n1998 marks the last officially certified nuclear tests.",
