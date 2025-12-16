@@ -357,7 +357,7 @@ function drawPage2() {
   fill(200);
   textSize(20);
   textAlign(CENTER, TOP);
-  text("TITOLO", width / 2, 35);
+  text("OVERVIEW", width / 2, 35);
 
   noStroke();
   fill(0, 255, 255);
