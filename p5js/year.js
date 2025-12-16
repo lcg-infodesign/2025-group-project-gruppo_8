@@ -36,7 +36,7 @@ function draw() {
   // Fungo atomico come sfondo
   if (mushroomImg) {
     push();
-    tint(255, 100, 0);
+    tint(200);
     imageMode(CENTER);
     // Adatta in altezza
     let imgH = height;
@@ -114,7 +114,7 @@ function processData() {
     years.sort((a, b) => a - b);
   }
   countries.sort();
-  const countryOrder = ["INDIA", "PAKIST", "USA", "USSR", "FRANCE", "UK", "CHINA"];
+  const countryOrder = ["INDIA", "PAKIST", "CHINA", "FRANCE", "UK", "USA", "USSR"];
   countries.sort((a, b) => {
     const indexA = countryOrder.indexOf(a);
     const indexB = countryOrder.indexOf(b);
