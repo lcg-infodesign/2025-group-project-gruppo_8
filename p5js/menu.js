@@ -14,6 +14,11 @@ let menuSketch = function (p) {
 
   let font;
 
+  // ---- MENU CONFIG ----
+  const menuStartY = 110;
+  const menuStepY = 28;
+  const menuTextH = 18;
+
   // link menu
   const menuLinks = {
     "home": "index.html",
@@ -23,7 +28,6 @@ let menuSketch = function (p) {
     "about": "about.html"
   };
 
-  // ora include home
   const items = ["home", "overview", "bombs per year", "insight", "about"];
 
   p.preload = function () {
@@ -70,8 +74,10 @@ let menuSketch = function (p) {
     }
 
     let insideMenu =
-      p.mouseX >= menuX && p.mouseX <= menuX + menuW &&
-      p.mouseY >= 0 && p.mouseY <= p.height;
+      p.mouseX >= menuX &&
+      p.mouseX <= menuX + menuW &&
+      p.mouseY >= 0 &&
+      p.mouseY <= p.height;
 
     if (menuOpen && !insideMenu && distToButton >= btnSize / 2) {
       menuOpen = false;
@@ -89,12 +95,10 @@ let menuSketch = function (p) {
     p.translate(btnX + btnSize / 2, btnY + btnSize / 2);
     p.scale(btnScale);
 
-    // sfondo bianco trasparente
     p.noStroke();
     p.fill(hoverButton ? p.color(0, 255, 255, 0) : p.color(255, 255, 255, 10));
     p.ellipse(0, 0, 45, 45);
 
-    // cerchi pulsante
     p.stroke(hoverButton ? p.color(0, 255, 255) : 255);
     p.strokeWeight(0.4);
     p.noFill();
@@ -110,7 +114,6 @@ let menuSketch = function (p) {
     p.ellipse(0, 0, 30, 10);
     p.pop();
 
-    // punto centrale
     p.fill(hoverButton ? p.color(0, 255, 255) : 255);
     p.noStroke();
     p.ellipse(0, 0, 4);
@@ -123,8 +126,8 @@ let menuSketch = function (p) {
 
     if (!menuOpen && menuX <= -menuW + 1) return;
 
-    p.fill(0, 0, 0, 0);
     p.noStroke();
+    p.fill(0, 0, 0, 0);
     p.rect(menuX, 0, menuW, p.height);
 
     p.textFont(font);
@@ -133,26 +136,26 @@ let menuSketch = function (p) {
     for (let i = 0; i < items.length; i++) {
 
       let label = items[i];
-      let y = 110 + i * 28;
-      let x = menuX + 38;
+      let displayLabel = label === "home" ? "NE ARCHIVE" : label;
 
-      let displayLabel =
-        label === "home" ? "NE ARCHIVE" : label;
+      let x = menuX + 38;
+      let y = menuStartY + i * menuStepY;
 
       let w = p.textWidth(displayLabel);
-      let h = 18;
+      let h = menuTextH;
 
       let hovering =
         p.mouseX >= x &&
         p.mouseX <= x + w &&
-        p.mouseY >= y &&
-        p.mouseY <= y + h;
+        p.mouseY >= y - h &&
+        p.mouseY <= y;
 
       p.fill(hovering ? p.color(0, 255, 255) : 220);
       p.text(displayLabel, x, y);
     }
   }
 
+  // ---- CLICK ----
   p.mouseReleased = function () {
 
     if (!menuOpen) return;
@@ -160,20 +163,19 @@ let menuSketch = function (p) {
     for (let i = 0; i < items.length; i++) {
 
       let label = items[i];
-      let y = 120 + i * 28;
-      let x = menuX + 38;
+      let displayLabel = label === "home" ? "NE ARCHIVE" : label;
 
-      let displayLabel =
-        label === "home" ? "NE ARCHIVE" : label;
+      let x = menuX + 38;
+      let y = menuStartY + i * menuStepY;
 
       let w = p.textWidth(displayLabel);
-      let h = 10;
+      let h = menuTextH;
 
       let hovering =
         p.mouseX >= x &&
         p.mouseX <= x + w &&
-        p.mouseY >= y &&
-        p.mouseY <= y + h;
+        p.mouseY >= y - h &&
+        p.mouseY <= y;
 
       if (hovering) {
 
