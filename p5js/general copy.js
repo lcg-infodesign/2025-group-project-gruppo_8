@@ -370,7 +370,6 @@ function drawPage2() {
 
   textSize(14);
   textAlign(CENTER, TOP);
-  //text("TOTAL AMOUNT OF BOMBS", width / 2, 80);
   let activeParticles = particles2.filter((p) => p.active).length;
   textFont(myFont3);
   textSize(60);
