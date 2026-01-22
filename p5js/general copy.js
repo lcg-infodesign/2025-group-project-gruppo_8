@@ -226,7 +226,6 @@ function drawPage1() {
   text("NUCLEAR EXPLOSIONS ARCHIVE", width / 2, 30);
 
   textFont(myFont2);
-  textSize(16);
   fill(200, 200, 200);
 
   // Intro texts — same spacing logic as Insight (consistent margins + max width)
@@ -367,12 +366,19 @@ function drawPage2() {
   let offsetX = margin - 8; // usa lo stesso margin del grafico
   let offsetY = height - margin - 80; // base, poi la sistemiamo con lineSpacing
 
-  textFont(myFont1);
+  //textFont(myFont1);  OLD TYTLE
+  //noStroke();
+  //fill(200);
+  //textSize(20);
+  //textAlign(CENTER, TOP);
+  //text("TOTAL AMOUNT OF BOMBS", width / 2, 35);
+
+  textFont(myFont2);  
   noStroke();
-  fill(200);
-  textSize(20);
+  fill(0,255,255);
+  textSize(16);
   textAlign(CENTER, TOP);
-  text("TOTAL AMOUNT OF BOMBS", width / 2, 35);
+  text("Bombs Launched", width / 2, 170);
 
   noStroke();
   fill(0, 255, 255);
@@ -388,7 +394,7 @@ function drawPage2() {
   let activeParticles = particles2.filter((p) => p.active).length;
   textFont(myFont3);
   textSize(60);
-  fill(0, 255, 255);
+  fill(0,255,255);
   text(activeParticles, width / 2, 90);
 
   // Top-right text carousel (line + text + arrows)
@@ -419,17 +425,17 @@ function drawPage2() {
 
   // Etichette ATM / SOTT allineate alla legenda
   noStroke();
-  fill(200, 200, 200);
+  fill(0, 255, 255);
   textFont(myFont2);
   textSize(14);
   textAlign(LEFT, TOP);
 
   // "ATM" in alto a sinistra, stesso x della legenda
-  text("ATMOSPHERIC", offsetX, margin + 280);
+  text("Atmospheric", offsetX, margin + 280);
 
   // "SOTT" poco sopra la legenda
   textAlign(LEFT, BOTTOM);
-  text("UNDERGROUND", offsetX, offsetY - 85);
+  text("Underground", offsetX, offsetY - 85);
 
   legend.forEach((item, i) => {
     fill(getYieldColor(item.y));
@@ -636,8 +642,8 @@ function drawTopRightInfoCarousel() {
   const titleY = 75;   // stessa y del "TOTAL AMOUNT OF BOMBS"
   const boxY = titleY; // allineamento top testo
 
-  const boxW = 340;    // box più lunga
-  const boxH = 120;    // box più alta (più righe)
+  const boxW = width - width / 2 - 260 - margin;    // box più lunga
+  const boxH = 200;    // box più alta (più righe)
 
   // Vertical cyan line from top
   push();
@@ -650,7 +656,7 @@ function drawTopRightInfoCarousel() {
   push();
   noStroke();
   textFont(myFont2);
-  textSize(16);
+  textSize(21);
   fill(200, 200, 200);
   textAlign(LEFT, TOP);
   text(infoTexts[infoStep], boxX, boxY, boxW, boxH);
@@ -708,7 +714,7 @@ function drawGlowingChevronLeft(cx, cy, halfW, h) {
   pop();
 }
 
-function mouseWheel(event) {
+function mouseWheel(event) { 
   if (page === 1) {
     spreadSpeed += event.delta * 0.05;
 
@@ -738,8 +744,8 @@ function mousePressed() {
     const titleY = 70;
     const boxY = titleY;
 
-    const boxW = 340;
-    const boxH = 120;
+    const boxW = width - width / 2 - 260 - margin;
+    const boxH = 200;
 
     const arrowsY = boxY + boxH + 18;
 
@@ -971,11 +977,11 @@ function disegnaAsseEAnni() {
     rotate(HALF_PI);
 
     if (isHover) {
-      fill(255);
+      fill(0,255,255);
       textSize(14);
       scale(1.06); // ingrandimento leggero
     } else {
-      fill(0, 255, 255);
+      fill(220);
       textSize(12);
     }
 
@@ -1016,4 +1022,3 @@ window.addEventListener("changePage", (e) => {
   }
 });
  
-
