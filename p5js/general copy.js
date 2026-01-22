@@ -4,6 +4,8 @@
 let page = 1;
 let data = [];
 let menuOpen = false;
+let enteredPage2ByScroll = false; 
+
 
 // Page2 top-right text carousel (4 steps)
 let infoStep = 0; // 0..3
@@ -78,6 +80,7 @@ let UGTypes = [
 // NUOVA FUNZIONE — vai alla overview
 // ===============================
 function goToOverview() {
+  enteredPage2ByScroll = false;
   // Vai alla pagina 2 (grafico)
   page = 2;
 
@@ -97,6 +100,18 @@ function goToOverview() {
     skipBtn.parentElement.style.display = "none";
   }
 }
+ 
+//    // goToOverview DA USARE PER APPARIRE LE BOMBE GRADUALI SE CLICCHI SKIP //
+//function goToOverview() {
+  //enteredPage2ByScroll = true;
+  //page = 2;
+  //scrollProgress = startYear - 1;
+  //scrollDirection = 1;
+  //const skipBtn = document.getElementById("skipIntroBtn");
+  //if (skipBtn && skipBtn.parentElement) {
+  //  skipBtn.parentElement.style.display = "none";
+  //}
+//}
 
 function preload() {
   // pagina1
@@ -165,7 +180,7 @@ function setup() {
 function checkHashNavigation() {
   if (window.location.hash === "#page2") {
     page = 2;
-
+enteredPage2ByScroll = false;
     // Avvia subito le particelle attive
     scrollProgress = endYear; // imposta tutte le particelle come “attive”
     for (let p of particles2) {
@@ -460,7 +475,14 @@ function drawPage2() {
   disegnaAsseEAnni();
 
   for (let p of particles2) {
-    p.active = p.year - random(0, 0.9) <= scrollProgress;
+   if (enteredPage2ByScroll) {
+  // attivazione colonna per colonna
+  p.active = p.year <= floor(scrollProgress);
+} else {
+  // comportamento attuale (tutte insieme)
+  p.active = true;
+}
+
     p.update();
     p.draw();
   }
@@ -483,7 +505,7 @@ function drawColumnCTA() {
   textSize(14);
   textAlign(RIGHT, BOTTOM);
 
-  // "glow" finto: 2 passate morbide + 1 netta
+  // luminanza: 2 passate morbide + 1 netta
   noStroke();
   fill(0, 255, 255, a * 0.25);
   text(msg, x + 1, y + 1);
@@ -628,7 +650,7 @@ function drawTopRightInfoCarousel() {
   push();
   noStroke();
   textFont(myFont2);
-  textSize(14);
+  textSize(16);
   fill(200, 200, 200);
   textAlign(LEFT, TOP);
   text(infoTexts[infoStep], boxX, boxY, boxW, boxH);
@@ -653,7 +675,7 @@ function drawGlowingChevronRight(cx, cy, halfW, h) {
   const pulse = (sin(frameCount * 0.08) + 1) / 2; // 0..1
   const a = 90 + pulse * 165;
 
-  // glow (2 passate) + netta
+  // luminanza (2 passate) + netta
   push();
   strokeWeight(2);
   noFill();
@@ -968,13 +990,12 @@ function goNextPage() {
 
   // Stessa logica di goToOverview:
   // porta subito la timeline alla fine
-  scrollProgress = endYear;
+ 
+  enteredPage2ByScroll = true; // <-- AGGIUNTO
 
-  if (particles2 && particles2.length > 0) {
-    for (let p of particles2) {
-      p.active = true;
-    }
-  }
+  scrollProgress = startYear - 1; // <-- CAMBIATO (prima era endYear)
+
+
 
   // Nascondi il bottone se per caso è ancora visibile
   const skipBtn = document.getElementById("skipIntroBtn");
@@ -994,3 +1015,5 @@ window.addEventListener("changePage", (e) => {
     page = e.detail.page;
   }
 });
+ 
+
