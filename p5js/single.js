@@ -15,7 +15,7 @@ const LAT_MIN = -90;
 const LAT_MAX = 90;
 
 let yieldList = [
-  50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100, 50, 20, 10,
+  50000, 20000, 5000, 2000,  500, 200,  50, 20, 
 ];
 let radii = [];
 let centerX, centerY;
@@ -185,7 +185,7 @@ function draw() {
   fill(200);
   textSize(20);
   textAlign(CENTER, TOP);
-  text("SINGLE BOMB", width / 2, 30);
+  text(bombData.name, width / 2, 30);
 
   drawBombRing();
   if (!bombData) {
@@ -212,13 +212,13 @@ function draw() {
   }
   //hiroshima
   let rInner = mapYieldToRadius(15);
-animBlueR = lerp(animBlueR, rInner, 0.05);
+  animBlueR = lerp(animBlueR, rInner, 0.05);
 
   stroke(0, 255, 255);
   strokeWeight(1);
   noFill();
   ellipse(centerX, centerY, animBlueR * 2);
-
+  drawHiroshimaAnnotation();
   drawInfo();
 }
 
@@ -325,54 +325,33 @@ function drawInfo() {
     mouseY <= offsetY + scaledH;
 
 
-    
+
   if (isHoverMap) {
     cursor(HAND);
     fill(0, 150);
     rect(offsetX, offsetY, scaledW, scaledH);
 
-    fill(255);
-    textAlign(CENTER, CENTER);
-    textSize(14);
-    noStroke();
-    textFont(myFont2);
-    text(
-      "region code: " + bombData.region,
-      offsetX,
-      offsetY + scaledH / 2,
-      280
-    );
-
     noFill();
     stroke(0, 255, 255);
     strokeWeight(2);
-    line(
-      offsetX + scaledW - 20,
-      offsetY + 20,
-      offsetX + scaledW - 14,
-      offsetY + 20
-    );
-    line(
-      offsetX + scaledW - 20,
-      offsetY + 20,
-      offsetX + scaledW - 20,
-      offsetY + 14
-    );
-    line(
-      offsetX + scaledW - 10,
-      offsetY + 10,
-      offsetX + scaledW - 16,
-      offsetY + 10
-    );
-    line(
-      offsetX + scaledW - 10,
-      offsetY + 10,
-      offsetX + scaledW - 10,
-      offsetY + 16
-    );
+
+ let iconX = offsetX + scaledW / 2; 
+    let iconY = offsetY + scaledH / 2; 
+    let iconSize = 100;      
+
+    if (!mapZoomed) {
+      line(iconX - 6, iconY - 6, iconX + 0, iconY - 6);
+      line(iconX - 6, iconY - 6, iconX - 6, iconY + 0);
+      line(iconX + 6, iconY + 6, iconX + 0, iconY + 6);
+      line(iconX + 6, iconY + 6, iconX + 6, iconY + 0);
+    } else {
+      line(iconX - iconSize / 2, iconY - iconSize / 2, iconX + iconSize / 2, iconY + iconSize / 2);
+      line(iconX - iconSize / 2, iconY + iconSize / 2, iconX + iconSize / 2, iconY - iconSize / 2);
+    }
+
   } else {
-  cursor(ARROW);  
-}
+    cursor(ARROW);
+  }
 
   stroke(0, 255, 255, 150);
   strokeWeight(1);
@@ -384,28 +363,23 @@ function drawInfo() {
   fill(0, 255, 255);
   textFont(myFont3);
   textSize(14);
-  text("Country:" + bombData.country, offsetX + scaledW, 90);
-  text("Type: " + bombData.type, offsetX + scaledW, 120);
-  text("Longitude: " + bombData.longitude, offsetX + 300, offsetY - 30);
+
+
   textAlign(LEFT, TOP);
-  text("Nome:", offsetX, 90);
+  text("Type: " + bombData.type, offsetX, 120);
   text("Purpose: " + bombData.purpose, 50, offsetY - 30);
-  text("Latitude: " + bombData.latitude, offsetX, offsetY - 30);
+  text("Country: " + bombData.country, offsetX, offsetY - 30);
   textSize(24);
-  text(bombData.name, offsetX, 110);
+  textAlign(LEFT, TOP);
+  let yieldColor = color(getYieldColor(bombData.yield_u));
+  fill(yieldColor);
   textAlign(CENTER, BOTTOM);
   text(bombData.yield_u, width / 2, height - 30);
   textAlign(CENTER, TOP);
   textSize(14);
   text("Yield(kt) ", width / 2, height - 90);
-  textAlign(RIGHT, TOP);
+  fill(0, 255, 255);
   textFont(myFont2);
-  text(
-    "The blue ring represents the yield of Little Boy, detonated in Hiroshima in 1945.",
-    offsetX,
-    offsetY + scaledH + 10,
-    scaledW
-  );
   textAlign(LEFT, TOP);
   fill(200), text(getPurposeText(bombData.purpose), 60, offsetY + 10, 300);
 
@@ -445,25 +419,7 @@ function getTypeText(type) {
   return typeTextMap[type.toUpperCase()] || "Unknown Purpose";
 }
 
-function mousePressed() {
-  animR = 0;
-  animPlaying = true;
 
-  let iconX = offsetX + scaledW - 20;
-  let iconY = offsetY + 10;
-  let iconSize = 10;
-
-  let clickedIcon =
-    mouseX >= offsetX &&
-    mouseX <= offsetX + scaledW &&
-    mouseY >= offsetY &&
-    mouseY <= offsetY + scaledH;
-
-  if (clickedIcon) {
-    mapZoomed = !mapZoomed;
-    calculateMapDimensions();
-  }
-}
 
 function drawZoomedMap() {
   if (!mapImg || !bombData) return;
@@ -477,30 +433,13 @@ function drawZoomedMap() {
 
   stroke(0, 255, 255);
   strokeWeight(2);
-  line(
-    offsetX + scaledW - 20,
-    offsetY + 20,
-    offsetX + scaledW - 14,
-    offsetY + 20
-  );
-  line(
-    offsetX + scaledW - 20,
-    offsetY + 20,
-    offsetX + scaledW - 20,
-    offsetY + 14
-  );
-  line(
-    offsetX + scaledW - 10,
-    offsetY + 10,
-    offsetX + scaledW - 16,
-    offsetY + 10
-  );
-  line(
-    offsetX + scaledW - 10,
-    offsetY + 10,
-    offsetX + scaledW - 10,
-    offsetY + 16
-  );
+
+  let iconX = offsetX + scaledW - 16;
+  let iconY = offsetY + 16;
+  let iconSize = 12;
+
+  line(iconX - iconSize / 2, iconY - iconSize / 2, iconX + iconSize / 2, iconY + iconSize / 2);
+  line(iconX - iconSize / 2, iconY + iconSize / 2, iconX + iconSize / 2, iconY - iconSize / 2);
 
   stroke(0, 255, 255, 150);
   strokeWeight(1);
@@ -537,7 +476,7 @@ function drawZoomedMap() {
 
   let baseColor = color(getYieldColor(bombData.yield_u));
 
-  let r = 5 + 3 * sin(frameCount * 0.04);
+  let r = 8 + 3 * sin(frameCount * 0.04);
 
   noStroke();
   fill(baseColor);
@@ -552,7 +491,7 @@ function drawZoomedMap() {
     fill(0, 0, 0, 200);
 
     let boxW = 180;
-    let boxH = padding * 2 + lineHeight * 4;
+    let boxH = padding * 2 + lineHeight * 3;
 
     let boxX = px + 15;
     let boxY = py - boxH / 2;
@@ -567,28 +506,46 @@ function drawZoomedMap() {
     textAlign(LEFT, TOP);
     fill(0, 255, 255);
     text("Country:", boxX + padding, boxY + padding);
-    text("Region:", boxX + padding, boxY + padding + lineHeight * 1);
-    text("Latitude:", boxX + padding, boxY + padding + lineHeight * 2);
-    text("Longitude:", boxX + padding, boxY + padding + lineHeight * 3);
+    text("Latitude:", boxX + padding, boxY + padding + lineHeight * 1);
+    text("Longitude:", boxX + padding, boxY + padding + lineHeight * 2);
 
     textAlign(RIGHT, TOP);
     const valueX = boxX + boxW - padding;
 
     fill(0, 255, 255);
     text(bombData.country, valueX, boxY + padding);
-    text(bombData.region, valueX, boxY + padding + lineHeight * 1);
-    text(nf(bombData.latitude, 0, 4), valueX, boxY + padding + lineHeight * 2);
-    text(nf(bombData.longitude, 0, 4), valueX, boxY + padding + lineHeight * 3);
+    text(nf(bombData.latitude, 0, 2), valueX, boxY + padding + lineHeight * 1);
+    text(nf(bombData.longitude, 0, 2), valueX, boxY + padding + lineHeight * 2);
   }
 
+noStroke();
+textAlign(CENTER, BOTTOM);
+fill(0, 255, 255);
+textFont(myFont3);
+textSize(20);
+
+let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude, 0, 2) + ")";
+let coordX = width / 2;
+let coordY = 70;
+
+text(coordText, coordX, coordY);
+
+textSize(20);
+let textW = textWidth(coordText);
+let textH = 20; 
+
+if (
+  mouseX >= coordX - textW / 2 &&
+  mouseX <= coordX + textW / 2 &&
+  mouseY >= coordY - textH &&
+  mouseY <= coordY
+) {
+  stroke(0, 255, 255);
+  strokeWeight(2);
+  line(coordX - textW / 2, coordY + 2, coordX + textW / 2, coordY + 2); 
   noStroke();
-  textAlign(CENTER, TOP);
-  fill(0, 255, 255);
-  textFont(myFont3);
-  textSize(14);
-  text("Region Code:", width / 2, 60);
-  textSize(24);
-  text(bombData.region, width / 2, 80);
+}
+
 }
 
 window.addEventListener("load", () => {
@@ -596,3 +553,79 @@ window.addEventListener("load", () => {
     window.location.href = "index.html#page2";
   }
 });
+
+function drawHiroshimaAnnotation() {
+  let angle = radians(-25); 
+  let startX = centerX + cos(angle) * animBlueR;
+  let startY = centerY + sin(angle) * animBlueR;
+
+  let diagX = startX + 40;
+  let diagY = startY - 40;
+
+  let horizX = diagX + 100;
+  let horizY = diagY;
+
+  stroke(0, 255, 255);
+  strokeWeight(1);
+  noFill();
+
+  line(startX, startY, diagX, diagY);
+  line(diagX, diagY, horizX, horizY);
+
+  noStroke();
+  fill(0, 255, 255);
+  textFont(myFont2);
+  textSize(14);
+  textAlign(LEFT, CENTER);
+
+  text(
+    "Little Boy\nHiroshima, 1945",
+    horizX + 8,
+    horizY
+  );
+}
+
+function keyPressed() {
+  if (keyCode === ESCAPE) { 
+    if (mapZoomed) {
+      mapZoomed = false;
+      calculateMapDimensions();
+    }
+  }
+}
+
+function mousePressed() {
+  animR = 0;
+  animPlaying = true;
+
+  let clickedOnMap =
+    mouseX >= offsetX &&
+    mouseX <= offsetX + scaledW &&
+    mouseY >= offsetY &&
+    mouseY <= offsetY + scaledH;
+
+  if (mapZoomed) {
+    let iconX = offsetX + scaledW - 16;
+    let iconY = offsetY + 16;
+    let iconSize = 12;
+
+    if (
+      mouseX >= iconX - iconSize &&
+      mouseX <= iconX + iconSize &&
+      mouseY >= iconY - iconSize &&
+      mouseY <= iconY + iconSize
+    ) {
+      mapZoomed = false;
+      calculateMapDimensions();
+      return; 
+    }
+  }
+
+  if (!mapZoomed && clickedOnMap) {
+    mapZoomed = true;
+    calculateMapDimensions();
+  } else if (mapZoomed && !clickedOnMap) {
+    mapZoomed = false;
+    calculateMapDimensions();
+  }
+}
