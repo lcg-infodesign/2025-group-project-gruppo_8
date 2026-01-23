@@ -177,11 +177,11 @@ function draw() {
   background(20);
 
 if (bombBgImg) {
-  tint(255, 50);
-    let imgW = 0.8*width;            // 图片宽度填满画布
+  tint(255, 0);
+    let imgW = 0.9*width;            // 图片宽度填满画布
     let imgH = 0.6*height; // 按比例缩放
   let imgX = (width - imgW) / 2;  // 水平居中
-  let imgY = height*0.1; // 居中在上半部分
+  let imgY = -50; // 居中在上半部分
 
   image(bombBgImg, imgX, imgY, imgW, imgH);
   }
@@ -396,7 +396,7 @@ function drawInfo() {
  
   textFont(myFont2);
   textAlign(LEFT, TOP);
-  fill(200), text(getPurposeText(bombData.purpose), width*0.04, offsetY + 10, width*0.18);
+  fill(255), text(getPurposeText(bombData.purpose), width*0.04, offsetY + 10, width*0.18);
 
   let px = lonToMapX(bombData.longitude);
   let py = latToMapY(bombData.latitude);
