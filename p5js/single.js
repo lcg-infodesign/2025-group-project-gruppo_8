@@ -180,12 +180,12 @@ function draw() {
     return;
   }
 
-  textFont(myFont1);
-  noStroke();
-  fill(200);
-  textSize(20);
-  textAlign(CENTER, TOP);
-  text(bombData.name, width / 2, 30);
+  // textFont(myFont1);
+  // noStroke();
+  // fill(200);
+  // textSize(20);
+  // textAlign(CENTER, TOP);
+  // text(bombData.name, width / 2, 30);
 
   drawBombRing();
   if (!bombData) {
@@ -219,12 +219,14 @@ function draw() {
   noFill();
   ellipse(centerX, centerY, animBlueR * 2);
   drawHiroshimaAnnotation();
+  drawBombAnnotation();
+
   drawInfo();
 }
 
 function mapYieldToRadius(y) {
   let minR = 20;
-  let maxR = min(width, height) * 0.8;
+  let maxR = height*0.8;
 
   let ySafe = max(y, 1);
 
@@ -245,11 +247,11 @@ function getYieldColor(y) {
 function calculateMapDimensions() {
   if (!mapImg) return;
   if (!mapZoomed) {
-    scaledW = 300;
+    scaledW = width*0.2;
     scaledH = mapImg.height * (scaledW / mapImg.width);
 
-    offsetX = width - scaledW - 50;
-    offsetY = height - scaledH - 90;
+    offsetX = width - scaledW - 0.03*width;
+    offsetY = 0.2*height+scaledW+0.05*height;
   } else {
     scaledW = width * 0.7;
     scaledH = mapImg.height * (scaledW / mapImg.width);
@@ -269,10 +271,10 @@ function latToMapY(lat) {
 }
 
 function drawInfo() {
-  let boxW = 300,
-    boxH = 300,
-    boxX = width - boxW - 50,
-    boxY = 150;
+  let boxW = 0.2*width,
+    boxH = boxW,
+    boxX = width - boxW - 0.03*width,
+    boxY = 0.2*height;
   stroke(0, 255, 255, 150);
   strokeWeight(1);
   fill(0, 255, 255, 20);
@@ -356,7 +358,7 @@ function drawInfo() {
   stroke(0, 255, 255, 150);
   strokeWeight(1);
   fill(0, 255, 255, 20);
-  rect(50, offsetY, 320, scaledH);
+  rect(width*0.03, offsetY, width*0.2, scaledH);
 
   noStroke();
   textAlign(RIGHT, TOP);
@@ -366,8 +368,8 @@ function drawInfo() {
 
 
   textAlign(LEFT, TOP);
-  text("Type: " + bombData.type, offsetX, 120);
-  text("Purpose: " + bombData.purpose, 50, offsetY - 30);
+  text("Type: " + bombData.type, offsetX, boxY-30);
+  text("Purpose: " + bombData.purpose, width*0.03, offsetY - 30);
   text("Country: " + bombData.country, offsetX, offsetY - 30);
   textSize(24);
   textAlign(LEFT, TOP);
@@ -377,11 +379,12 @@ function drawInfo() {
   text(bombData.yield_u, width / 2, height - 30);
   textAlign(CENTER, TOP);
   textSize(14);
+   fill(0, 255, 255);
   text("Yield(kt) ", width / 2, height - 90);
-  fill(0, 255, 255);
+ 
   textFont(myFont2);
   textAlign(LEFT, TOP);
-  fill(200), text(getPurposeText(bombData.purpose), 60, offsetY + 10, 300);
+  fill(200), text(getPurposeText(bombData.purpose), width*0.04, offsetY + 10, width*0.18);
 
   let px = lonToMapX(bombData.longitude);
   let py = latToMapY(bombData.latitude);
@@ -628,4 +631,45 @@ function mousePressed() {
     mapZoomed = false;
     calculateMapDimensions();
   }
+}
+
+function drawBombAnnotation() {
+  if (!bombData) return;
+
+  // 动态圆环半径
+  let targetR = animR; 
+  let angle = radians(-65); // 圆环出发角度
+  let startX = centerX - cos(angle) * targetR;
+  let startY = centerY + sin(angle) * targetR;
+
+  // 固定文字位置
+  let textX = width * 0.05;
+  let textY = height * 0.05;
+
+  let c = color(getYieldColor(bombData.yield_u));
+  stroke(c);
+  strokeWeight(1);
+  noFill();
+
+  // 动态斜线中点：lerp 可以控制动画
+  let diagTargetX = textX + 50; // 最终水平线起点，距离文字一点
+  let diagTargetY = textY;
+
+  // 让中点慢慢接近最终位置
+  if (!this.diagX) this.diagX = startX; // 初始化
+  if (!this.diagY) this.diagY = startY;
+
+  this.diagX = lerp(this.diagX, diagTargetX, 0.05);
+  this.diagY = lerp(this.diagY, diagTargetY, 0.05);
+
+  line(startX, startY, this.diagX, this.diagY);
+  line(this.diagX, this.diagY, textX, textY);
+
+  noStroke();
+  fill(c);
+  textFont(myFont2);
+  textSize(14);
+  textAlign(LEFT, CENTER);
+
+  text(bombData.name, textX, textY);
 }
