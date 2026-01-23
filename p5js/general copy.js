@@ -10,7 +10,7 @@ let enteredPage2ByScroll = false;
 // Page2 top-right text carousel (4 steps)
 let infoStep = 0; // 0..3
 const infoTexts = [
-  "The first nuclear explosions mark a historical turning point. After the end of World War II,\n the atomic bomb becomes a tool of power and deterrence.\n Testing is limited, but a new form of global threat begins.",
+  "The first nuclear explosions mark a historical turning point. \nAfter the end of World War II, the atomic bomb becomes a tool of power and deterrence.\n Testing is limited, but a new form of global threat begins.",
   "Competition between superpowers leads to a rapid increase in nuclear tests.\nExplosions become more frequent and more powerful, often atmospheric.\nNuclear testing is used as a political and military demonstration.",
   "After the first international restrictions, many tests move underground.\nThe number of explosions decreases, but technological development continues.\nDeterrence remains central throughout the Cold War.",
   "With the end of the Cold War, nuclear explosions decrease significantly.\nIn 1996, the Comprehensive Nuclear-Test-Ban Treaty (CTBT) is adopted, aiming to ban all nuclear test explosions.\n1998 marks the last officially certified nuclear tests.",
@@ -378,7 +378,7 @@ function drawPage2() {
   fill(0,255,255);
   textSize(16);
   textAlign(CENTER, TOP);
-  text("Bombs Launched", width / 2, 170);
+  text("Bombs Launched", width / 2, 137);
 
   noStroke();
   fill(0, 255, 255);
@@ -395,7 +395,7 @@ function drawPage2() {
   textFont(myFont3);
   textSize(60);
   fill(0,255,255);
-  text(activeParticles, width / 2, 90);
+  text(activeParticles, width / 2, 57);
 
   // Top-right text carousel (line + text + arrows)
   drawTopRightInfoCarousel();
@@ -430,12 +430,63 @@ function drawPage2() {
   textSize(14);
   textAlign(LEFT, TOP);
 
-  // "ATM" in alto a sinistra, stesso x della legenda
-  text("Atmospheric", offsetX, margin + 280);
+  // in alto a sinistra, stesso x della legenda
+  text("Atmospheric", offsetX, margin + 282);
 
-  // "SOTT" poco sopra la legenda
+  // sopra la legenda
   textAlign(LEFT, BOTTOM);
   text("Underground", offsetX, offsetY - 85);
+
+// hover sopra Atmospheric
+const isHoverATM = hoverOnAtmospheric(offsetX, margin);
+
+if (isHoverATM) {
+  const padding = 8;
+  const lineHeight = 16;
+
+  fill(0, 0, 0, 200);
+
+  let boxW = 180;
+  let boxH = padding * 2 + lineHeight * 3;
+
+  let boxX = offsetX;
+  let boxY = 138;
+
+  rect(boxX, boxY, boxW, boxH, 5);
+
+  textSize(12);
+  textAlign(LEFT, TOP);
+  fill(0, 255, 255);
+  text("ATMOSPHERIC", boxX + padding, boxY + padding);
+  text("texxxxtxttx ", boxX + padding, boxY + padding + lineHeight);
+  text("tectctc text", boxX + padding, boxY + padding + lineHeight * 2);
+}
+
+// hover sopra underground
+const isHoverUND = hoverOnUnderground(offsetX, offsetY);
+
+if (isHoverUND) {
+  const padding = 8;
+  const lineHeight = 16;
+
+  fill(0, 0, 0, 200);
+
+  let boxW = 180;
+  let boxH = padding * 2 + lineHeight * 3;
+
+  let boxX = offsetX;
+  let boxY = 138;
+
+  rect(boxX, boxY, boxW, boxH, 5);
+
+  textSize(12);
+  textAlign(LEFT, TOP);
+  fill(0, 255, 255);
+  text("Underground", boxX + padding, boxY + padding);
+  text("texxxxtxttx ", boxX + padding, boxY + padding + lineHeight);
+  text("tectctc text", boxX + padding, boxY + padding + lineHeight * 2);
+}
+
 
   legend.forEach((item, i) => {
     fill(getYieldColor(item.y));
@@ -495,6 +546,36 @@ function drawPage2() {
 
   // CTA bottom-right (glow/pulse)
   drawColumnCTA();
+}
+
+ function hoverOnAtmospheric(offsetX, margin) {
+  const x = offsetX;
+  const y = margin + 282;
+
+  const w = 90;   // larghezza area hover
+  const h = 30;    // ALTEZZA verticale 
+
+  return (
+    mouseX >= x &&
+    mouseX <= x + w &&
+    mouseY >= y &&
+    mouseY <= y + h
+  );
+}
+
+function hoverOnUnderground(offsetX, offsetY) {
+  const x = offsetX;
+  const y = offsetY - 95;
+
+  const w = 100;   // larghezza area hover
+  const h = 20;    // ALTEZZA verticale 
+
+  return (
+    mouseX >= x &&
+    mouseX <= x + w &&
+    mouseY >= y &&
+    mouseY <= y + h
+  );
 }
 
 function drawColumnCTA() {
@@ -643,7 +724,7 @@ function drawTopRightInfoCarousel() {
   const boxY = titleY; // allineamento top testo
 
   const boxW = width - width / 2 - 260 - margin;    // box più lunga
-  const boxH = 200;    // box più alta (più righe)
+  const boxH = 450 - height / 4;    // PROPORZIONE INVERSA, sottrae parte schermo maggiore più grande è schermo
 
   // Vertical cyan line from top
   push();
@@ -745,7 +826,7 @@ function mousePressed() {
     const boxY = titleY;
 
     const boxW = width - width / 2 - 260 - margin;
-    const boxH = 200;
+    const boxH = 450 - height /4 ;
 
     const arrowsY = boxY + boxH + 18;
 
