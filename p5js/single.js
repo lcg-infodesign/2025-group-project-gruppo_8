@@ -106,6 +106,7 @@ function preload() {
 
   table = loadTable("dataset/dataset-singleb.csv", "csv", "header");
   mapImg = loadImage("images/mappa.png");
+ bombBgImg = loadImage("images/single bomb rumore.png");
 
   typeImages["AIRDROP"] = loadImage("images/airdrop.png");
   typeImages["ATMOSPH"] = loadImage("images/atmosph.png");
@@ -175,6 +176,17 @@ function setup() {
 function draw() {
   background(20);
 
+if (bombBgImg) {
+  tint(255, 50);
+    let imgW = 0.8*width;            // 图片宽度填满画布
+    let imgH = 0.6*height; // 按比例缩放
+  let imgX = (width - imgW) / 2;  // 水平居中
+  let imgY = height*0.1; // 居中在上半部分
+
+  image(bombBgImg, imgX, imgY, imgW, imgH);
+  }
+
+ tint(255, 255);
   if (mapZoomed) {
     drawZoomedMap();
     return;
@@ -251,7 +263,7 @@ function calculateMapDimensions() {
     scaledH = mapImg.height * (scaledW / mapImg.width);
 
     offsetX = width - scaledW - 0.03*width;
-    offsetY = 0.2*height+scaledW+0.05*height;
+    offsetY = 0.25*height+scaledW+0.05*height;
   } else {
     scaledW = width * 0.7;
     scaledH = mapImg.height * (scaledW / mapImg.width);
@@ -274,7 +286,7 @@ function drawInfo() {
   let boxW = 0.2*width,
     boxH = boxW,
     boxX = width - boxW - 0.03*width,
-    boxY = 0.2*height;
+    boxY = 0.25*height;
   stroke(0, 255, 255, 150);
   strokeWeight(1);
   fill(0, 255, 255, 20);
@@ -556,37 +568,63 @@ window.addEventListener("load", () => {
     window.location.href = "index.html#page2";
   }
 });
-
 function drawHiroshimaAnnotation() {
+  // 圆环起点位置
   let angle = radians(-25); 
   let startX = centerX + cos(angle) * animBlueR;
   let startY = centerY + sin(angle) * animBlueR;
 
-  let diagX = startX + 40;
-  let diagY = startY - 40;
+  // 横线长度
+  let horizLength = 100; // 可调节
+  let textOffset = 8;    // 文字离横线右端的距离
 
-  let horizX = diagX + 100;
-  let horizY = diagY;
+  // 初始化斜线和横线进度
+  if (!this.diagProgress) this.diagProgress = 0;
+  if (!this.horizProgress) this.horizProgress = 0;
 
+  // 斜线目标点
+  let diagTargetX = startX + 40;
+  let diagTargetY = startY - 40;
+
+  // 横线右端位置（靠近文字）
+  let horizEndX = diagTargetX; 
+  let horizEndY = diagTargetY;
+
+  // 斜线进度 lerp
+  this.diagProgress = lerp(this.diagProgress, 1, 0.03);
+  let diagCurrentX = startX + (diagTargetX - startX) * this.diagProgress;
+  let diagCurrentY = startY + (diagTargetY - startY) * this.diagProgress;
+
+  // 横线在斜线完全完成后开始动画
+  if (this.diagProgress >= 0.999) {
+    this.horizProgress = lerp(this.horizProgress, 1, 0.05);
+  }
+
+  // 横线从右向左生长
+  let horizCurrentStartX = horizEndX + horizLength * this.horizProgress;
+
+  // 绘制斜线
   stroke(0, 255, 255);
   strokeWeight(1);
   noFill();
+  line(startX, startY, diagCurrentX, diagCurrentY);
 
-  line(startX, startY, diagX, diagY);
-  line(diagX, diagY, horizX, horizY);
+  // 绘制横线
+  line(horizCurrentStartX, horizEndY, horizEndX, horizEndY);
 
+  // 绘制文字（固定位置）
   noStroke();
   fill(0, 255, 255);
   textFont(myFont2);
   textSize(14);
   textAlign(LEFT, CENTER);
-
   text(
     "Little Boy\nHiroshima, 1945",
-    horizX + 8,
-    horizY
+    horizCurrentStartX + textOffset,
+    horizEndY
   );
 }
+
 
 function keyPressed() {
   if (keyCode === ESCAPE) { 
@@ -636,40 +674,61 @@ function mousePressed() {
 function drawBombAnnotation() {
   if (!bombData) return;
 
-  // 动态圆环半径
-  let targetR = animR; 
-  let angle = radians(-65); // 圆环出发角度
+  // 圆环位置
+  let targetR = animR;
+  let angle = radians(-60);
   let startX = centerX - cos(angle) * targetR;
   let startY = centerY + sin(angle) * targetR;
-
-  // 固定文字位置
-  let textX = width * 0.05;
-  let textY = height * 0.05;
 
   let c = color(getYieldColor(bombData.yield_u));
   stroke(c);
   strokeWeight(1);
   noFill();
 
-  // 动态斜线中点：lerp 可以控制动画
-  let diagTargetX = textX + 50; // 最终水平线起点，距离文字一点
-  let diagTargetY = textY;
+  // 文字纵向固定位置
+  let textY = height * 0.15;
 
-  // 让中点慢慢接近最终位置
-  if (!this.diagX) this.diagX = startX; // 初始化
-  if (!this.diagY) this.diagY = startY;
+  textFont(myFont1);
+  textSize(20);
+  textAlign(RIGHT, CENTER);
 
-  this.diagX = lerp(this.diagX, diagTargetX, 0.05);
-  this.diagY = lerp(this.diagY, diagTargetY, 0.05);
+  // 横线长度和右端
+  let horizLength = 120;             // 横线长度
+  let horizEndX = width * 0.23 + 120; // 横线右端略微在文字右边
+  let horizEndY = textY;
 
-  line(startX, startY, this.diagX, this.diagY);
-  line(this.diagX, this.diagY, textX, textY);
+  // 初始化斜线和横线进度
+  if (!this.diagProgress) this.diagProgress = 0;
+  if (!this.horizProgress) this.horizProgress = 0;
 
+  // 斜线目标点
+  let diagTargetX = horizEndX;
+  let diagTargetY = horizEndY;
+
+  // 斜线进度 lerp
+  this.diagProgress = lerp(this.diagProgress, 1, 0.05);
+  let diagCurrentX = startX + (diagTargetX - startX) * this.diagProgress;
+  let diagCurrentY = startY + (diagTargetY - startY) * this.diagProgress;
+
+  // 横线在斜线完成后生长
+  if (this.diagProgress > 0.999) {
+    this.horizProgress = lerp(this.horizProgress, 1, 0.05);
+  }
+
+  // 横线从右向左生长
+  let horizCurrentStartX = horizEndX - horizLength * this.horizProgress;
+
+  // 文字横向位置跟随横线左端
+  let textX = horizCurrentStartX-10; // 文字右端贴着横线左端
+
+  // 绘制斜线
+  line(startX, startY, diagCurrentX, diagCurrentY);
+
+  // 绘制横线
+  line(horizCurrentStartX, horizEndY, horizEndX, horizEndY);
+
+  // 绘制文字
   noStroke();
   fill(c);
-  textFont(myFont2);
-  textSize(14);
-  textAlign(LEFT, CENTER);
-
   text(bombData.name, textX, textY);
 }
