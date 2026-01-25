@@ -14,10 +14,22 @@ const LON_MAX = 180;
 const LAT_MIN = -90;
 const LAT_MAX = 90;
 
+<<<<<<< Updated upstream
 let yieldList = [
   50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100, 50, 20, 10,
 ];
 let radii = [];
+=======
+// ----- 地图状态变量和常量 -----
+let isMapLarge = false; 
+const SMALL_MAP_W = 300;
+const MAP_PADDING = 50;
+const ICON_SIZE = 20; // 缩小图标尺寸
+const ICON_MARGIN = 5; 
+
+let yieldList = [50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100, 50, 20, 10];
+let radii = []; 
+>>>>>>> Stashed changes
 let centerX, centerY;
 let animPlaying = false;
 let mapZoomed = false;
@@ -97,7 +109,7 @@ const typeTextMap = {
 
 function preload() {
   const urlParams = new URLSearchParams(window.location.search);
-  bombID = urlParams.get("id") || "1"; //Ottieni l'ID della bomba dall'URL, se non presente usa "1"
+  bombID = urlParams.get("id") || "1";
   console.log("bombID =", bombID);
 
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
@@ -145,34 +157,45 @@ function getBombData(row) {
 function setup() {
   createCanvas(windowWidth, windowHeight);
 
+<<<<<<< Updated upstream
   radii = yieldList.map((y) => mapYieldToRadius(y));
+=======
+  radii = yieldList.map(y => mapYieldToRadius(y));
+>>>>>>> Stashed changes
   centerX = width / 2;
   centerY = height;
 
   noFill();
   strokeCap(SQUARE);
   textFont(myFont2);
+<<<<<<< Updated upstream
 
   // Cerca i dati della bomba corrispondente all'ID
+=======
+  
+>>>>>>> Stashed changes
   for (let i = 0; i < table.getRowCount(); i++) {
     if (table.getString(i, "id_no").trim() === bombID) {
       bombData = getBombData(table.getRow(i));
       break;
     }
   }
-  // Se non viene trovato alcun ID corrispondente → torna direttamente alla prima pagina
+  
   if (!bombData && table.getRowCount() > 0) {
-    bombData = getBombData(table.getRow(0)); // Torna alla prima pagina
+    bombData = getBombData(table.getRow(0));
   }
 
   if (bombData) {
     typeImg = typeImages[bombData.type];
   }
 
-  calculateMapDimensions();
+  calculateMapDimensions(isMapLarge);
 }
 
 function draw() {
+
+  
+  
   background(20);
 
   if (mapZoomed) {
@@ -195,6 +218,7 @@ function draw() {
     text("No bomb data available", width / 2, height / 2);
     return;
   }
+<<<<<<< Updated upstream
 
   for (let i = 0; i < radii.length; i++) {
     let r = radii[i];
@@ -214,13 +238,282 @@ function draw() {
   let rInner = mapYieldToRadius(15);
 animBlueR = lerp(animBlueR, rInner, 0.05);
 
+=======
+  
+  calculateMapDimensions(isMapLarge);
+
+  // 标题
+  fill(0, 255, 255);
+  textFont(myFont3);
+  textAlign(CENTER, TOP);
+  textSize(30);
+  text(bombData.name, width / 2, 20);
+
+  // 爆炸圈和类型信息只在小地图模式下显示
+  if (!isMapLarge) {
+    drawYieldCircles(); 
+    drawTypeInfoBox();
+  }
+  
+  drawMap();
+
+  
+}
+
+// --- 鼠标点击事件：仅处理点击图标切换大小 ---
+function mousePressed() {
+    let iconX = offsetX + scaledW - ICON_SIZE - ICON_MARGIN;
+    let iconY = offsetY + ICON_MARGIN;
+    let clickedIcon = mouseX >= iconX && mouseX <= iconX + ICON_SIZE &&
+                      mouseY >= iconY && mouseY <= iconY + ICON_SIZE;
+
+    if (clickedIcon) {
+        isMapLarge = !isMapLarge; 
+        calculateMapDimensions(isMapLarge);
+    }
+}
+
+// --- 地图尺寸计算函数 ---
+function calculateMapDimensions(isLarge) {
+  if (!mapImg) return;
+
+  if (isLarge) {
+    const MAX_W = width - 2 * MAP_PADDING;
+    const MAX_H = height - 2 * MAP_PADDING;
+    const aspect = mapImg.width / mapImg.height;
+
+    let w_by_width = MAX_W;
+    let h_by_width = w_by_width / aspect;
+
+    let h_by_height = MAX_H;
+    let w_by_height = h_by_height * aspect;
+    
+    if (h_by_width > MAX_H) {
+        scaledW = w_by_height;
+        scaledH = h_by_height;
+    } else {
+        scaledW = w_by_width;
+        scaledH = h_by_width;
+    }
+    
+    offsetX = (width - scaledW) / 2;
+    offsetY = (height - scaledH) / 2;
+
+  } else {
+    scaledW = SMALL_MAP_W;
+    scaledH = mapImg.height * (scaledW / mapImg.width);
+    offsetX = width - scaledW - MAP_PADDING;
+    offsetY = height - scaledH - MAP_PADDING;
+  }
+}
+
+// --- 线性地图投影函数 ---
+function lonToMapX(lon) {
+    return map(lon, LON_MIN, LON_MAX, offsetX, offsetX + scaledW);
+}
+
+function latToMapY(lat) {
+    return map(lat, LAT_MIN, LAT_MAX, offsetY + scaledH, offsetY);
+}
+
+
+// --- 绘制地图 (核心修改区域) ---
+function drawMap() {
+  if (!mapImg || !bombData) return;
+  
+  // 1. 绘制地图图片
+  image(mapImg, offsetX, offsetY, scaledW, scaledH);
+  noTint();
+
+  // 2. 绘制炸弹点位置
+  let bombPx = lonToMapX(bombData.longitude);
+  let bombPy = latToMapY(bombData.latitude);
+
+  let c = color(getYieldColor(bombData.yield_u));
+  fill(c);
+  noStroke();
+  circle(bombPx, bombPy, isMapLarge ? 15 : 10); 
+
+  if (!isMapLarge) {
+      // ------------------ 小地图模式 ------------------
+      
+      // 绘制蓝色背景框和边框
+      stroke(0, 255, 255, 150);
+      strokeWeight(1);
+      fill(0, 255, 255, 20);
+      rect(offsetX, offsetY, scaledW, scaledH);
+
+      // 数据信息 (小字)
+      fill(0, 255, 255);
+      textAlign(LEFT, TOP);
+      textSize(12);
+      text("Lat: " + bombData.latitude, offsetX, offsetY-20);
+      text("Lon: " + bombData.longitude, offsetX+100, offsetY-20);
+      text("Yield: " + bombData.yield_u, offsetX, 110);
+      text("Purpose: " + bombData.purpose, offsetX, 90);
+      text("Type: " + bombData.type, offsetX, 130);
+  } else {
+      // ------------------ 大地图模式 ------------------
+      
+      let isHoveringMap = mouseX >= offsetX && mouseX <= offsetX + scaledW && 
+                          mouseY >= offsetY && mouseY <= offsetY + scaledH;
+
+      // 悬停在爆炸点附近的检测
+      let hoverNearBomb = dist(mouseX, mouseY, bombPx, bombPy) < 30; 
+
+      // 计算缩放图标的区域 (用于排除十字线绘制)
+      let iconX_right = offsetX + scaledW;
+      let iconY_top = offsetY;
+      let iconX = iconX_right - ICON_SIZE - ICON_MARGIN;
+      let iconY = iconY_top + ICON_MARGIN;
+      let isHoveringIcon = mouseX >= iconX && mouseX <= iconX + ICON_SIZE &&
+                           mouseY >= iconY && mouseY <= iconY + ICON_SIZE;
+
+
+      // A. 鼠标悬停逻辑：只绘制十字线
+      // ** 关键修改：添加 !isHoveringIcon 条件 **
+      if (isHoveringMap && !isHoveringIcon) { 
+          // 绘制十字线 (Crosshairs)
+          stroke(0, 255, 255, 150); // 青色半透明
+          strokeWeight(1);
+          line(offsetX, mouseY, mouseX - 5, mouseY); // 水平左侧
+          line(mouseX + 5, mouseY, offsetX + scaledW, mouseY); // 水平右侧
+          line(mouseX, offsetY, mouseX, mouseY - 5); // 垂直上侧
+          line(mouseX, mouseY + 5, mouseX, offsetY + scaledH); // 垂直下侧
+      }
+
+      // B. 悬停在爆炸点附近：显示国家/地区和经纬度信息 (标签化、分行)
+      if (hoverNearBomb) {
+          const padding = 8; // 信息框内边距
+          const lineHeight = 16; // 每行行高
+          
+          // 绘制信息背景框
+          fill(0, 0, 0, 200); 
+          
+          let boxW = 180; 
+          let boxH = padding * 2 + lineHeight * 4; 
+          
+          let boxX = bombPx + 15; 
+          let boxY = bombPy - boxH / 2;
+          
+          // 确保信息框不超出右边界
+          if (boxX + boxW > offsetX + scaledW) {
+              boxX = bombPx - boxW - 15; 
+          }
+          
+          rect(boxX, boxY, boxW, boxH, 5); 
+          
+          // 绘制文本
+          textSize(12);
+          
+          // --- 标签（Label: 左对齐） ---
+          textAlign(LEFT, TOP);
+          
+          // 1. 国家标签
+          fill(0, 255, 255); 
+          text("Country:", boxX + padding, boxY + padding);
+          
+          // 2. 地区标签
+          text("Region:", boxX + padding, boxY + padding + lineHeight * 1);
+          
+          // 3. 纬度标签
+          text("Latitude:", boxX + padding, boxY + padding + lineHeight * 2);
+          
+          // 4. 经度标签
+          text("Longitude:", boxX + padding, boxY + padding + lineHeight * 3);
+          
+          // --- 数值（Value: 右对齐） ---
+          textAlign(RIGHT, TOP);
+          const valueX = boxX + boxW - padding; // 文本最右侧 X 坐标
+          
+          // 1. 国家数值
+          fill(255); 
+          text(bombData.country, valueX, boxY + padding);
+          
+          // 2. 地区数值
+          text(bombData.region, valueX, boxY + padding + lineHeight * 1);
+
+          // 3. 纬度数值
+          text(nf(bombData.latitude, 0, 4), valueX, boxY + padding + lineHeight * 2);
+          
+          // 4. 经度数值
+          text(nf(bombData.longitude, 0, 4), valueX, boxY + padding + lineHeight * 3);
+      }
+  }
+  
+  // 3. 绘制图标 (在两种模式下都位于地图的右上角)
+  drawZoomIcon(offsetX + scaledW, offsetY, !isMapLarge); 
+
+  // 4. --- 新增鼠标样式 ---
+  let iconX_right = offsetX + scaledW;
+  let iconY_top = offsetY;
+  let iconX = iconX_right - ICON_SIZE - ICON_MARGIN;
+  let iconY = iconY_top + ICON_MARGIN;
+  
+  let isHoveringIcon = mouseX >= iconX && mouseX <= iconX + ICON_SIZE &&
+                       mouseY >= iconY && mouseY <= iconY + ICON_SIZE;
+
+  // 如果鼠标悬停在图标上，设置为“小手”
+  if (isHoveringIcon) {
+      document.body.style.cursor = 'pointer';
+  } else if (!isMapLarge) {
+      // 小地图模式下，鼠标不在图标上，保持默认或 Canvas 默认
+      document.body.style.cursor = 'default';
+  } else {
+      // 大地图模式下，鼠标不在图标上，但如果在地图内部，设置为十字线
+      let isHoveringMap = mouseX >= offsetX && mouseX <= offsetX + scaledW && 
+                          mouseY >= offsetY && mouseY <= offsetY + scaledH;
+      if (isHoveringMap) {
+          document.body.style.cursor = 'crosshair';
+      } else {
+          document.body.style.cursor = 'default';
+      }
+  }
+}
+
+// --- (辅助函数：保持不变) ---
+
+function drawYieldCircles() {
+  let d = dist(mouseX, mouseY, centerX, centerY);
+
+  for (let i = 0; i < radii.length; i++) {
+    let r = radii[i];
+    let innerR = i < radii.length - 1 ? radii[i + 1] : 0;
+
+    if (d <= r && d > innerR) {
+      fill(0, 255, 255, 30);
+    } else {
+      noFill();
+    }
+
+    stroke(150);
+    strokeWeight(1);
+    ellipse(centerX, centerY, r * 2);
+
+    noStroke();
+    fill(200);
+    textAlign(CENTER, CENTER);
+    textSize(12);
+    text(yieldList[i], centerX, centerY - r);
+  }
+
+  let rInner = mapYieldToRadius(15); 
+>>>>>>> Stashed changes
   stroke(0, 255, 255);
   strokeWeight(1);
   noFill();
   ellipse(centerX, centerY, animBlueR * 2);
 
+<<<<<<< Updated upstream
   drawInfo();
 }
+=======
+  let targetR = mapYieldToRadius(bombData.yield_u);
+  animR = lerp(animR, targetR, 0.05);
+  let rOuter = animR;
+  let c = color(getYieldColor(bombData.yield_u));
+  let thickness = max(3, rOuter * 0.1);
+>>>>>>> Stashed changes
 
 function mapYieldToRadius(y) {
   let minR = 20;
@@ -259,6 +552,7 @@ function calculateMapDimensions() {
   }
 }
 
+<<<<<<< Updated upstream
 //mappa
 function lonToMapX(lon) {
   return map(lon, LON_MIN, LON_MAX, offsetX, offsetX + scaledW);
@@ -269,18 +563,26 @@ function latToMapY(lat) {
 }
 
 function drawInfo() {
+=======
+function drawTypeInfoBox() {
+  drawingContext.filter = 'blur(5px)';
+>>>>>>> Stashed changes
   let boxW = 300,
     boxH = 300,
     boxX = width - boxW - 50,
     boxY = 150;
+    
   stroke(0, 255, 255, 150);
   strokeWeight(1);
   fill(0, 255, 255, 20);
   rect(boxX, boxY, boxW, boxH);
+<<<<<<< Updated upstream
+=======
+  drawingContext.filter = 'none';
+>>>>>>> Stashed changes
 
   if (typeImg) {
-    let imgW = boxW,
-      imgH = boxH;
+    let imgW = boxW, imgH = boxH;
     image(
       typeImg,
       boxX + (boxW - imgW) / 2,
@@ -289,25 +591,39 @@ function drawInfo() {
       imgH
     );
   }
+<<<<<<< Updated upstream
 
   let isHover =
     mouseX >= boxX &&
     mouseX <= boxX + boxW &&
     mouseY >= boxY &&
     mouseY <= boxY + boxH;
+=======
+}
+>>>>>>> Stashed changes
 
   if (isHover) {
     fill(0, 150);
     noStroke();
     rect(boxX, boxY, boxW, boxH);
 
+<<<<<<< Updated upstream
     fill(255);
     textAlign(LEFT, CENTER);
     textSize(14);
     textFont(myFont2);
     text(getTypeText(bombData.type), boxX + 10, boxY + boxH / 2, 280);
+=======
+  if (y <= 20) {
+    return map(y, 0, 20, minR, minR + 50);
+  } else if (y <= 10000) {
+    return map(y, 20, 10000, minR + 50, maxR - 100);
+  } else {
+    return map(y, 10000, 50000, maxR - 100, maxR);
+>>>>>>> Stashed changes
   }
 
+<<<<<<< Updated upstream
   if (!mapImg || !bombData) return;
 
   image(mapImg, offsetX, offsetY, scaledW, scaledH);
@@ -416,6 +732,63 @@ function drawInfo() {
   fill(c);
   noStroke();
   circle(px, py, 10);
+=======
+function getYieldColor(y) {
+  if (y >= 0 && y <= 19) return "#fcddbfff";
+  else if (y === 20) return "#FFB873";
+  else if (y >= 21 && y <= 150) return "#ff7a22ff";
+  else if (y >= 151 && y <= 4999) return "#f35601ff";
+  else if (y >= 5000) return "#c21d00ff";
+}
+
+//--------绘制缩放图标函数----------
+function drawZoomIcon(iconX_right, iconY_top, isZoomIn) {
+    let x = iconX_right - ICON_SIZE - ICON_MARGIN;
+    let y = iconY_top + ICON_MARGIN;
+    let s = ICON_SIZE;
+    let m = s * 0.15; // 边距
+
+    // 绘制背景框
+    fill(20, 20, 20, 200);
+    stroke(0, 255, 255);
+    strokeWeight(1);
+    rect(x, y, s, s, 3);
+
+    // 绘制图标内容
+    noFill();
+    stroke(0, 255, 255);
+    strokeWeight(2);
+    
+    if (isZoomIn) {
+        // --- 放大图标（斜向箭头，代表进入全屏） ---
+        let arrowLen = s * 0.4; // 箭头主体长度
+        let gap = s * 0.2; // 箭头与中心点的间隙
+        let headLen = s * 0.15; // 箭头头部小线段长度
+        
+        // 左上角箭头 (指向左上)
+        line(x + gap, y + gap, x + gap + arrowLen, y + gap); // 水平部分
+        line(x + gap, y + gap, x + gap, y + gap + arrowLen); // 垂直部分
+        
+        // 绘制箭头头部 (左上角)
+        line(x + gap, y + gap, x + gap + headLen, y + gap + headLen); 
+
+        // 右下角箭头 (指向右下)
+        line(x + s - gap, y + s - gap, x + s - gap - arrowLen, y + s - gap); // 水平部分
+        line(x + s - gap, y + s - gap, x + s - gap, y + s - gap - arrowLen); // 垂直部分
+        
+        // 绘制箭头头部 (右下角)
+        line(x + s - gap, y + s - gap, x + s - gap - headLen, y + s - gap - headLen); 
+
+    } else {
+        // --- 关闭/缩小图标 (大地图模式) ---
+        let cx = x + s / 2;
+        let cy = y + s / 2;
+        
+        // 绘制 X
+        line(cx - s / 4, cy - s / 4, cx + s / 4, cy + s / 4);
+        line(cx + s / 4, cy - s / 4, cx - s / 4, cy + s / 4);
+    }
+>>>>>>> Stashed changes
 }
 
 function drawBombRing() {
