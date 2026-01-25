@@ -6,6 +6,9 @@ let typeImg = null;
 let myFont1, myFont2, myFont3;
 let animR = 0;
 
+//to google map
+let coordX, coordY, coordW, coordH;
+
 // Map variables
 let mapImg;
 let scaledW, scaledH, offsetX, offsetY;
@@ -15,7 +18,7 @@ const LAT_MIN = -90;
 const LAT_MAX = 90;
 
 let yieldList = [
-  50000, 20000, 5000, 2000,  500, 200,  50, 20, 
+  50000, 20000, 5000, 2000, 500, 200, 50, 20,
 ];
 let radii = [];
 let centerX, centerY;
@@ -106,7 +109,7 @@ function preload() {
 
   table = loadTable("dataset/dataset-singleb.csv", "csv", "header");
   mapImg = loadImage("images/mappa.png");
- bombBgImg = loadImage("images/single bomb rumore.png");
+  bombBgImg = loadImage("images/single bomb rumore.png");
 
   typeImages["AIRDROP"] = loadImage("images/airdrop.png");
   typeImages["ATMOSPH"] = loadImage("images/atmosph.png");
@@ -176,17 +179,17 @@ function setup() {
 function draw() {
   background(20);
 
-if (bombBgImg) {
-  tint(255, 0);
-    let imgW = 0.9*width;            // 图片宽度填满画布
-    let imgH = 0.6*height; // 按比例缩放
-  let imgX = (width - imgW) / 2;  // 水平居中
-  let imgY = -50; // 居中在上半部分
+  // if (bombBgImg) {
+  //   tint(255, 40);
+  //   let imgW = 0.9 * width; 
+  //   let imgH = 0.6 * height; 
+  //   let imgX = (width - imgW) / 2; 
+  //   let imgY = -50; 
 
-  image(bombBgImg, imgX, imgY, imgW, imgH);
-  }
+  //   image(bombBgImg, imgX, imgY, imgW, imgH);
+  // }
 
- tint(255, 255);
+  // tint(255, 255);
   if (mapZoomed) {
     drawZoomedMap();
     return;
@@ -238,7 +241,7 @@ if (bombBgImg) {
 
 function mapYieldToRadius(y) {
   let minR = 20;
-  let maxR = height*0.8;
+  let maxR = height * 0.8;
 
   let ySafe = max(y, 1);
 
@@ -259,11 +262,11 @@ function getYieldColor(y) {
 function calculateMapDimensions() {
   if (!mapImg) return;
   if (!mapZoomed) {
-    scaledW = width*0.2;
+    scaledW = width * 0.2;
     scaledH = mapImg.height * (scaledW / mapImg.width);
 
-    offsetX = width - scaledW - 0.03*width;
-    offsetY = 0.25*height+scaledW+0.05*height;
+    offsetX = width - scaledW - 0.03 * width;
+    offsetY = 0.25 * height + scaledW + 0.05 * height;
   } else {
     scaledW = width * 0.7;
     scaledH = mapImg.height * (scaledW / mapImg.width);
@@ -283,10 +286,10 @@ function latToMapY(lat) {
 }
 
 function drawInfo() {
-  let boxW = 0.2*width,
+  let boxW = 0.2 * width,
     boxH = boxW,
-    boxX = width - boxW - 0.03*width,
-    boxY = 0.25*height;
+    boxX = width - boxW - 0.03 * width,
+    boxY = 0.25 * height;
   stroke(0, 255, 255, 150);
   strokeWeight(1);
   fill(0, 255, 255, 20);
@@ -338,8 +341,6 @@ function drawInfo() {
     mouseY >= offsetY &&
     mouseY <= offsetY + scaledH;
 
-
-
   if (isHoverMap) {
     cursor(HAND);
     fill(0, 150);
@@ -349,15 +350,20 @@ function drawInfo() {
     stroke(0, 255, 255);
     strokeWeight(2);
 
- let iconX = offsetX + scaledW / 2; 
-    let iconY = offsetY + scaledH / 2; 
-    let iconSize = 100;      
+    let iconX = offsetX + scaledW / 2;
+    let iconY = offsetY + scaledH / 2;
+    let iconSize = 100;
 
     if (!mapZoomed) {
-      line(iconX - 6, iconY - 6, iconX + 0, iconY - 6);
-      line(iconX - 6, iconY - 6, iconX - 6, iconY + 0);
-      line(iconX + 6, iconY + 6, iconX + 0, iconY + 6);
-      line(iconX + 6, iconY + 6, iconX + 6, iconY + 0);
+      let baseSize = 6;
+      let scaleFactor = isHoverMap ? 3 : 1;
+      let s = baseSize * scaleFactor;
+
+      line(iconX - s, iconY - s, iconX + 0, iconY - s);
+      line(iconX - s, iconY - s, iconX - s, iconY + 0);
+      line(iconX + s, iconY + s, iconX + 0, iconY + s);
+      line(iconX + s, iconY + s, iconX + s, iconY + 0);
+
     } else {
       line(iconX - iconSize / 2, iconY - iconSize / 2, iconX + iconSize / 2, iconY + iconSize / 2);
       line(iconX - iconSize / 2, iconY + iconSize / 2, iconX + iconSize / 2, iconY - iconSize / 2);
@@ -370,18 +376,16 @@ function drawInfo() {
   stroke(0, 255, 255, 150);
   strokeWeight(1);
   fill(0, 255, 255, 20);
-  rect(width*0.03, offsetY, width*0.2, scaledH);
+  rect(width * 0.03, offsetY, width * 0.2, scaledH);
 
   noStroke();
   textAlign(RIGHT, TOP);
   fill(0, 255, 255);
   textFont(myFont3);
   textSize(14);
-
-
   textAlign(LEFT, TOP);
-  text("Type: " + bombData.type, offsetX, boxY-30);
-  text("Purpose: " + bombData.purpose, width*0.03, offsetY - 30);
+  text("Type: " + bombData.type, offsetX, boxY - 30);
+  text("Purpose: " + bombData.purpose, width * 0.03, offsetY - 30);
   text("Country: " + bombData.country, offsetX, offsetY - 30);
   textSize(24);
   textAlign(LEFT, TOP);
@@ -391,12 +395,12 @@ function drawInfo() {
   text(bombData.yield_u, width / 2, height - 30);
   textAlign(CENTER, TOP);
   textSize(14);
-   fill(0, 255, 255);
+  fill(0, 255, 255);
   text("Yield(kt) ", width / 2, height - 90);
- 
+
   textFont(myFont2);
   textAlign(LEFT, TOP);
-  fill(255), text(getPurposeText(bombData.purpose), width*0.04, offsetY + 10, width*0.18);
+  fill(255), text(getPurposeText(bombData.purpose), width * 0.04, offsetY + 10, width * 0.18);
 
   let px = lonToMapX(bombData.longitude);
   let py = latToMapY(bombData.latitude);
@@ -533,33 +537,35 @@ function drawZoomedMap() {
     text(nf(bombData.longitude, 0, 2), valueX, boxY + padding + lineHeight * 2);
   }
 
-noStroke();
-textAlign(CENTER, BOTTOM);
-fill(0, 255, 255);
-textFont(myFont3);
-textSize(20);
+  noStroke();
+  textAlign(CENTER, BOTTOM);
+  fill(0, 255, 255);
+  textFont(myFont3);
+  textSize(20);
 
-let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude, 0, 2) + ")";
-let coordX = width / 2;
-let coordY = 70;
+  let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude, 0, 2) + ")";
+  coordX = width / 2;
+  coordY = 70;
 
-text(coordText, coordX, coordY);
+  text(coordText, coordX, coordY);
 
-textSize(20);
-let textW = textWidth(coordText);
-let textH = 20; 
+  textSize(20);
+coordW = textWidth(coordText);
+coordH = 20;
 
 if (
-  mouseX >= coordX - textW / 2 &&
-  mouseX <= coordX + textW / 2 &&
-  mouseY >= coordY - textH &&
+  mouseX >= coordX - coordW / 2 &&
+  mouseX <= coordX + coordW / 2 &&
+  mouseY >= coordY - coordH &&
   mouseY <= coordY
 ) {
+  cursor(HAND);
   stroke(0, 255, 255);
   strokeWeight(2);
-  line(coordX - textW / 2, coordY + 2, coordX + textW / 2, coordY + 2); 
+  line(coordX - coordW / 2, coordY + 2, coordX + coordW / 2, coordY + 2);
   noStroke();
 }
+
 
 }
 
@@ -569,50 +575,39 @@ window.addEventListener("load", () => {
   }
 });
 function drawHiroshimaAnnotation() {
-  // 圆环起点位置
-  let angle = radians(-25); 
+  let angle = radians(-25);
   let startX = centerX + cos(angle) * animBlueR;
   let startY = centerY + sin(angle) * animBlueR;
 
-  // 横线长度
-  let horizLength = 100; // 可调节
-  let textOffset = 8;    // 文字离横线右端的距离
+  let horizLength = 100; 
+  let textOffset = 8;   
 
-  // 初始化斜线和横线进度
   if (!this.diagProgress) this.diagProgress = 0;
   if (!this.horizProgress) this.horizProgress = 0;
 
-  // 斜线目标点
   let diagTargetX = startX + 40;
   let diagTargetY = startY - 40;
 
-  // 横线右端位置（靠近文字）
-  let horizEndX = diagTargetX; 
+  let horizEndX = diagTargetX;
   let horizEndY = diagTargetY;
 
-  // 斜线进度 lerp
   this.diagProgress = lerp(this.diagProgress, 1, 0.03);
   let diagCurrentX = startX + (diagTargetX - startX) * this.diagProgress;
   let diagCurrentY = startY + (diagTargetY - startY) * this.diagProgress;
 
-  // 横线在斜线完全完成后开始动画
   if (this.diagProgress >= 0.999) {
     this.horizProgress = lerp(this.horizProgress, 1, 0.05);
   }
 
-  // 横线从右向左生长
   let horizCurrentStartX = horizEndX + horizLength * this.horizProgress;
 
-  // 绘制斜线
   stroke(0, 255, 255);
   strokeWeight(1);
   noFill();
   line(startX, startY, diagCurrentX, diagCurrentY);
 
-  // 绘制横线
   line(horizCurrentStartX, horizEndY, horizEndX, horizEndY);
 
-  // 绘制文字（固定位置）
   noStroke();
   fill(0, 255, 255);
   textFont(myFont2);
@@ -625,19 +620,81 @@ function drawHiroshimaAnnotation() {
   );
 }
 
+function drawBombAnnotation() {
+  if (!bombData) return;
 
-function keyPressed() {
-  if (keyCode === ESCAPE) { 
-    if (mapZoomed) {
-      mapZoomed = false;
-      calculateMapDimensions();
-    }
+  let targetR = animR;
+  let angle = radians(-60);
+  let startX = centerX - cos(angle) * targetR;
+  let startY = centerY + sin(angle) * targetR;
+
+  let c = color(getYieldColor(bombData.yield_u));
+  stroke(c);
+  strokeWeight(1);
+  noFill();
+
+  let textY = height * 0.1;
+
+  textFont(myFont1);
+  textSize(20);
+  textAlign(RIGHT, CENTER);
+
+  let horizLength = 120; 
+  let horizEndX = width * 0.23 + 120; 
+  let horizEndY = textY;
+
+  if (!this.diagProgress) this.diagProgress = 0;
+  if (!this.horizProgress) this.horizProgress = 0;
+
+  let diagTargetX = horizEndX;
+  let diagTargetY = horizEndY;
+
+  this.diagProgress = lerp(this.diagProgress, 1, 0.05);
+  let diagCurrentX = startX + (diagTargetX - startX) * this.diagProgress;
+  let diagCurrentY = startY + (diagTargetY - startY) * this.diagProgress;
+
+  if (this.diagProgress > 0.999) {
+    this.horizProgress = lerp(this.horizProgress, 1, 0.05);
   }
+
+  let horizCurrentStartX = horizEndX - horizLength * this.horizProgress;
+
+  let textX = horizCurrentStartX - 10; 
+
+  line(startX, startY, diagCurrentX, diagCurrentY);
+
+  line(horizCurrentStartX, horizEndY, horizEndX, horizEndY);
+
+  noStroke();
+  fill(c);
+  text(bombData.name, textX, textY);
 }
 
 function mousePressed() {
   animR = 0;
   animPlaying = true;
+
+  if (bombData && mapZoomed) {
+    let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude, 0, 2) + ")";
+    let coordW = textWidth(coordText);
+    let coordH = 25;
+    let coordX = width / 2;
+    let coordY = 70;
+
+    if (
+mouseX >= coordX - coordW / 2 &&
+      mouseX <= coordX + coordW / 2 &&
+      mouseY >= coordY - coordH && 
+      mouseY <= coordY
+    ) {
+let lat = bombData.latitude;
+      let lon = bombData.longitude;
+      // 修正：正确的 Google Maps 链接格式
+      let googleMapsURL = "https://www.google.com/maps?q=" + lat + "," + lon;
+      window.open(googleMapsURL, "_blank");
+      return;
+    }
+  }
 
   let clickedOnMap =
     mouseX >= offsetX &&
@@ -658,7 +715,7 @@ function mousePressed() {
     ) {
       mapZoomed = false;
       calculateMapDimensions();
-      return; 
+      return;
     }
   }
 
@@ -671,64 +728,11 @@ function mousePressed() {
   }
 }
 
-function drawBombAnnotation() {
-  if (!bombData) return;
-
-  // 圆环位置
-  let targetR = animR;
-  let angle = radians(-60);
-  let startX = centerX - cos(angle) * targetR;
-  let startY = centerY + sin(angle) * targetR;
-
-  let c = color(getYieldColor(bombData.yield_u));
-  stroke(c);
-  strokeWeight(1);
-  noFill();
-
-  // 文字纵向固定位置
-  let textY = height * 0.15;
-
-  textFont(myFont1);
-  textSize(20);
-  textAlign(RIGHT, CENTER);
-
-  // 横线长度和右端
-  let horizLength = 120;             // 横线长度
-  let horizEndX = width * 0.23 + 120; // 横线右端略微在文字右边
-  let horizEndY = textY;
-
-  // 初始化斜线和横线进度
-  if (!this.diagProgress) this.diagProgress = 0;
-  if (!this.horizProgress) this.horizProgress = 0;
-
-  // 斜线目标点
-  let diagTargetX = horizEndX;
-  let diagTargetY = horizEndY;
-
-  // 斜线进度 lerp
-  this.diagProgress = lerp(this.diagProgress, 1, 0.05);
-  let diagCurrentX = startX + (diagTargetX - startX) * this.diagProgress;
-  let diagCurrentY = startY + (diagTargetY - startY) * this.diagProgress;
-
-  // 横线在斜线完成后生长
-  if (this.diagProgress > 0.999) {
-    this.horizProgress = lerp(this.horizProgress, 1, 0.05);
+function keyPressed() {
+  if (keyCode === ESCAPE) {
+    if (mapZoomed) {
+      mapZoomed = false;
+      calculateMapDimensions();
+    }
   }
-
-  // 横线从右向左生长
-  let horizCurrentStartX = horizEndX - horizLength * this.horizProgress;
-
-  // 文字横向位置跟随横线左端
-  let textX = horizCurrentStartX-10; // 文字右端贴着横线左端
-
-  // 绘制斜线
-  line(startX, startY, diagCurrentX, diagCurrentY);
-
-  // 绘制横线
-  line(horizCurrentStartX, horizEndY, horizEndX, horizEndY);
-
-  // 绘制文字
-  noStroke();
-  fill(c);
-  text(bombData.name, textX, textY);
 }
