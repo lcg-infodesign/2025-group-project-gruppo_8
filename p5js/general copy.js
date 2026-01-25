@@ -37,6 +37,19 @@ let centerCircleSize = 10;
 let scrollOffset = 0; // Global scroll offset
 let maxScroll;
 
+// Intro step navigation (page 1)
+let introIndex = 0;
+let introTargets = [];
+let snapping = false;
+let snapTarget = 0;
+
+// tweakables
+const INTRO_START_OFFSET = 120;
+const INTRO_STEP_FACTOR = 0.6;
+const INTRO_TARGET_TOP = 140;
+const SNAP_LERP = 0.14;
+
+
 let myFont1, myFont2;
 let img1, img2, img3, img4;
 
@@ -151,7 +164,8 @@ function setup() {
       );
     }
   }
-  maxScroll = height * 4;
+  computeIntroTargets();
+
 
   // -------- Inizializza le particelle della pagina 2 --------
   yAxis = height / 2 + 70;
@@ -174,6 +188,64 @@ function setup() {
   creaParticlesDaTabella();
   checkHashNavigation();
 }
+
+function computeIntroTargets() {
+  const introStartY = height + INTRO_START_OFFSET;
+  const introStepY = height * INTRO_STEP_FACTOR;
+
+  introTargets = [0, 1, 2, 3].map((i) =>
+    max(0, introStartY + introStepY * i - INTRO_TARGET_TOP)
+  );
+
+  // trigger auto-expand shortly after last text is "reached"
+  const lastTop = introStartY + introStepY * 3;
+  const triggerY = height * 0.55; // più basso = parte prima
+  maxScroll = max(introTargets[3], lastTop - triggerY);
+}
+
+function syncIntroIndex() {
+  // trova l'ultimo target "superato"
+  let idx = 0;
+  for (let i = 0; i < introTargets.length; i++) {
+    if (scrollOffset >= introTargets[i] - 10) idx = i;
+  }
+  introIndex = idx;
+}
+
+function snapTo(val) {
+  snapTarget = constrain(val, 0, maxScroll);
+  snapping = true;
+}
+
+function introNext() {
+  syncIntroIndex();
+  if (introIndex < 3) {
+    introIndex++;
+    snapTo(introTargets[introIndex]);
+  } else {
+    // oltre l'ultimo testo → avvia espansione
+    snapTo(maxScroll);
+    if (!autoExpandStarted) autoExpandStarted = true;
+  }
+}
+
+function introPrev() {
+  syncIntroIndex();
+  if (introIndex > 0) {
+    introIndex--;
+    snapTo(introTargets[introIndex]);
+  } else {
+    introTop();
+  }
+}
+
+function introTop() {
+  introIndex = 0;
+  autoExpandStarted = false;
+  centerCircleSize = 10;
+  snapTo(0);
+}
+
 // ===============================
 // Se URL contiene #page2 → apri ovverview SUBITO
 // ===============================
@@ -212,6 +284,15 @@ function drawPage1() {
   //textSize(16);
   //textAlign(CENTER, BOTTOM);
   //text("SCROLL DOWN FOR MORE", width / 2, height - 40);
+
+
+  if (snapping) {
+  scrollOffset = lerp(scrollOffset, snapTarget, SNAP_LERP);
+  if (abs(scrollOffset - snapTarget) < 0.5) {
+    scrollOffset = snapTarget;
+    snapping = false;
+    }
+  }
 
   // Title: vertically aligned with menu, horizontally centered
   textFont(myFont1);
@@ -253,12 +334,9 @@ function drawPage1() {
     introStartY + introStepY * 0 - scrollOffset,
     MAX_TEXT_W
   );
-  drawIntroBlock(
-    str2,
-    rightX,
-    introStartY + introStepY * 1 - scrollOffset,
-    MAX_TEXT_W
-  );
+  
+  drawIntroBlock(str2, leftX, introStartY + introStepY*1 - scrollOffset, MAX_TEXT_W);
+
   drawIntroBlock(
     str3,
     leftX,
@@ -346,8 +424,32 @@ function drawScrollHintArrow() {
   line(cx - halfW, cy - h, cx, cy);
   line(cx + halfW, cy - h, cx, cy);
 
+  // label above arrow
+  noStroke();
+  fill(200, alpha);
+  textFont(myFont2);
+  textSize(12);
+  textAlign(CENTER, BOTTOM);
+  text("SCROLL DOWN FOR MORE", cx, cy - 34);
+
   pop();
 }
+
+function isOverScrollHint(mx, my) {
+  // hitbox generosa (include anche la label)
+  const cx = width / 2;
+  const baseCy = height - 44;
+  const hitW = 220;
+  const hitH = 80;
+
+  return (
+    mx >= cx - hitW / 2 &&
+    mx <= cx + hitW / 2 &&
+    my >= baseCy - hitH &&
+    my <= baseCy + 20
+  );
+}
+
 
 // ===============================
 // pagina2draw
@@ -817,6 +919,20 @@ function mouseWheel(event) {
 }
 
 function mousePressed() {
+
+  // ------------ page 1 ------------
+  if (page === 1) {
+    if (isOverScrollHint(mouseX, mouseY)) {
+      introNext();   // te la faccio creare al punto 5
+      return;
+    }
+
+    if (isOverBackToTop(mouseX, mouseY)) {
+      introTop();
+      return;
+    }
+  }
+
   // ------------ page 2 ------------
   if (page === 2) {
     // --- click on top-right carousel arrows ---
@@ -889,7 +1005,25 @@ function mousePressed() {
   }
 }
 
+
 function keyPressed() {
+
+  // PAGE 1 controls
+  if (page === 1) {
+    if (keyCode === DOWN_ARROW || keyCode === 32) { // 32 = SPACE
+      introNext();
+      return;
+    }
+    if (keyCode === UP_ARROW) {
+      introPrev();
+      return;
+    }
+    if (keyCode === HOME) {
+      introTop();
+      return;
+    }
+  }
+
   // Only on page2 and when menu is not open
   if (page !== 2 || menuOpen) return;
 
@@ -899,6 +1033,8 @@ function keyPressed() {
     infoStep--;
   }
 }
+
+
 
 function mouseReleased() {
   if (page === 2) scrollDirection = 0;
