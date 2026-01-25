@@ -322,7 +322,7 @@ function drawInfo() {
     textAlign(LEFT, CENTER);
     textSize(14);
     textFont(myFont2);
-    text(getTypeText(bombData.type), boxX + 10, boxY + boxH / 2, 280);
+    text(getTypeText(bombData.type), width - boxW - 0.02*width, boxY + boxH / 2, width * 0.18);
   }
 
   if (!mapImg || !bombData) return;
@@ -543,29 +543,62 @@ function drawZoomedMap() {
   textFont(myFont3);
   textSize(20);
 
+// --- 坐标文字逻辑开始 ---
   let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude, 0, 2) + ")";
   coordX = width / 2;
   coordY = 70;
-
-  text(coordText, coordX, coordY);
-
+  
+  // 测量宽度和高度用于判定
+  textFont(myFont3);
   textSize(20);
-coordW = textWidth(coordText);
-coordH = 20;
+  coordW = textWidth(coordText);
+  coordH = 20;
 
-if (
-  mouseX >= coordX - coordW / 2 &&
-  mouseX <= coordX + coordW / 2 &&
-  mouseY >= coordY - coordH &&
-  mouseY <= coordY
-) {
-  cursor(HAND);
-  stroke(0, 255, 255);
-  strokeWeight(2);
-  line(coordX - coordW / 2, coordY + 2, coordX + coordW / 2, coordY + 2);
-  noStroke();
-}
+  // 判断是否 Hover
+  let isCoordHover = 
+    mouseX >= coordX - coordW / 2 &&
+    mouseX <= coordX + coordW / 2 &&
+    mouseY >= coordY - coordH &&
+    mouseY <= coordY;
 
+  // 绘制坐标文字 (应用 Hover 效果)
+  push();
+  translate(coordX, coordY); // 移动到基准点以便 scale 正常工作
+  textAlign(CENTER, BOTTOM);
+  
+  if (isCoordHover) {
+    cursor(HAND);
+    fill(255);    // Hover 时变为纯白“发光”
+    scale(1.06);  // 变大 15%
+  } else {
+    fill(0, 255, 255); // 默认蓝色
+  }
+  
+  text(coordText, 0, 0); 
+  pop();
+
+// 绘制提示文字 (保持原位置，不跟随缩放)
+push();
+textSize(14);
+textFont(myFont2);
+textAlign(RIGHT, BOTTOM);
+
+let hintX = offsetX + scaledW;
+let hintText = "<< Click coordinates to view on Google Maps";
+
+// pulsazione / 呼吸效果
+const pulse = (sin(frameCount * 0.08) + 1) / 2; // 0..1
+const alphaGlow = 80 + pulse * 175;
+
+// "glow" finto: 2 passate morbide + 1 netta
+noStroke();
+fill(0, 255, 255, alphaGlow * 0.25);
+text(hintText, hintX + 1, coordY + 1);
+text(hintText, hintX - 1, coordY - 1);
+
+fill(0, 255, 255, alphaGlow);
+text(hintText, hintX, coordY);
+pop();
 
 }
 
