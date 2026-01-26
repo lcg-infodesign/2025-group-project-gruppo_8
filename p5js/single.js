@@ -542,64 +542,65 @@ function drawZoomedMap() {
   fill(0, 255, 255);
   textFont(myFont3);
   textSize(20);
+// --- 统一高度 ---
+let currentY = 70;
 
-// --- 坐标文字逻辑开始 ---
-  let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude, 0, 2) + ")";
-  coordX = width / 2;
-  coordY = 70;
-  
-  // 测量宽度和高度用于判定
-  textFont(myFont3);
-  textSize(20);
-  coordW = textWidth(coordText);
-  coordH = 20;
-
-  // 判断是否 Hover
-  let isCoordHover = 
-    mouseX >= coordX - coordW / 2 &&
-    mouseX <= coordX + coordW / 2 &&
-    mouseY >= coordY - coordH &&
-    mouseY <= coordY;
-
-  // 绘制坐标文字 (应用 Hover 效果)
-  push();
-  translate(coordX, coordY); // 移动到基准点以便 scale 正常工作
-  textAlign(CENTER, BOTTOM);
-  
-  if (isCoordHover) {
-    cursor(HAND);
-    fill(255);    // Hover 时变为纯白“发光”
-    scale(1.06);  // 变大 15%
-  } else {
-    fill(0, 255, 255); // 默认蓝色
-  }
-  
-  text(coordText, 0, 0); 
-  pop();
-
-// 绘制提示文字 (保持原位置，不跟随缩放)
+// 1. 左侧文字：the location is often approximate. (左对齐地图)
 push();
-textSize(14);
 textFont(myFont2);
-textAlign(RIGHT, BOTTOM);
+textSize(14);
+textAlign(LEFT, BOTTOM);
+fill(0, 255, 255);
+// 直接对齐地图左边界 offsetX
+text("the location is often approximate.", offsetX, currentY);
+pop();
 
+// 2. 中间文字：括号坐标 (居中于画布)
+let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude, 0, 2) + ")";
+let centerX = width / 2; // 画布中心
+
+textFont(myFont3);
+textSize(20);
+let coordW = textWidth(coordText);
+let coordH = 20;
+
+// 更新居中模式下的 Hover 判定
+let isCoordHover = 
+  mouseX >= centerX - coordW / 2 &&
+  mouseX <= centerX + coordW / 2 &&
+  mouseY >= currentY - coordH &&
+  mouseY <= currentY;
+
+push();
+translate(centerX, currentY); 
+textAlign(CENTER, BOTTOM); // 关键：居中对齐
+
+if (isCoordHover) {
+  cursor(HAND);
+  fill(255);    
+  scale(1.05); 
+} else {
+  fill(0, 255, 255); 
+}
+text(coordText, 0, 0); 
+pop();
+
+// 3. 右侧文字：Hint (右对齐地图)
+push();
+textFont(myFont2);
+textSize(14);
+textAlign(RIGHT, BOTTOM);
 let hintX = offsetX + scaledW;
 let hintText = "<< Click coordinates to view on Google Maps";
 
-// pulsazione / 呼吸效果
-const pulse = (sin(frameCount * 0.08) + 1) / 2; // 0..1
+const pulse = (sin(frameCount * 0.08) + 1) / 2;
 const alphaGlow = 80 + pulse * 175;
 
-// "glow" finto: 2 passate morbide + 1 netta
-noStroke();
 fill(0, 255, 255, alphaGlow * 0.25);
-text(hintText, hintX + 1, coordY + 1);
-text(hintText, hintX - 1, coordY - 1);
-
+text(hintText, hintX + 1, currentY + 1);
 fill(0, 255, 255, alphaGlow);
-text(hintText, hintX, coordY);
+text(hintText, hintX, currentY);
 pop();
-
 }
 
 window.addEventListener("load", () => {
