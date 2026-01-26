@@ -7,6 +7,10 @@ let floatOffset = 20;
 
 let iconProject, iconData, iconUs;
 
+let scrollY = 0;
+let targetScrollY = 0;
+let contentHeight = 0;
+
 // Layout icone
 const ICON_SIZE = 78; // ⬅️ slightly larger
 const ICON_GAP = 90;
@@ -68,7 +72,6 @@ function setup() {
     icon.style("stroke-width", STROKE_THIN);
   });
 }
-
 function draw() {
   background(0);
 
@@ -79,7 +82,15 @@ function draw() {
   arrowHitProject = null;
   arrowHitDataset = null;
 
+  scrollY = lerp(scrollY, targetScrollY, 0.12);
+
+  // CONTENUTO SCROLLABILE
+  push();
+  translate(0, -scrollY);
   drawAboutContent();
+  pop();
+
+  // FOOTER FISSO
   drawFooter();
 }
 
@@ -126,7 +137,9 @@ function drawAboutContent() {
     titleH + titleBodyGap + p3.h;
 
   // ⬅️ moved up slightly (was +80)
-  let startY = (height - totalH) / 2 + 56 + floatOffset;
+  let startY = 120 + floatOffset;
+  contentHeight = startY + totalH + 80;
+
 
   // ===== PROJECT =====
   fill(255, fadeIn);
@@ -292,4 +305,15 @@ function drawFooter() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+}
+
+
+function mouseWheel(event) {
+  targetScrollY += event.delta;
+  targetScrollY = constrain(
+    targetScrollY,
+    0,
+    max(0, contentHeight - height)
+  );
+  return false;
 }
