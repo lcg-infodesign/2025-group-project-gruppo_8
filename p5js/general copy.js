@@ -306,7 +306,7 @@ function drawPage1() {
   noStroke();
   fill(200);
   textSize(20);
-
+textLeading(31);
   const titleX = width / 2;
   const titleY = MENU_BTN_Y + MENU_BTN_SIZE / 2;
 
@@ -318,11 +318,12 @@ function drawPage1() {
 
   // Intro texts — same spacing logic as Insight (consistent margins + max width)
   const str1 =
-    "The atom breaks: each particle is a real test. History unfolds before your eyes.";
-  const str2 =
-    "Between 1945 and 1998, \n nuclear testing reshaped geopolitics,\n science, and the environment.\n \n Over two thousand explosions\nleft a lasting mark on the planet.";
+  "Between 1945 and 1998, \n nuclear testing reshaped geopolitics,\n science, and the environment.\nOver two thousand explosions\nleft a lasting mark on the planet.";
+    
   const str3 =
-    "This website is a digital archive \n that presents nuclear testing \n as an interactive timeline. \n\nIt traces the evolution of nuclear explosions over the second half \nof the twentieth century.";
+  "Each particle is a real test.";
+  const str2 =
+    "This website is a digital archive \n that presents nuclear testing \n as an interactive timeline.";
   const str4 = "Data from the SIPRI-FOA Report";
 
   // Bring the two columns closer to the center
@@ -354,7 +355,7 @@ function drawPage1() {
     introStartY + introStepY * 2 - scrollOffset,
     MAX_TEXT_W
   );
-  drawIntroBlock(
+  drawIntroBlockData(
     str4,
     rightX,
     introStartY + introStepY * 3 - scrollOffset,
@@ -422,7 +423,22 @@ function drawIntroBlock(str, x, y, w) {
   textSize(21);
   noStroke();
   fill(255, a);
+textLeading(31)
+  text(str, x, y, w);
+}
 
+function drawIntroBlockData(str, x, y, w) {
+  // y is the top of the text block; fade should depend on its position in the viewport.
+  // 0% alpha at top (0) and bottom (height), 100% alpha at center (height/2).
+  const centerY = height / 2;
+  const d = abs(y - centerY); // distanza dal centro
+  const a = map(d, 0, centerY, 255, 0, true); // 255 al centro, 0 agli estremi
+
+  textFont(myFont2);
+  textSize(14);
+  noStroke();
+  fill(255, a);
+textLeading(31)
   text(str, x, y, w);
 }
 
@@ -930,13 +946,13 @@ function drawTopRightInfoCarousel() {
   const boxY = titleY ; // allineamento top testo
 
   const boxW = 400;
-  const boxH = 200;   
+  const boxH = 210;   
 
   // Vertical cyan line from top
   push();
   stroke(0, 255, 255, 160);
   strokeWeight(2);
-  line(lineX, topY, lineX, boxY + boxH+20);
+  line(lineX, topY, lineX, boxY + boxH+38);
   pop();
 
   // Text block
@@ -944,13 +960,14 @@ function drawTopRightInfoCarousel() {
   noStroke();
   textFont(myFont2);
   textSize(20);
+  textLeading(31);
   fill(200, 200, 200);
   textAlign(LEFT, TOP);
   text(infoTexts[infoStep], boxX, boxY, boxW, boxH);
   pop();
 
   // Arrows under the text block
-  const arrowsY = boxY + boxH + 4;
+  const arrowsY = boxY + boxH + 28;
   const chevronW = 10;
   const chevronH = 8;
 
@@ -1056,11 +1073,11 @@ function mousePressed() {
     // --- click on top-right carousel arrows ---
     const lineX = width - 400 - margin;
     const boxX = lineX + 18;
-    const titleY = 70;
+    const titleY = 75;
     const boxY = titleY;
 
     const boxW = 400;
-    const boxH = 200;
+    const boxH = 210;
 
     const arrowsY = boxY + boxH + 18;
 
