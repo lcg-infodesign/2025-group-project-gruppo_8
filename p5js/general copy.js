@@ -294,17 +294,17 @@ function drawPage1() {
     }
   }
 
-  // Title: vertically aligned with menu, horizontally centered
+  // Title: vertically aligned with menu button, horizontally centered
   textFont(myFont1);
   noStroke();
   fill(200);
   textSize(20);
-  textAlign(CENTER, TOP);
 
-  // same vertical rhythm as menu icon
-  // const titleY = MENU_BTN_Y + MENU_BTN_SIZE / 2;
+  const titleX = width / 2;
+  const titleY = MENU_BTN_Y + MENU_BTN_SIZE / 2;
 
-  text("NUCLEAR EXPLOSIONS ARCHIVE", width / 2, 30);
+  textAlign(CENTER, CENTER);
+  text("NUCLEAR EXPLOSIONS ARCHIVE", titleX, titleY);
 
   textFont(myFont2);
   fill(200, 200, 200);
