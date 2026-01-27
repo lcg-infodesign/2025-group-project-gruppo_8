@@ -393,6 +393,7 @@ function drawPage1() {
       goNextPage();
     }
   }
+
   fill(20);
   stroke(0, 255, 255);
   strokeWeight(1.5);
