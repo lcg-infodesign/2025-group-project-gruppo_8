@@ -12,9 +12,10 @@ canvas {
 .skip-intro {
   position: fixed;
   right: 100px;
-  bottom: 50px;
+  bottom: 68px; /* allineato alla label "SCROLL DOWN FOR MORE" */
   z-index: 1000;
 }
+
 
 
 .skip-intro button {
