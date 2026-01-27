@@ -6,6 +6,8 @@ let typeImg = null;
 let myFont1, myFont2, myFont3;
 let animR = 0;
 
+let hDiagProgress = 0; // 广岛斜线进度
+let hHorizProgress = 0; // 广岛横线进度
 //to google map
 let coordX, coordY, coordW, coordH;
 
@@ -194,14 +196,7 @@ function draw() {
     drawZoomedMap();
     return;
   }
-
-  // textFont(myFont1);
-  // noStroke();
-  // fill(200);
-  // textSize(20);
-  // textAlign(CENTER, TOP);
-  // text(bombData.name, width / 2, 30);
-
+  
   drawBombRing();
   if (!bombData) {
     fill(255);
@@ -438,11 +433,9 @@ function getTypeText(type) {
   return typeTextMap[type.toUpperCase()] || "Unknown Purpose";
 }
 
-
-
 function drawZoomedMap() {
   if (!mapImg || !bombData) return;
-
+cursor(ARROW);
   image(mapImg, offsetX, offsetY, scaledW, scaledH);
 
   stroke(0, 255, 255, 150);
@@ -543,7 +536,7 @@ function drawZoomedMap() {
   textFont(myFont3);
   textSize(20);
 // --- 统一高度 ---
-let currentY = 70;
+let currentY = offsetY-10;
 
 // 1. 左侧文字：the location is often approximate. (左对齐地图)
 push();
@@ -554,53 +547,65 @@ fill(0, 255, 255);
 // 直接对齐地图左边界 offsetX
 text("the location is often approximate.", offsetX, currentY);
 pop();
-
-// 2. 中间文字：括号坐标 (居中于画布)
 let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude, 0, 2) + ")";
-let centerX = width / 2; // 画布中心
+  let centerX = width / 2;
+  textFont(myFont3);
+  textSize(20);
+  let coordW = textWidth(coordText);
+  let coordH = 20;
 
-textFont(myFont3);
-textSize(20);
-let coordW = textWidth(coordText);
-let coordH = 20;
+  let isCoordHover = 
+    mouseX >= centerX - coordW / 2 &&
+    mouseX <= centerX + coordW / 2 &&
+    mouseY >= currentY - coordH &&
+    mouseY <= currentY;
 
-// 更新居中模式下的 Hover 判定
-let isCoordHover = 
-  mouseX >= centerX - coordW / 2 &&
-  mouseX <= centerX + coordW / 2 &&
-  mouseY >= currentY - coordH &&
-  mouseY <= currentY;
+  push();
+  translate(centerX, currentY); 
+  textAlign(CENTER, BOTTOM);
+  if (isCoordHover) {
+    cursor(HAND); // 坐标悬停变手
+    fill(255);    
+    scale(1.05); 
+  } else {
+    fill(0, 255, 255); 
+  }
+  text(coordText, 0, 0); 
+  pop();
 
-push();
-translate(centerX, currentY); 
-textAlign(CENTER, BOTTOM); // 关键：居中对齐
+  // 3. 右侧文字：Hint
+  push();
+  textFont(myFont2);
+  textSize(14);
+  textAlign(RIGHT, BOTTOM);
+  let hintX = offsetX + scaledW;
+  let hintText = "<< Click coordinates to view on Google Maps";
+  
+  // --- 新增：计算 Hint 的悬停范围 ---
+  let hintW = textWidth(hintText);
+  let isHintHover = 
+    mouseX >= hintX - hintW && 
+    mouseX <= hintX &&
+    mouseY >= currentY - 14 && 
+    mouseY <= currentY;
 
-if (isCoordHover) {
-  cursor(HAND);
-  fill(255);    
-  scale(1.05); 
-} else {
-  fill(0, 255, 255); 
-}
-text(coordText, 0, 0); 
-pop();
+  const pulse = (sin(frameCount * 0.08) + 1) / 2;
+  const alphaGlow = 80 + pulse * 175;
 
-// 3. 右侧文字：Hint (右对齐地图)
-push();
-textFont(myFont2);
-textSize(14);
-textAlign(RIGHT, BOTTOM);
-let hintX = offsetX + scaledW;
-let hintText = "<< Click coordinates to view on Google Maps";
+  // --- 修改：Hint 悬停时变手并变色 ---
+  if (isHintHover) {
+    cursor(HAND); 
+    fill(255, alphaGlow); // 悬停时变白色（保留呼吸感）
+  } else {
+    fill(0, 255, 255, alphaGlow);
+  }
 
-const pulse = (sin(frameCount * 0.08) + 1) / 2;
-const alphaGlow = 80 + pulse * 175;
-
-fill(0, 255, 255, alphaGlow * 0.25);
-text(hintText, hintX + 1, currentY + 1);
-fill(0, 255, 255, alphaGlow);
-text(hintText, hintX, currentY);
-pop();
+  fill(0, 255, 255, alphaGlow * 0.25);
+  text(hintText, hintX + 1, currentY + 1);
+  // 注意：上面的 fill(255) 逻辑要应用在主文字上
+  if (isHintHover) fill(255); else fill(0, 255, 255, alphaGlow);
+  text(hintText, hintX, currentY);
+  pop();
 }
 
 window.addEventListener("load", () => {
@@ -609,127 +614,193 @@ window.addEventListener("load", () => {
   }
 });
 function drawHiroshimaAnnotation() {
-  let angle = radians(-25);
+  // 1. 设置最终目标（横线右端点）
+  let horizLength = 100;
+  let finalHorizEndX = centerX + 150; 
+  let finalHorizEndY = centerY - 150; 
+
+  // 2. 动态角度计算：确保斜线指向圆心
+  let angle = atan2(finalHorizEndY - centerY, finalHorizEndX - centerX);
+
+  // 3. 起点（随蓝色圆环动画 animBlueR 变化）
   let startX = centerX + cos(angle) * animBlueR;
   let startY = centerY + sin(angle) * animBlueR;
 
-  let horizLength = 100; 
-  let textOffset = 8;   
-
-  if (!this.diagProgress) this.diagProgress = 0;
-  if (!this.horizProgress) this.horizProgress = 0;
-
-  let diagTargetX = startX + 40;
-  let diagTargetY = startY - 40;
-
-  let horizEndX = diagTargetX;
-  let horizEndY = diagTargetY;
-
-  this.diagProgress = lerp(this.diagProgress, 1, 0.03);
-  let diagCurrentX = startX + (diagTargetX - startX) * this.diagProgress;
-  let diagCurrentY = startY + (diagTargetY - startY) * this.diagProgress;
-
-  if (this.diagProgress >= 0.999) {
-    this.horizProgress = lerp(this.horizProgress, 1, 0.05);
-  }
-
-  let horizCurrentStartX = horizEndX + horizLength * this.horizProgress;
-
+  // 4. 样式
   stroke(0, 255, 255);
   strokeWeight(1);
   noFill();
-  line(startX, startY, diagCurrentX, diagCurrentY);
 
-  line(horizCurrentStartX, horizEndY, horizEndX, horizEndY);
+  // 5. 动画进度
+  hDiagProgress = lerp(hDiagProgress, 1, 0.02);
+  if (hDiagProgress > 0.5) {
+    hHorizProgress = lerp(hHorizProgress, 1, 0.02);
+  }
+
+  // 当前斜线的末端
+  let diagCurrentX = startX + (finalHorizEndX - startX) * hDiagProgress;
+  let diagCurrentY = startY + (finalHorizEndY - startY) * hDiagProgress;
+
+  // 6. 绘制线条
+  line(startX, startY, diagCurrentX, diagCurrentY); // 斜线
+  line(diagCurrentX, diagCurrentY, diagCurrentX + horizLength, diagCurrentY); // 横线
+
+  // 7. 文字渐显动画
+  let textOffset = 8;
+  let hText = "Little Boy\nHiroshima, 1945";
+
+  // 动画 alpha
+  let textAlpha = map(hHorizProgress, 0, 1, 0, 255);
+
+  // 文字最终位置
+  let finalTextX = diagCurrentX + horizLength + textOffset;
+  let finalTextY = diagCurrentY;
+
+  // 判定悬停（只有横线动画接近完成才生效）
+  let hoverEnabled = hHorizProgress > 0.95;
+  let textW = 140;
+  let textH = 30;
+  let isHiroshimaHover =
+    hoverEnabled &&
+    mouseX >= finalTextX &&
+    mouseX <= finalTextX + textW &&
+    mouseY >= finalTextY - textH / 2 &&
+    mouseY <= finalTextY + textH / 2;
 
   noStroke();
-  fill(0, 255, 255);
+  if (isHiroshimaHover) {
+    cursor(HAND);
+    fill(255); // 悬停时变白
+  } else {
+    fill(0, 255, 255, textAlpha); // 否则渐显
+  }
+
   textFont(myFont2);
   textSize(14);
   textAlign(LEFT, CENTER);
-  text(
-    "Little Boy\nHiroshima, 1945",
-    horizCurrentStartX + textOffset,
-    horizEndY
-  );
+  text(hText, finalTextX, finalTextY);
 }
+
 
 function drawBombAnnotation() {
   if (!bombData) return;
 
-  let targetR = animR;
-  let angle = radians(-60);
-  let startX = centerX - cos(angle) * targetR;
-  let startY = centerY + sin(angle) * targetR;
+  // 1. 设置最终目标点（横线的右端点）
+  let horizLength = 120;
+  let finalHorizEndX = width * 0.23 + horizLength; 
+  let horizEndY = height * 0.1;
 
+  // 2. 动态角度计算：确保斜线轨道指向最终目标
+  let angle = atan2(horizEndY - centerY, finalHorizEndX - centerX);
+
+  // 3. 起点（随炸弹圆环动画 animR 变化）
+  let startX = centerX + cos(angle) * animR;
+  let startY = centerY + sin(angle) * animR;
+
+  // 4. 样式设置
   let c = color(getYieldColor(bombData.yield_u));
   stroke(c);
   strokeWeight(1);
   noFill();
 
-  let textY = height * 0.1;
+  // 5. 动画进度
+  if (this.diagProgress === undefined) this.diagProgress = 0;
+  if (this.horizProgress === undefined) this.horizProgress = 0;
 
+  // 斜线生长动画
+  this.diagProgress = lerp(this.diagProgress, 1, 0.02);
+  // 当前斜线的末端点 (也是横线的右端点)
+  let diagCurrentX = startX + (finalHorizEndX - startX) * this.diagProgress;
+  let diagCurrentY = startY + (horizEndY - startY) * this.diagProgress;
+
+  if (this.diagProgress > 0.5) {
+    this.horizProgress = lerp(this.horizProgress, 1, 0.05);
+  }
+
+  line(startX, startY, diagCurrentX, diagCurrentY);
+
+  line(diagCurrentX - horizLength, diagCurrentY, diagCurrentX, diagCurrentY);
+
+  let textX = (diagCurrentX - horizLength) - 10; 
+  
+  noStroke();
+  let textAlpha = map(this.horizProgress, 0, 1, 0, 255);
+  fill(red(c), green(c), blue(c), textAlpha);
+  
   textFont(myFont1);
   textSize(20);
   textAlign(RIGHT, CENTER);
 
-  let horizLength = 120; 
-  let horizEndX = width * 0.23 + 120; 
-  let horizEndY = textY;
-
-  if (!this.diagProgress) this.diagProgress = 0;
-  if (!this.horizProgress) this.horizProgress = 0;
-
-  let diagTargetX = horizEndX;
-  let diagTargetY = horizEndY;
-
-  this.diagProgress = lerp(this.diagProgress, 1, 0.05);
-  let diagCurrentX = startX + (diagTargetX - startX) * this.diagProgress;
-  let diagCurrentY = startY + (diagTargetY - startY) * this.diagProgress;
-
-  if (this.diagProgress > 0.999) {
-    this.horizProgress = lerp(this.horizProgress, 1, 0.05);
-  }
-
-  let horizCurrentStartX = horizEndX - horizLength * this.horizProgress;
-
-  let textX = horizCurrentStartX - 10; 
-
-  line(startX, startY, diagCurrentX, diagCurrentY);
-
-  line(horizCurrentStartX, horizEndY, horizEndX, horizEndY);
-
-  noStroke();
-  fill(c);
-  text(bombData.name, textX, textY);
+  text(bombData.name, textX, diagCurrentY);
 }
-
 function mousePressed() {
-  animR = 0;
-  animPlaying = true;
-
-  if (bombData && mapZoomed) {
-    let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude, 0, 2) + ")";
-    let coordW = textWidth(coordText);
-    let coordH = 25;
-    let coordX = width / 2;
-    let coordY = 70;
+  // 1. 点击 Little Boy 跳转 (仅当横线动画基本结束)
+  if (hHorizProgress > 0.8) {
+    let angle = radians(-25);
+    let rInner = mapYieldToRadius(15);
+    // 重新计算最终文字所在的 X 区域
+    let finalDiagTargetX = (centerX + cos(angle) * rInner) + 40;
+    let finalDiagTargetY = (centerY + sin(angle) * rInner) - 40;
+    // 文字最终 X = 转折点 + 长度 + 偏移
+    let hTextX = finalDiagTargetX + 100 + 8; 
 
     if (
-mouseX >= coordX - coordW / 2 &&
-      mouseX <= coordX + coordW / 2 &&
-      mouseY >= coordY - coordH && 
-      mouseY <= coordY
+      mouseX >= hTextX && mouseX <= hTextX + 120 &&
+      mouseY >= finalDiagTargetY - 15 && mouseY <= finalDiagTargetY + 15
     ) {
-let lat = bombData.latitude;
+      window.location.href = "insight.html";
+      return; // 跳转后不再执行后续代码
+    }
+  }
+
+  // 2. 重置动画变量
+  animR = 0;
+  animBlueR = 0;
+  hDiagProgress = 0; // 重置进度
+  hHorizProgress = 0;
+  // 如果 drawBombAnnotation 也需要重置，请确保其变量也是全局的
+  this.diagProgress = 0; 
+  this.horizProgress = 0;
+
+  animPlaying = true;
+
+
+  if (bombData && mapZoomed) {
+    let currentY = offsetY - 10; 
+    let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude, 0, 2) + ")";
+    let coordW = textWidth(coordText);
+    let coordH = 20;
+    let centerX = width / 2;
+
+    let isCoordClicked = 
+      mouseX >= centerX - coordW / 2 &&
+      mouseX <= centerX + coordW / 2 &&
+      mouseY >= currentY - coordH &&
+      mouseY <= currentY;
+
+    textFont(myFont2); // 切换字体以准确计算宽度
+    textSize(14);
+    let hintText = "<< Click coordinates to view on Google Maps";
+    let hintW = textWidth(hintText);
+    let hintX = offsetX + scaledW; // 右边界
+    
+    let isHintClicked = 
+      mouseX >= hintX - hintW && 
+      mouseX <= hintX &&
+      mouseY >= currentY - 14 && // 14 是 textSize
+      mouseY <= currentY;
+
+    // 如果两者之一被点击
+    if (isCoordClicked || isHintClicked) {
+      let lat = bombData.latitude;
       let lon = bombData.longitude;
-      // 修正：正确的 Google Maps 链接格式
-      let googleMapsURL = "https://www.google.com/maps?q=" + lat + "," + lon;
+let googleMapsURL = `https://www.google.com/maps?q=${lat},${lon}&t=k`;
       window.open(googleMapsURL, "_blank");
       return;
     }
   }
 
+  // --- 以下是原有的地图缩放逻辑 ---
   let clickedOnMap =
     mouseX >= offsetX &&
     mouseX <= offsetX + scaledW &&
@@ -761,7 +832,6 @@ let lat = bombData.latitude;
     calculateMapDimensions();
   }
 }
-
 function keyPressed() {
   if (keyCode === ESCAPE) {
     if (mapZoomed) {
