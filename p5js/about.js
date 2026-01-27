@@ -10,6 +10,8 @@ let scrollY = 0;
 let targetScrollY = 0;
 let contentHeight = 0;
 
+let mushroomImg;
+
 
 // Colors
 const PURPLE = [110, 133, 219];
@@ -27,6 +29,8 @@ function preload() {
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
   myFont2 = loadFont("fonts/LibreFranklin-Regular.otf");
   myFont3 = loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
+
+  mushroomImg = loadImage("images/mushroom.png");
 }
 
 function setup() {
@@ -52,7 +56,19 @@ function setup() {
 
 }
 function draw() {
-  background(0);
+  background(20);
+
+   // Fungo atomico come sfondo
+   if (mushroomImg) {
+    push();
+    tint(0, 255, 255);
+    imageMode(CENTER);
+    // Adatta in altezza
+    let imgH = 0.9*height;
+    let imgW = 1.2*height * (mushroomImg.width / mushroomImg.height);
+    image(mushroomImg, width / 2, (height / 2) + (scrollY * 0.1), imgW, imgH);
+    pop();
+  }
 
   fadeIn = min(fadeIn + 3, 255);
   floatOffset = max(floatOffset - 0.6, 0);
@@ -62,6 +78,11 @@ function draw() {
   arrowHitDataset = null;
 
   scrollY = lerp(scrollY, targetScrollY, 0.12);
+
+  let progress = map(scrollY, 0, max(0, contentHeight - height), 0, width);
+  stroke(...CYAN);
+  strokeWeight(2);
+  line(0, 0, progress, 0);
 
   // CONTENUTO SCROLLABILE
   push();
@@ -88,6 +109,11 @@ function drawAboutContent() {
   const boxWidth = width * 0.38;
   const groupWidth = boxWidth;
   const x = (width - groupWidth) / 2;
+
+  // Draw a subtle vertical shadow behind the center text column
+noStroke();
+fill(20, 180); // Semi-transparent dark grey
+rect(x - 40, 0, boxWidth + 80, contentHeight);
 
   // PAGE TITLE
 
@@ -190,9 +216,9 @@ function wrapLines(txt, maxW) {
   return { lines, h: lines.length * textLeading() };
 }
 
-function drawWrappedText(lines, x, y, leading, r, a, fontSize) {
-  textFont(myFont1);
-  textSize(fontSize);
+function drawWrappedText(lines, x, y, leading, r, a) {
+  textFont(myFont2);
+  textSize(18);
   textLeading(leading);
   textAlign(LEFT, TOP);
   fill(r, a);
@@ -212,9 +238,14 @@ function drawHintWithArrow(label, x, y, hintSize, hintLeading, url, setHit) {
   const arrowY = y + hintSize * 0.55;
 
   const hit = { x: arrowX - 6, y: y - 2, w: 26, h: hintLeading + 4, url };
+  
+  // ADJUSTED LOGIC HERE: 
+  // We compare mouse positions to the "translated" y-coordinates
   const hovering =
-    mouseX >= hit.x && mouseX <= hit.x + hit.w &&
-    mouseY >= hit.y && mouseY <= hit.y + hit.h;
+    mouseX >= hit.x && 
+    mouseX <= hit.x + hit.w &&
+    (mouseY + scrollY) >= hit.y && // Add scrollY to mouseY
+    (mouseY + scrollY) <= hit.y + hit.h; // Add scrollY to mouseY
 
   if (hovering) {
     fill(...CYAN, fadeIn);
@@ -226,17 +257,13 @@ function drawHintWithArrow(label, x, y, hintSize, hintLeading, url, setHit) {
     stroke(255);
   }
 
+  // Rest of the function remains the same...
   noStroke();
   text(label, x, y);
-
   strokeWeight(1.4);
   line(arrowX, arrowY, arrowX + 14, arrowY);
   noStroke();
-  triangle(
-    arrowX + 14, arrowY,
-    arrowX + 9, arrowY - 4,
-    arrowX + 9, arrowY + 4
-  );
+  triangle(arrowX + 14, arrowY, arrowX + 9, arrowY - 4, arrowX + 9, arrowY + 4);
 }
 
 function mouseReleased() {
@@ -244,16 +271,23 @@ function mouseReleased() {
   if (arrowHitDataset) window.open(arrowHitDataset.url, "_blank");
 }
 
-
 function drawFooter() {
+  // Optional: Draw a background bar so text doesn't overlap
+  fill(20); 
+  noStroke();
+  rect(0, height - 40, width, 40); 
+
+  // Footer Text
   fill(110);
   textFont(myFont3);
   textSize(10);
-  textAlign(CENTER, BOTTOM);
+  textAlign(CENTER, CENTER);
+  
+  // Using height - 20 keeps it consistently padded from the bottom edge
   text(
     "Politecnico di Milano · Information Design · Group 8 · A.A. 2025–2026",
     width / 2,
-    height - 14
+    height - 20 
   );
 }
 

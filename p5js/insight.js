@@ -89,7 +89,7 @@ function draw() {
   let titleAlpha = map(scrollY, 0, 200, 255, 0, true); 
   fill(200, titleAlpha);
   textAlign(CENTER, TOP);
-textFont(myFont1);
+  textFont(myFont1);
   noStroke();
   textSize(20);
   text(topText, width / 2, 30);
