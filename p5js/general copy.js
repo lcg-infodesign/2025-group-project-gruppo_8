@@ -10,7 +10,7 @@ let enteredPage2ByScroll = false;
 // Page2 top-right text carousel (4 steps)
 let infoStep = 0; // 0..3
 const infoTexts = [
-  "The first nuclear explosions mark a historical turning point. \nAfter the end of World War II, the atomic bomb becomes a tool of power and deterrence.\n Testing is limited, but a new form of global threat begins.",
+  "The first nuclear explosions \n mark a historical turning point. \n\nAfter the end of World War II, \nthe atomic bomb becomes \n a tool of power and deterrence.\n\n Testing is limited, but a new \n form of global threat begins.",
   "Competition between superpowers leads to a rapid increase in nuclear tests.\nExplosions become more frequent and more powerful, often atmospheric.\nNuclear testing is used as a political and military demonstration.",
   "After the first international restrictions, many tests move underground.\nThe number of explosions decreases, but technological development continues.\nDeterrence remains central throughout the Cold War.",
   "With the end of the Cold War, nuclear explosions decrease significantly.\nIn 1996, the Comprehensive Nuclear-Test-Ban Treaty (CTBT) is adopted, aiming to ban all nuclear test explosions.\n1998 marks the last officially certified nuclear tests.",
@@ -319,9 +319,9 @@ function drawPage1() {
   const str1 =
     "The atom breaks: each particle is a real test. History unfolds before your eyes.";
   const str2 =
-    "Between 1945 and 1998, nuclear testing reshaped geopolitics, science, and the environment. Over two thousand explosions left a lasting mark on the planet.";
+    "Between 1945 and 1998, \n nuclear testing reshaped geopolitics,\n science, and the environment.\n \n Over two thousand explosions\nleft a lasting mark on the planet.";
   const str3 =
-    "This website is a digital archive that presents nuclear testing as an interactive timeline. \nIt traces the evolution of nuclear explosions over the second half of the twentieth century.";
+    "This website is a digital archive \n that presents nuclear testing \n as an interactive timeline. \n\nIt traces the evolution of nuclear explosions over the second half \nof the twentieth century.";
   const str4 = "Data from the SIPRI-FOA Report";
 
   // Bring the two columns closer to the center
@@ -341,7 +341,11 @@ function drawPage1() {
     MAX_TEXT_W
   );
   
-  drawIntroBlock(str2, leftX, introStartY + introStepY*1 - scrollOffset, MAX_TEXT_W);
+  drawIntroBlock(
+    str2, 
+    leftX, 
+    introStartY + introStepY * 1 - scrollOffset, 
+    MAX_TEXT_W);
 
   drawIntroBlock(
     str3,
@@ -570,7 +574,7 @@ function drawPage2() {
   textFont(myFont2);  
   noStroke();
   fill(0,255,255);
-  textSize(16);
+  textSize(20);
   textAlign(CENTER, TOP);
   text("Bombs Launched", width / 2, 137);
 
@@ -931,7 +935,7 @@ function drawTopRightInfoCarousel() {
   push();
   noStroke();
   textFont(myFont2);
-  textSize(21);
+  textSize(20);
   fill(200, 200, 200);
   textAlign(LEFT, TOP);
   text(infoTexts[infoStep], boxX, boxY, boxW, boxH);

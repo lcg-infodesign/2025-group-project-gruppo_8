@@ -24,7 +24,7 @@ canvas {
   letter-spacing: 0.15em;
   text-transform: uppercase;
 
-  color: #ffffff;              /* bianco di default */
+  color: lightgray;              /* bianco di default */
   background: none;
   border: none;
   cursor: pointer;
