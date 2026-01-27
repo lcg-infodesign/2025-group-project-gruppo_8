@@ -5,17 +5,11 @@ let projectHintText, datasetHintText;
 let fadeIn = 0;
 let floatOffset = 20;
 
-let iconProject, iconData, iconUs;
 
 let scrollY = 0;
 let targetScrollY = 0;
 let contentHeight = 0;
 
-// Layout icone
-const ICON_SIZE = 78; // ⬅️ slightly larger
-const ICON_GAP = 90;
-const VISUAL_SHIFT_RIGHT = 22;
-const STROKE_THIN = "0.7";
 
 // Colors
 const PURPLE = [110, 133, 219];
@@ -39,8 +33,6 @@ function setup() {
   let c = createCanvas(windowWidth, windowHeight);
   c.style("z-index", "1");
 
-  if (window.lucide) lucide.createIcons();
-
   projectText =
     "This project visualizes the global history of nuclear testing through an interactive and minimal system. " +
     "By mapping tests across years, countries, and yields, it reveals patterns that raw data alone cannot show. " +
@@ -58,19 +50,6 @@ function setup() {
   projectHintText = "View the project repository";
   datasetHintText = "Explore the dataset source";
 
-  iconProject = select("#icon-project");
-  iconData = select("#icon-data");
-  iconUs = select("#icon-us");
-
-  [iconProject, iconData, iconUs].forEach(icon => {
-    icon.style("position", "absolute");
-    icon.style("z-index", "10");
-    icon.style("color", "#00FFFF");
-    icon.style("opacity", "1");
-    icon.style("width", ICON_SIZE + "px");
-    icon.style("height", ICON_SIZE + "px");
-    icon.style("stroke-width", STROKE_THIN);
-  });
 }
 function draw() {
   background(0);
@@ -107,8 +86,8 @@ function drawAboutContent() {
   const hintLeading = Math.round(hintSize * 1.45);
 
   const boxWidth = width * 0.38;
-  const groupWidth = boxWidth + ICON_GAP + ICON_SIZE;
-  const x = (width - groupWidth) / 2 + VISUAL_SHIFT_RIGHT;
+  const groupWidth = boxWidth;
+  const x = (width - groupWidth) / 2;
 
   // PAGE TITLE
 
@@ -162,13 +141,6 @@ function drawAboutContent() {
     hit => (arrowHitProject = hit)
   );
 
-  positionIcon(
-    iconProject,
-    x + boxWidth + ICON_GAP,
-    startY,
-    titleH + titleBodyGap + p1.h + 10 + hintLineH
-  );
-
   // ===== DATASET =====
   const y2 = hintY1 + hintLineH + spacingBetween;
 
@@ -190,13 +162,6 @@ function drawAboutContent() {
     hit => (arrowHitDataset = hit)
   );
 
-  positionIcon(
-    iconData,
-    x + boxWidth + ICON_GAP,
-    y2,
-    titleH + titleBodyGap + p2.h + 10 + hintLineH
-  );
-
   // ===== ABOUT US =====
   const y3 = hintY2 + hintLineH + spacingBetween;
 
@@ -206,13 +171,6 @@ function drawAboutContent() {
 
   const bodyY3 = y3 + titleH + titleBodyGap;
   drawWrappedText(p3.lines, x, bodyY3, bodyLeading, 255, fadeIn, bodySize);
-
-  positionIcon(
-    iconUs,
-    x + boxWidth + ICON_GAP,
-    y3,
-    titleH + titleBodyGap + p3.h
-  );
 }
 
 // helpers unchanged
@@ -286,10 +244,6 @@ function mouseReleased() {
   if (arrowHitDataset) window.open(arrowHitDataset.url, "_blank");
 }
 
-function positionIcon(icon, x, y, h) {
-  if (!icon) return;
-  icon.position(x, y + h / 2 - ICON_SIZE / 2);
-}
 
 function drawFooter() {
   fill(110);
