@@ -7,13 +7,14 @@ let menuOpen = false;
 let enteredPage2ByScroll = false; 
 
 
+
 // Page2 top-right text carousel (4 steps)
 let infoStep = 0; // 0..3
 const infoTexts = [
-  "The first nuclear explosions \n mark a historical turning point. \n\nAfter the end of World War II, \nthe atomic bomb becomes \n a tool of power and deterrence.\n\n Testing is limited, but a new \n form of global threat begins.",
-  "Competition between superpowers \nleads to a rapid increase in nuclear tests.\n\nExplosions become more frequent \nand more powerful, often atmospheric.\n\nNuclear testing is used as a political \nand military demonstration.",
-  "After the first international restrictions,\n many tests move underground.\n\nThe number of explosions decreases, \nbut technological development continues.\n\nDeterrence remains central \nthroughout the Cold War.",
-  "With the end of the Cold War, \nnuclear explosions decrease significantly.\n\nIn 1996, the Comprehensive \nNuclear Test Ban Treaty (CTBT) is adopted, \naiming to ban all nuclear test explosions.\n\n1998 marks the last officially\n certified nuclear tests.",
+  "The first nuclear explosions \n mark a historical turning point. \nAfter the end of World War II, \nthe atomic bomb becomes \n a tool of power and deterrence.\n Testing is limited, but a new \n form of global threat begins.",
+  "Competition between superpowers \nleads to a rapid increase in nuclear tests.\nExplosions become more frequent \nand more powerful, often atmospheric.\nNuclear testing is used as a political \nand military demonstration.",
+  "After the first international restrictions,\n many tests move underground.\nThe number of explosions decreases, \nbut technological development continues.\nDeterrence remains central \nthroughout the Cold War.",
+  "With the end of the Cold War, \nnuclear explosions decrease significantly.\nIn 1996, the Comprehensive \nNuclear Test Ban Treaty is adopted, \naiming to ban all nuclear test explosions.\n1998 marks the last officially\n certified nuclear tests.",
 ];
 
 // Hover state (page2: years/columns)
@@ -640,6 +641,7 @@ function drawPage2() {
 const isHoverATM = hoverOnAtmospheric(offsetX, margin);
 
 if (isHoverATM) {
+  push();
   const padding = 8;
   const lineHeight = 16;
 
@@ -659,12 +661,14 @@ if (isHoverATM) {
   text("ATMOSPHERIC", boxX + padding, boxY + padding);
   text("texxxxtxttx ", boxX + padding, boxY + padding + lineHeight);
   text("tectctc text", boxX + padding, boxY + padding + lineHeight * 2);
+  pop();
 }
 
 // hover sopra underground
 const isHoverUND = hoverOnUnderground(offsetX, offsetY);
 
 if (isHoverUND) {
+  push();
   const padding = 8;
   const lineHeight = 16;
 
@@ -684,6 +688,7 @@ if (isHoverUND) {
   text("Underground", boxX + padding, boxY + padding);
   text("texxxxtxttx ", boxX + padding, boxY + padding + lineHeight);
   text("tectctc text", boxX + padding, boxY + padding + lineHeight * 2);
+  pop();
 }
 
 
@@ -841,6 +846,8 @@ function updateHoverPage2() {
     return;
   }
 
+
+  
   // spazio orizzontale tra anni (colonne)
   const yearStep = (width - 2 * margin) / (endYear - startYear);
   const hitX = yearStep * 0.45; // quanto "larga" è l'area hover della colonna
@@ -915,21 +922,21 @@ function updateHoverPage2() {
 
 function drawTopRightInfoCarousel() {
   // Layout (tweak safe)
-  const lineX = width / 2 + 260; // “a destra” del blocco centrale
+  const lineX = width - 400 - margin; // “a destra” del blocco centrale
   const topY = 0;
 
   const boxX = lineX + 18;
   const titleY = 75;   // stessa y del "TOTAL AMOUNT OF BOMBS"
-  const boxY = titleY; // allineamento top testo
+  const boxY = titleY ; // allineamento top testo
 
-  const boxW = width - width / 2 - 260 - margin;    // box più lunga
-  const boxH = 450 - height / 4;    // PROPORZIONE INVERSA, sottrae parte schermo maggiore più grande è schermo
+  const boxW = 400;
+  const boxH = 200;   
 
   // Vertical cyan line from top
   push();
   stroke(0, 255, 255, 160);
   strokeWeight(2);
-  line(lineX, topY, lineX, boxY + boxH);
+  line(lineX, topY, lineX, boxY + boxH+20);
   pop();
 
   // Text block
@@ -1047,16 +1054,15 @@ function mousePressed() {
   // ------------ page 2 ------------
   if (page === 2) {
     // --- click on top-right carousel arrows ---
-    const lineX = width / 2 + 260;
+    const lineX = width - 400 - margin;
     const boxX = lineX + 18;
     const titleY = 70;
     const boxY = titleY;
 
-    const boxW = width - width / 2 - 260 - margin;
-    const boxH = 450 - height /4 ;
+    const boxW = 400;
+    const boxH = 200;
 
     const arrowsY = boxY + boxH + 18;
-
 
     const hitW = 34,
       hitH = 34;
