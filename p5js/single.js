@@ -614,74 +614,55 @@ window.addEventListener("load", () => {
   }
 });
 function drawHiroshimaAnnotation() {
-  // 1. 设置最终目标（横线右端点）
+  // ... 1-6 部分保持完全一致 ...
   let horizLength = 100;
   let finalHorizEndX = centerX + 150; 
   let finalHorizEndY = centerY - 150; 
-
-  // 2. 动态角度计算：确保斜线指向圆心
   let angle = atan2(finalHorizEndY - centerY, finalHorizEndX - centerX);
-
-  // 3. 起点（随蓝色圆环动画 animBlueR 变化）
   let startX = centerX + cos(angle) * animBlueR;
   let startY = centerY + sin(angle) * animBlueR;
-
-  // 4. 样式
+  
   stroke(0, 255, 255);
   strokeWeight(1);
   noFill();
 
-  // 5. 动画进度
   hDiagProgress = lerp(hDiagProgress, 1, 0.02);
   if (hDiagProgress > 0.5) {
     hHorizProgress = lerp(hHorizProgress, 1, 0.02);
   }
 
-  // 当前斜线的末端
   let diagCurrentX = startX + (finalHorizEndX - startX) * hDiagProgress;
   let diagCurrentY = startY + (finalHorizEndY - startY) * hDiagProgress;
 
-  // 6. 绘制线条
-  line(startX, startY, diagCurrentX, diagCurrentY); // 斜线
-  line(diagCurrentX, diagCurrentY, diagCurrentX + horizLength, diagCurrentY); // 横线
+  line(startX, startY, diagCurrentX, diagCurrentY);
+  line(diagCurrentX, diagCurrentY, diagCurrentX + horizLength, diagCurrentY);
 
-  // 7. 文字渐显动画
-  let textOffset = 8;
+  // --- 7. 文字与跳转逻辑 ---
   let hText = "Little Boy\nHiroshima, 1945";
-
-  // 动画 alpha
-  let textAlpha = map(hHorizProgress, 0, 1, 0, 255);
-
-  // 文字最终位置
-  let finalTextX = diagCurrentX + horizLength + textOffset;
-  let finalTextY = diagCurrentY;
-
-  // 判定悬停（只有横线动画接近完成才生效）
-  let hoverEnabled = hHorizProgress > 0.95;
-  let textW = 140;
-  let textH = 30;
-  let isHiroshimaHover =
-    hoverEnabled &&
-    mouseX >= finalTextX &&
-    mouseX <= finalTextX + textW &&
-    mouseY >= finalTextY - textH / 2 &&
-    mouseY <= finalTextY + textH / 2;
+  
+  // 核心修改：让判定位置和 text(...) 绘制的位置对齐
+  let actualDrawX = diagCurrentX + horizLength + 10; 
+  
+  let isHiroshimaHover = 
+    mouseX >= actualDrawX && mouseX <= actualDrawX + 130 &&
+    mouseY >= diagCurrentY - 15 && mouseY <= diagCurrentY + 15;
 
   noStroke();
-  if (isHiroshimaHover) {
+  let textAlpha = map(hHorizProgress, 0, 1, 0, 255);
+  
+  if (isHiroshimaHover && hHorizProgress > 0.8) {
     cursor(HAND);
-    fill(255); // 悬停时变白
+    fill(255); // 现在变白的位置准了
   } else {
-    fill(0, 255, 255, textAlpha); // 否则渐显
+    fill(0, 255, 255, textAlpha);
   }
 
   textFont(myFont2);
   textSize(14);
   textAlign(LEFT, CENTER);
-  text(hText, finalTextX, finalTextY);
+  // 保持你要求的原始绘制位置
+  text(hText, diagCurrentX + horizLength + 10, diagCurrentY);
 }
-
-
 function drawBombAnnotation() {
   if (!bombData) return;
 
@@ -734,26 +715,22 @@ function drawBombAnnotation() {
   text(bombData.name, textX, diagCurrentY);
 }
 function mousePressed() {
-  // 1. 点击 Little Boy 跳转 (仅当横线动画基本结束)
+// --- 1. 点击 Little Boy 跳转 (针对统一后的动效位置) ---
   if (hHorizProgress > 0.8) {
-    let angle = radians(-25);
-    let rInner = mapYieldToRadius(15);
-    // 重新计算最终文字所在的 X 区域
-    let finalDiagTargetX = (centerX + cos(angle) * rInner) + 40;
-    let finalDiagTargetY = (centerY + sin(angle) * rInner) - 40;
-    // 文字最终 X = 转折点 + 长度 + 偏移
-    let hTextX = finalDiagTargetX + 100 + 8; 
+    // 最终位置: centerX + 150 (finalHorizEndX) + 100 (horizLength) + 10 (offset)
+    let finalX = centerX + 150 + 100 + 10;
+    let finalY = centerY - 150; // finalHorizEndY
 
     if (
-      mouseX >= hTextX && mouseX <= hTextX + 120 &&
-      mouseY >= finalDiagTargetY - 15 && mouseY <= finalDiagTargetY + 15
+      mouseX >= finalX && mouseX <= finalX + 150 &&
+      mouseY >= finalY - 20 && mouseY <= finalY + 20
     ) {
       window.location.href = "insight.html";
-      return; // 跳转后不再执行后续代码
+      return;
     }
   }
 
-  // 2. 重置动画变量
+  // --- 2. 重置动画变量 (保持不变) ---
   animR = 0;
   animBlueR = 0;
   hDiagProgress = 0; // 重置进度
