@@ -1514,6 +1514,8 @@ function goNextPage() {
 
   scrollProgress = startYear - 1; // <-- CAMBIATO (prima era endYear)
 
+  scrollDirection = 1; // parte l'animazione come se stessi scrollando giù
+  lastStepTime = millis();
 
 
   // Nascondi il bottone se per caso è ancora visibile
