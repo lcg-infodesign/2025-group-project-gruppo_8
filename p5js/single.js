@@ -6,8 +6,8 @@ let typeImg = null;
 let myFont1, myFont2, myFont3;
 let animR = 0;
 
-let hDiagProgress = 0; // 广岛斜线进度
-let hHorizProgress = 0; // 广岛横线进度
+let hDiagProgress = 0;
+let hHorizProgress = 0;
 //to google map
 let coordX, coordY, coordW, coordH;
 
@@ -29,7 +29,7 @@ let mapZoomed = false;
 let animBlueR = 0;
 
 const purposeTextMap = {
-  WR: "Weapons-related: activities associated with a weapons development programme, also used when a test’s purpose is unspecified.",
+  WR: "Activities associated with a weapons development programme, also used when a test’s purpose is unspecified.",
   COMBAT:
     "Use of atomic bombs in wartime, specifically Hiroshima and Nagasaki in August 1945.",
   WE: "Tests evaluating the effects of a nuclear detonation on various targets.",
@@ -42,24 +42,24 @@ const purposeTextMap = {
   TRANSP: "Tests related to the transportation and storage of nuclear weapons.",
   "PNE:V":
     "Peaceful nuclear explosions for industrial applications or testing peaceful nuclear technologies.",
-  "*UNKNOWN": "missing information in the original dataset",
+  "*UNKNOWN": "Missing information in the original dataset.",
   PNE: "Peaceful nuclear explosions for industrial applications or testing peaceful nuclear technologies.",
   "WR/SE":
-    "Tests weapons-related: activities associated with a weapons development programme, and tests assessing nuclear weapon safety in the event of an accident.",
+    "Activities associated with a weapons development programme, and tests assessing nuclear weapon safety in the event of an accident.",
   "WR/WE":
-    "Tests weapons-related: activities associated with a weapons development programme, and tests evaluating the effects of a nuclear detonation on various targets.",
+    "Activities associated with a weapons development programme, and tests evaluating the effects of a nuclear detonation on various targets.",
   "WR/PNE":
-    "Explosions weapons-related: activities associated with a weapons development programme, and peaceful nuclear explosions for industrial applications or testing peaceful nuclear technologies.",
+    "Activities associated with a weapons development programme, and peaceful nuclear explosions for industrial applications or testing peaceful nuclear technologies.",
   "WE/SAM":
     "Tests evaluating the effects of a nuclear detonation on various targets and tests examining accidental modes and emergency scenarios involving nuclear weapons.",
   "WR/P/SA":
     "A test examining accidental modes and emergency scenarios involving nuclear weapons, an explosion associated with a weapons development programme, one peaceful nuclear explosions for industrial applications or testing peaceful nuclear technologies.",
   "WR/SAM":
-    "Tests weapons-related: activities associated with a weapons development programme, and tests examining accidental modes and emergency scenarios involving nuclear weapons.",
+    "Activities associated with a weapons development programme, and tests examining accidental modes and emergency scenarios involving nuclear weapons.",
   "WR/F/SA":
     "A test examining accidental modes and emergency scenarios involving nuclear weapons, two explosions associated with a weapons development programme, an explosion conducted to study phenomena produced by a nuclear explosion.",
   "WR/FMS":
-    "Tests weapons-related: activities associated with a weapons development programme, and tests conducted to study phenomena produced by a nuclear explosion.",
+    "Activities associated with a weapons development programme, and tests conducted to study phenomena produced by a nuclear explosion.",
   "WR/P/S":
     "Three weapons-related explosions, activities associated with a weapons development programme, one peaceful nuclear explosions for industrial applications or testing peaceful nuclear technologies and a test examining accidental modes and emergency scenarios involving nuclear weapons. ",
   "WR/F/S":
@@ -101,7 +101,30 @@ const typeTextMap = {
 };
 
 const purposeTitle = {
-
+WR:"Weapons-related",
+COMBAT:"Wartime use",
+WE:"Weapon effects test",
+  ME: "Military exercise test",
+  SE: "Safety test",
+  FMS: "Phenomena study",
+  SAM: "Accident scenario test",
+"PNE:PLO":"Peaceful nuclear explosions",
+ TRANSP: "Transport & storage",
+"PNE:V":"Peaceful nuclear explosions",
+"*UNKNOWN":"Unknown purpose",
+PNE:"Peaceful nuclear explosions",
+  "WR/SE": "Weapons & safety test",
+  "WR/WE": "Weapons & effect test",
+  "WR/PNE": "Weapons & peaceful test",
+  "WE/SAM": "Effects & accident test",
+  "WR/P/SA": "Weapons & accident & peaceful test",
+  "WR/SAM": "Weapons & accident test",
+  "WR/F/SA": "Weapons & accident & phenomena test",
+"WR/FMS":"Tests weapons-related: ",
+  "WR/FMS": "Weapons & phenomena study",
+  "WR/P/S": "Weapons & peaceful & accident tests",
+  "WR/F/S": "Weapons & phenomena & accident tests",
+  "WR/WE/S": "Weapons & effect & accident tests",
 }
 
 function preload() {
@@ -140,6 +163,7 @@ function preload() {
 
 function getBombData(row) {
   return {
+     year: row.getString("year"),
     name: row.getString("name"),
     country: row.getString("country"),
     region: row.getString("region"),
@@ -383,9 +407,9 @@ function drawInfo() {
   textFont(myFont3);
   textSize(14);
   textAlign(LEFT, TOP);
-      text(bombData.year,offsetX, boxY - 50)
+      text("Year:"+ bombData.year, offsetX, boxY - 60)
   text("Type: " + bombData.type, offsetX, boxY - 30);
-  text("Purpose: " + bombData.purpose, width * 0.03, offsetY - 30);
+  text("Purpose: " + getPurposeTitle(bombData.purpose), width * 0.03, offsetY - 30);
   text("Country: " + bombData.country, offsetX, offsetY - 30);
   textSize(24);
   textAlign(LEFT, TOP);
@@ -437,6 +461,12 @@ function getTypeText(type) {
   if (!type) return "";
   return typeTextMap[type.toUpperCase()] || "Unknown Purpose";
 }
+
+function getPurposeTitle(purpose) {
+  if (!purpose) return "";
+  return purposeTitle[purpose.toUpperCase()] || "Unknown";
+}
+
 
 function drawZoomedMap() {
   if (!mapImg || !bombData) return;
@@ -696,7 +726,7 @@ function drawBombAnnotation() {
   let horizLength = 120;
 
   let finalAnchorX = width * 0.31;
-  let finalAnchorY = height * 0.3;
+  let finalAnchorY = height * 0.2;
 
   let angle = atan2(finalAnchorY - centerY, finalAnchorX - centerX);
 
