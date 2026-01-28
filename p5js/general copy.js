@@ -452,7 +452,7 @@ function drawScrollHintArrow() {
 
   const cx = width / 2;
   const cy = height - 44 + bob;
-  const labelY = cy - 24;     // baseline label
+  const labelY = cy - 14;     // baseline label
 
   const halfW = 10; // half width of the chevron (smaller = less wide)
   const h = 8; // height of the chevron (smaller = less tall)
@@ -462,6 +462,7 @@ function drawScrollHintArrow() {
   strokeWeight(2);
   noFill();
 
+  /*
   // chevron only (no vertical stem)
   line(cx - halfW, cy - h, cx, cy);
   line(cx + halfW, cy - h, cx, cy);
@@ -474,12 +475,51 @@ function drawScrollHintArrow() {
   textAlign(CENTER, BOTTOM);
   text("SCROLL DOWN FOR MORE", cx, labelY);
 
+  */
+
+  // label + side chevrons
+const label = "SCROLL DOWN FOR MORE";
+
+textFont(myFont2);
+textSize(12);
+textAlign(CENTER, BOTTOM);
+
+// calcolo larghezza testo per posizionare i chevron ai lati
+  const tw = textWidth(label);
+  const gap = 300;                 // distanza tra testo e chevron
+  const chevronY = labelY - 6;     // centratura visiva rispetto alla baseline
+
+  const leftX  = cx - tw / 2 - gap;
+  const rightX = cx + tw / 2 + gap;
+
+  // chevrons (identici) ai lati
+  push();
+  stroke(200, alpha);
+  strokeWeight(2);
+  noFill();
+
+  line(leftX - halfW,  chevronY - h, leftX,  chevronY);
+  line(leftX + halfW,  chevronY - h, leftX,  chevronY);
+
+  line(rightX - halfW, chevronY - h, rightX, chevronY);
+  line(rightX + halfW, chevronY - h, rightX, chevronY);
+  pop();
+
+  // testo in mezzo
+  noStroke();
+  fill(200, alpha);
+  text(label, cx, labelY);
+
+
   if (scrollOffset >= introTargets[3] - 10) return;
 
   pop();
 
 
 }
+
+
+
 
 
 
