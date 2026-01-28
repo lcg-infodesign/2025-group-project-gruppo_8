@@ -1298,22 +1298,30 @@ function mousePressed() {
       }
     }
 if (page === 2) {
-  // menu click
-  if (menuOpen) {
-    const mainX = width / 2 - BTN_W / 2;
-    const mainY = 190;
+  const mainX = width / 2 - BTN_W / 2;
+  const mainY = 190;
 
-    for (let i = 0; i < countries.length; i++) {
+  // click main button
+  if (mouseX >= mainX && mouseX <= mainX + BTN_W &&
+      mouseY >= mainY && mouseY <= mainY + BTN_H) {
+    menuOpen = !menuOpen;
+    return;
+  }
+
+  if (menuOpen) {
+    const visibleCountries = countries.filter(c => c !== selectedCountry || c === "All country");
+
+    for (let i = 0; i < visibleCountries.length; i++) {
       let bx = mainX;
       let by = mainY + BTN_H + GAP + i * (BTN_H + GAP);
 
-      if (mouseX >= bx && mouseX <= bx + BTN_W && mouseY >= by && mouseY <= by + BTN_H) {
-        selectedCountry = countries[i];
+      if (mouseX >= bx && mouseX <= bx + BTN_W &&
+          mouseY >= by && mouseY <= by + BTN_H) {
+        selectedCountry = visibleCountries[i];
         menuOpen = false;
-        break;
+        return;
       }
     }
-    return;
   }
 }
 
@@ -1421,9 +1429,9 @@ class Particle2 {
   }
   draw() {
     if (!this.active) return;
-
-    // FILTER BY COUNTRY
-    let visible = (selectedCountry === "All country") || (this.country === selectedCountry);
+let visible =
+  selectedCountry === "All country" ||
+  normalizeCountry(this.country) === normalizeCountry(selectedCountry);
 
     const isHover = hoveredYear === this.year;
     const rr = isHover ? this.r * 1.25 : this.r;
@@ -1594,13 +1602,12 @@ function goNextPage() {
 
 function drawCountryMenu() {
   const x = width / 2;
-  const y = 190; // sotto "Bombs Launched"
+  const y = 190;
 
-  // bottone principale
   let mainX = x - BTN_W / 2;
   let mainY = y;
 
-  // Draw main button
+  // main button
   stroke(0, 255, 255);
   strokeWeight(2);
   noFill();
@@ -1611,25 +1618,14 @@ function drawCountryMenu() {
   textAlign(CENTER, CENTER);
   text(selectedCountry, mainX + BTN_W / 2, mainY + BTN_H / 2);
 
-  // open menu
-  if (!menuOpen && mouseX >= mainX && mouseX <= mainX + BTN_W && mouseY >= mainY && mouseY <= mainY + BTN_H) {
-    menuOpen = true;
-  }
-
-  // close if outside
-  if (menuOpen && !isMouseInMenuArea(mainX, mainY)) {
-    menuOpen = false;
-  }
-
-  // draw list
+  // Open/close menu
   if (menuOpen) {
-    for (let i = 0; i < countries.length; i++) {
-      if (countries[i] === selectedCountry && i !== 0) continue; // All country always visible, others no duplicates
+    const visibleCountries = countries.filter(c => c !== selectedCountry || c === "All country");
 
+    for (let i = 0; i < visibleCountries.length; i++) {
       let bx = mainX;
       let by = mainY + BTN_H + GAP + i * (BTN_H + GAP);
 
-      // draw
       stroke(0, 255, 255);
       strokeWeight(2);
       noFill();
@@ -1638,14 +1634,14 @@ function drawCountryMenu() {
       noStroke();
       fill(0, 255, 255);
       textAlign(CENTER, CENTER);
-      text(countries[i], bx + BTN_W / 2, by + BTN_H / 2);
+      text(visibleCountries[i], bx + BTN_W / 2, by + BTN_H / 2);
 
       // hover highlight
       if (mouseX >= bx && mouseX <= bx + BTN_W && mouseY >= by && mouseY <= by + BTN_H) {
         fill(0);
         rect(bx, by, BTN_W, BTN_H, RADIUS);
         fill(0);
-        text(countries[i], bx + BTN_W / 2, by + BTN_H / 2);
+        text(visibleCountries[i], bx + BTN_W / 2, by + BTN_H / 2);
       }
     }
   }
@@ -1665,6 +1661,7 @@ function isMouseInMenuArea(mainX, mainY) {
 
 
 
+
 // ===============================
 // LISTENER MENU → CAMBIO PAGINA
 // ===============================
@@ -1677,3 +1674,10 @@ window.addEventListener("changePage", (e) => {
   }
 });
  
+function getVisibleCountries() {
+  return countries.filter(c => c !== selectedCountry || c === "All country");
+}
+
+function normalizeCountry(c) {
+  return c.trim().toUpperCase();
+}
