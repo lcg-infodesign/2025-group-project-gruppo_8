@@ -1,9 +1,35 @@
 // ===============================
 // Variabili globali
 // ===============================
+// ===============================
+// Country filter
+// ===============================
+let selectedCountry = "All country";
+const countries = [
+  "All country",
+  "INDIA",
+  "PAKIST",
+  "CHINA",
+  "FRANCE",
+  "UK",
+  "USA",
+  "USSR"
+];
+
+// Menu UI
+let menuOpen = false;
+let animatedOnce = false;
+const BTN_W = 200;
+const BTN_H = 36;
+const GAP = 10;
+const RADIUS = 12;
+const PADDING_AREA = 14;
+
+let menuButtons = [];
+
+
 let page = 1;
 let data = [];
-let menuOpen = false;
 let enteredPage2ByScroll = false; 
 
 
@@ -11,7 +37,7 @@ let enteredPage2ByScroll = false;
 // Page2 top-right text carousel (4 steps)
 let infoStep = 0; // 0..3
 const infoTexts = [
-  "The first nuclear explosions \n mark a historical turning point. \nAfter the end of World War II, \nthe atomic bomb becomes \n a tool of power and deterrence.\n Testing is limited, but a new \n form of global threat begins.",
+  "The first nuclear explosions mark a historical turning point. \nAfter the end of World War II, \nthe atomic bomb becomes a tool of power and deterrence. Testing is limited, \nbut a new form of global threat begins.",
   "Competition between superpowers \nleads to a rapid increase in nuclear tests.\nExplosions become more frequent \nand more powerful, often atmospheric.\nNuclear testing is used as a political \nand military demonstration.",
   "After the first international restrictions,\n many tests move underground.\nThe number of explosions decreases, \nbut technological development continues.\nDeterrence remains central \nthroughout the Cold War.",
   "With the end of the Cold War, \nnuclear explosions decrease significantly.\nIn 1996, the Comprehensive \nNuclear Test Ban Treaty is adopted, \naiming to ban all nuclear test explosions.\n1998 marks the last officially\n certified nuclear tests.",
@@ -69,7 +95,7 @@ const MENU_BTN_X = 25;
 const MENU_BTN_Y = 25;
 const MENU_BTN_SIZE = 60;
 const UI_GAP = 20;
-
+//pp
 // Shared layout spacing
 const SIDE_MARGIN = 80;
 const MAX_TEXT_W = 420;
@@ -146,6 +172,7 @@ function setup() {
       year: row.getNum("year"),
       type: row.getString("type"),
       yield: row.getNum("yield_u"),
+      country: row.getString("country")
     });
   }
 
@@ -254,17 +281,24 @@ function introTop() {
 // ===============================
 // Se URL contiene #page2 → apri ovverview SUBITO
 // ===============================
+
 function checkHashNavigation() {
   if (window.location.hash === "#page2") {
     page = 2;
-enteredPage2ByScroll = false;
-    // Avvia subito le particelle attive
-    scrollProgress = endYear; // imposta tutte le particelle come “attive”
-    for (let p of particles2) {
-      p.active = true;
-    }
+
+    // IMPORTANT: abilita la logica "colonna per colonna"
+    // così lo scroll indietro è VISIBILE e può tornare fino a page1
+    enteredPage2ByScroll = true;
+
+    // Parti dalla fine (tutto visibile)
+    scrollProgress = endYear;
+    scrollDirection = 0;
+
+    // Non serve forzare p.active=true perché lo setti già nel draw
+    // (ma se vuoi lasciarlo non rompe)
   }
 }
+
 
 // ===============================
 // Ciclo principale
@@ -306,7 +340,7 @@ function drawPage1() {
   noStroke();
   fill(200);
   textSize(20);
-textLeading(31);
+  textLeading(31);
   const titleX = width / 2;
   const titleY = MENU_BTN_Y + MENU_BTN_SIZE / 2;
 
@@ -318,10 +352,10 @@ textLeading(31);
 
   // Intro texts — same spacing logic as Insight (consistent margins + max width)
   const str1 =
-  "Between 1945 and 1998, \n nuclear testing reshaped geopolitics,\n science, and the environment.\nOver two thousand explosions\nleft a lasting mark on the planet.";
+  "Between 1945 and 1998, \n nuclear testing reshaped geopolitics,\n science, and the environment.";
     
   const str3 =
-  "Each particle is a real test.";
+  "Over two thousand explosions\nleft a lasting mark on the planet.\nEach particle is a real test.";
   const str2 =
     "This website is a digital archive \n that presents nuclear testing \n as an interactive timeline.";
   const str4 = "Data from the SIPRI-FOA Report";
@@ -387,14 +421,33 @@ textLeading(31);
   }
 
   // --- Automatic circle expansion after full scroll ---
-  if (autoExpandStarted) {
+  /*if (autoExpandStarted) {
     centerCircleSize = lerp(centerCircleSize, max(width, height) * 2, 0.03);
 
     // When fully expanded, go to next page
     if (centerCircleSize > max(width, height)) {
       goNextPage();
     }
+  }*/
+
+    // --- Automatic circle expansion after full scroll ---
+  if (autoExpandStarted) {
+
+    // Se non sei più al fondo (stai tornando su), STOP all'espansione
+    // (soglia piccola per evitare micro-jitter sul bordo)
+    if (scrollOffset < maxScroll - 2) {
+      autoExpandStarted = false;
+      centerCircleSize = 10;
+    } else {
+      centerCircleSize = lerp(centerCircleSize, max(width, height) * 2, 0.03);
+
+      // When fully expanded, go to next page
+      if (centerCircleSize > max(width, height)) {
+        goNextPage();
+      }
+    }
   }
+
 
   fill(20);
   stroke(0, 255, 255);
@@ -438,7 +491,7 @@ function drawIntroBlockData(str, x, y, w) {
   textSize(14);
   noStroke();
   fill(255, a);
-textLeading(31)
+  textLeading(31)
   text(str, x, y, w);
 }
 
@@ -452,7 +505,7 @@ function drawScrollHintArrow() {
 
   const cx = width / 2;
   const cy = height - 44 + bob;
-  const labelY = cy - 24;     // baseline label
+  const labelY = cy - 14;     // baseline label
 
   const halfW = 10; // half width of the chevron (smaller = less wide)
   const h = 8; // height of the chevron (smaller = less tall)
@@ -462,6 +515,7 @@ function drawScrollHintArrow() {
   strokeWeight(2);
   noFill();
 
+  /*
   // chevron only (no vertical stem)
   line(cx - halfW, cy - h, cx, cy);
   line(cx + halfW, cy - h, cx, cy);
@@ -474,12 +528,51 @@ function drawScrollHintArrow() {
   textAlign(CENTER, BOTTOM);
   text("SCROLL DOWN FOR MORE", cx, labelY);
 
+  */
+
+  // label + side chevrons
+const label = "SCROLL DOWN FOR MORE";
+
+textFont(myFont2);
+textSize(12);
+textAlign(CENTER, BOTTOM);
+
+// calcolo larghezza testo per posizionare i chevron ai lati
+  const tw = textWidth(label);
+  const gap = 350;                 // distanza tra testo e chevron
+  const chevronY = labelY - 6;     // centratura visiva rispetto alla baseline
+
+  const leftX  = cx - tw / 2 - gap;
+  const rightX = cx + tw / 2 + gap;
+
+  // chevrons (identici) ai lati
+  push();
+  stroke(200, alpha);
+  strokeWeight(2);
+  noFill();
+
+  line(leftX - halfW,  chevronY - h, leftX,  chevronY);
+  line(leftX + halfW,  chevronY - h, leftX,  chevronY);
+
+  line(rightX - halfW, chevronY - h, rightX, chevronY);
+  line(rightX + halfW, chevronY - h, rightX, chevronY);
+  pop();
+
+  // testo in mezzo
+  noStroke();
+  fill(200, alpha);
+  text(label, cx, labelY);
+
+
   if (scrollOffset >= introTargets[3] - 10) return;
 
   pop();
 
 
 }
+
+
+
 
 
 
@@ -570,6 +663,7 @@ function isOverUpHint(mx, my) {
 // ===============================
 function drawPage2() {
   background(20);
+drawCountryMenu();
 
   // Hover detection for years/columns + cursor
   updateHoverPage2();
@@ -664,7 +758,7 @@ if (isHoverATM) {
   fill(0, 0, 0, 200);
 
   let boxW = 180;
-  let boxH = padding * 2 + lineHeight * 3;
+  let boxH = padding * 2 + lineHeight * 3.5;
 
   let boxX = offsetX;
   let boxY = 138;
@@ -675,8 +769,8 @@ if (isHoverATM) {
   textAlign(LEFT, TOP);
   fill(0, 255, 255);
   text("ATMOSPHERIC", boxX + padding, boxY + padding);
-  text("texxxxtxttx ", boxX + padding, boxY + padding + lineHeight);
-  text("tectctc text", boxX + padding, boxY + padding + lineHeight * 2);
+  text("Nuclear detonations", boxX + padding, boxY + 2*padding + lineHeight);
+  text("with atmospheric dispersion.", boxX + padding, boxY + 2*padding + lineHeight * 2);
   pop();
 }
 
@@ -691,7 +785,7 @@ if (isHoverUND) {
   fill(0, 0, 0, 200);
 
   let boxW = 180;
-  let boxH = padding * 2 + lineHeight * 3;
+  let boxH = padding * 2 + lineHeight * 3.5;
 
   let boxX = offsetX;
   let boxY = 138;
@@ -701,9 +795,9 @@ if (isHoverUND) {
   textSize(12);
   textAlign(LEFT, TOP);
   fill(0, 255, 255);
-  text("Underground", boxX + padding, boxY + padding);
-  text("texxxxtxttx ", boxX + padding, boxY + padding + lineHeight);
-  text("tectctc text", boxX + padding, boxY + padding + lineHeight * 2);
+  text("UNDERGROUND", boxX + padding, boxY + padding);
+  text("Nuclear detonations", boxX + padding, boxY + 2*padding + lineHeight);
+  text("under the ground level.", boxX + padding, boxY + 2*padding + lineHeight * 2);
   pop();
 }
 
@@ -1018,8 +1112,29 @@ function drawGlowingChevronLeft(cx, cy, halfW, h) {
   pop();
 }
 
+function handleIntroScroll(delta) {
+  spreadSpeed += delta * 0.05;
+
+  // scroll bidirezionale
+  scrollOffset += delta * 0.5;
+  scrollOffset = constrain(scrollOffset, 0, maxScroll);
+
+  // se scrolli su: spegni espansione
+  if (delta < 0) {
+    autoExpandStarted = false;
+    centerCircleSize = 10;
+  }
+
+  // espansione solo se sei al fondo e spingi giù
+  if (scrollOffset >= maxScroll && delta > 0 && !autoExpandStarted) {
+    autoExpandStarted = true;
+    expandStartFrame = frameCount;
+  }
+}
+
+
 function mouseWheel(event) { 
-  if (page === 1) {
+  /*if (page === 1) {
     spreadSpeed += event.delta * 0.05;
 
     if (scrollOffset < maxScroll) {
@@ -1032,10 +1147,56 @@ function mouseWheel(event) {
         expandStartFrame = frameCount;
       }
     }
-  } else if (page === 2) {
-    if (event.delta > 0) scrollDirection = 1;
-    else if (event.delta < 0) scrollDirection = -1;
+  } */
+  if (page === 1) {
+    spreadSpeed += event.delta * 0.05;
+
+    // 1) scroll SEMPRE bidirezionale (anche quando sei già a maxScroll)
+    scrollOffset += event.delta * 0.5;
+    scrollOffset = constrain(scrollOffset, 0, maxScroll);
+
+    // 2) se stai scrollando SU, l'espansione deve essere disattivata subito
+    if (event.delta < 0) {
+      autoExpandStarted = false;
+      centerCircleSize = 10; // reset se era già partito qualcosa
+    }
+
+    // 3) l'espansione parte SOLO se sei in fondo E stai spingendo GIÙ
+    if (scrollOffset >= maxScroll && event.delta > 0 && !autoExpandStarted) {
+      autoExpandStarted = true;
+      expandStartFrame = frameCount;
+    }
+
+      {
+    handleIntroScroll(event.delta);
+    return false;
   }
+} else if (page === 2) {
+
+    if (event.delta > 0) {
+    scrollDirection = 1;
+    return false;
+  }
+
+    // scroll up -> indietro nella timeline
+    if (event.delta < 0) {
+
+      // Se sei già all'inizio e continui a scrollare su: torna alla intro (page 1)
+      const EPS = 0.02; // tolleranza per float
+      if (scrollProgress <= (startYear - 1) + EPS) {
+        goBackToIntroBottom(event.delta);  // funzione sotto
+        return false;
+      }
+
+      scrollDirection = -1;
+      return false;
+    }
+
+    return false;
+
+  }
+
+ // fallback
   return false;
 }
 
@@ -1136,7 +1297,31 @@ function mousePressed() {
         break;
       }
     }
+if (page === 2) {
+  // menu click
+  if (menuOpen) {
+    const mainX = width / 2 - BTN_W / 2;
+    const mainY = 190;
+
+    for (let i = 0; i < countries.length; i++) {
+      let bx = mainX;
+      let by = mainY + BTN_H + GAP + i * (BTN_H + GAP);
+
+      if (mouseX >= bx && mouseX <= bx + BTN_W && mouseY >= by && mouseY <= by + BTN_H) {
+        selectedCountry = countries[i];
+        menuOpen = false;
+        break;
+      }
+    }
+    return;
   }
+}
+
+
+
+  }
+
+
 }
 
 
@@ -1159,16 +1344,14 @@ function keyPressed() {
   }
 
 
+    // Only on page2 and when menu is not open
+    if (page !== 2 || menuOpen) return;
 
-
-  // Only on page2 and when menu is not open
-  if (page !== 2 || menuOpen) return;
-
-  if (keyCode === RIGHT_ARROW && infoStep < 3) {
-    infoStep++;
-  } else if (keyCode === LEFT_ARROW && infoStep > 0) {
-    infoStep--;
-  }
+    if (keyCode === RIGHT_ARROW && infoStep < 3) {
+      infoStep++;
+    } else if (keyCode === LEFT_ARROW && infoStep > 0) {
+      infoStep--;
+    }
 }
 
 
@@ -1217,10 +1400,11 @@ class Particle1 {
 // particles in page2
 // ===============================
 class Particle2 {
-  constructor(year, isUG, yieldVal, targetX, targetY) {
+  constructor(year, isUG, yieldVal, targetX, targetY, country) {
     this.year = year;
     this.isUG = isUG;
     this.yieldVal = yieldVal;
+    this.country = country;
     this.tx = targetX;
     this.ty = targetY;
     this.x = random(width);
@@ -1238,14 +1422,22 @@ class Particle2 {
   draw() {
     if (!this.active) return;
 
+    // FILTER BY COUNTRY
+    let visible = (selectedCountry === "All country") || (this.country === selectedCountry);
+
     const isHover = hoveredYear === this.year;
     const rr = isHover ? this.r * 1.25 : this.r;
 
     noStroke();
-    fill(this.col);
+    if (visible) {
+      fill(this.col);
+    } else {
+      fill(255, 255, 255, 25); // dimmed
+    }
     circle(this.x, this.y, rr);
   }
 }
+
 
 // ===============================
 // Funzioni di supporto per la pagina2
@@ -1279,28 +1471,32 @@ function creaParticlesDaTabella() {
       let rowYear = data[i].year;
       let type = data[i].type;
       if (rowYear === year && !UGTypes.includes(type)) {
-        nonUGBombs.push({ yieldVal: data[i].yield });
+       nonUGBombs.push({ yieldVal: data[i].yield, country: data[i].country });
+
       }
     }
     nonUGBombs.sort(
       (a, b) => getColorLevel(a.yieldVal) - getColorLevel(b.yieldVal)
     );
-    for (let i = 0; i < nonUGBombs.length; i++) {
-      let row = floor(i / cols),
-        col = i % cols;
-      let cx = x - colWidth / 2 + col * (cellSize + gap);
-      let cy = yAxis - (row + 6) * (cellSize + gap);
-      particles2.push(
-        new Particle2(year, false, nonUGBombs[i].yieldVal, cx, cy)
-      );
-    }
+  
+
+for (let i = 0; i < nonUGBombs.length; i++) {
+  let row = floor(i / cols),
+      col = i % cols;
+  let cx = x - colWidth / 2 + col * (cellSize + gap);
+  let cy = yAxis - (row + 6) * (cellSize + gap);
+
+  particles2.push(
+    new Particle2(year, false, nonUGBombs[i].yieldVal, cx, cy, nonUGBombs[i].country)
+  );
+}
 
     let ugBombs = [];
     for (let i = 0; i < data.length; i++) {
       let rowYear = data[i].year;
       let type = data[i].type;
       if (rowYear === year && UGTypes.includes(type)) {
-        ugBombs.push({ yieldVal: data[i].yield });
+        ugBombs.push({ yieldVal: data[i].yield, country: data[i].country });
       }
     }
     ugBombs.sort(
@@ -1311,7 +1507,9 @@ function creaParticlesDaTabella() {
         col = i % cols;
       let cx = x - colWidth / 2 + col * (cellSize + gap);
       let cy = yAxis + (row + 6) * (cellSize + gap);
-      particles2.push(new Particle2(year, true, ugBombs[i].yieldVal, cx, cy));
+     particles2.push(
+  new Particle2(year, true, ugBombs[i].yieldVal, cx, cy, ugBombs[i].country)
+);
     }
   }
 }
@@ -1344,6 +1542,34 @@ function disegnaAsseEAnni() {
   }
 }
 
+function goBackToIntroBottom() {
+  page = 1;
+  // pulisci l'hash così lo stato URL corrisponde alla pagina reale
+  history.replaceState(null, "", window.location.pathname);
+
+  scrollDirection = 0;
+
+  // blocca qualsiasi espansione/transition rimasta appesa
+  autoExpandStarted = false;
+  centerCircleSize = 10;
+
+  // IMPORTANTE per evitare rientro immediato in page2:
+  // ti posiziona poco prima del fondo, così l’utente può scrollare su (smooth)
+  // e per rientrare in page2 deve fare uno scroll down reale.
+  scrollOffset = maxScroll - 30;   // <- regola (20-80) a gusto
+  scrollOffset = constrain(scrollOffset, 0, maxScroll);
+
+  // se avevi snapping o stati simili, qui li "spengi"
+  snapping = false;
+
+  // UI opzionale: gestisci bottoni
+  const backBtn = document.getElementById("backToTopBtn");
+  if (backBtn) backBtn.style.display = "none";
+
+  const skipBtn = document.getElementById("skipIntroBtn");
+  if (skipBtn && skipBtn.parentElement) skipBtn.parentElement.style.display = "block";
+}
+
 function goNextPage() {
   // Vai alla pagina 2 (grafico)
   page = 2;
@@ -1355,6 +1581,8 @@ function goNextPage() {
 
   scrollProgress = startYear - 1; // <-- CAMBIATO (prima era endYear)
 
+  scrollDirection = 1; // parte l'animazione come se stessi scrollando giù
+  lastStepTime = millis();
 
 
   // Nascondi il bottone se per caso è ancora visibile
@@ -1363,6 +1591,79 @@ function goNextPage() {
     skipBtn.parentElement.style.display = "none";
   }
 }
+
+function drawCountryMenu() {
+  const x = width / 2;
+  const y = 190; // sotto "Bombs Launched"
+
+  // bottone principale
+  let mainX = x - BTN_W / 2;
+  let mainY = y;
+
+  // Draw main button
+  stroke(0, 255, 255);
+  strokeWeight(2);
+  noFill();
+  rect(mainX, mainY, BTN_W, BTN_H, RADIUS);
+
+  noStroke();
+  fill(0, 255, 255);
+  textAlign(CENTER, CENTER);
+  text(selectedCountry, mainX + BTN_W / 2, mainY + BTN_H / 2);
+
+  // open menu
+  if (!menuOpen && mouseX >= mainX && mouseX <= mainX + BTN_W && mouseY >= mainY && mouseY <= mainY + BTN_H) {
+    menuOpen = true;
+  }
+
+  // close if outside
+  if (menuOpen && !isMouseInMenuArea(mainX, mainY)) {
+    menuOpen = false;
+  }
+
+  // draw list
+  if (menuOpen) {
+    for (let i = 0; i < countries.length; i++) {
+      if (countries[i] === selectedCountry && i !== 0) continue; // All country always visible, others no duplicates
+
+      let bx = mainX;
+      let by = mainY + BTN_H + GAP + i * (BTN_H + GAP);
+
+      // draw
+      stroke(0, 255, 255);
+      strokeWeight(2);
+      noFill();
+      rect(bx, by, BTN_W, BTN_H, RADIUS);
+
+      noStroke();
+      fill(0, 255, 255);
+      textAlign(CENTER, CENTER);
+      text(countries[i], bx + BTN_W / 2, by + BTN_H / 2);
+
+      // hover highlight
+      if (mouseX >= bx && mouseX <= bx + BTN_W && mouseY >= by && mouseY <= by + BTN_H) {
+        fill(0);
+        rect(bx, by, BTN_W, BTN_H, RADIUS);
+        fill(0);
+        text(countries[i], bx + BTN_W / 2, by + BTN_H / 2);
+      }
+    }
+  }
+}
+
+function isMouseInMenuArea(mainX, mainY) {
+  let left = mainX - PADDING_AREA;
+  let right = mainX + BTN_W + PADDING_AREA;
+  let top = mainY - PADDING_AREA;
+  let bottom = mainY + BTN_H + PADDING_AREA + (countries.length) * (BTN_H + GAP);
+
+  return (
+    mouseX >= left && mouseX <= right &&
+    mouseY >= top && mouseY <= bottom
+  );
+}
+
+
 
 // ===============================
 // LISTENER MENU → CAMBIO PAGINA
