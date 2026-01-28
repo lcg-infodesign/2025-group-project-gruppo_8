@@ -11,7 +11,7 @@ let enteredPage2ByScroll = false;
 // Page2 top-right text carousel (4 steps)
 let infoStep = 0; // 0..3
 const infoTexts = [
-  "The first nuclear explosions \n mark a historical turning point. \nAfter the end of World War II, \nthe atomic bomb becomes \n a tool of power and deterrence.\n Testing is limited, but a new \n form of global threat begins.",
+  "The first nuclear explosions mark a historical turning point. \nAfter the end of World War II, \nthe atomic bomb becomes a tool of power and deterrence. Testing is limited, \nbut a new form of global threat begins.",
   "Competition between superpowers \nleads to a rapid increase in nuclear tests.\nExplosions become more frequent \nand more powerful, often atmospheric.\nNuclear testing is used as a political \nand military demonstration.",
   "After the first international restrictions,\n many tests move underground.\nThe number of explosions decreases, \nbut technological development continues.\nDeterrence remains central \nthroughout the Cold War.",
   "With the end of the Cold War, \nnuclear explosions decrease significantly.\nIn 1996, the Comprehensive \nNuclear Test Ban Treaty is adopted, \naiming to ban all nuclear test explosions.\n1998 marks the last officially\n certified nuclear tests.",
@@ -254,17 +254,24 @@ function introTop() {
 // ===============================
 // Se URL contiene #page2 → apri ovverview SUBITO
 // ===============================
+
 function checkHashNavigation() {
   if (window.location.hash === "#page2") {
     page = 2;
-enteredPage2ByScroll = false;
-    // Avvia subito le particelle attive
-    scrollProgress = endYear; // imposta tutte le particelle come “attive”
-    for (let p of particles2) {
-      p.active = true;
-    }
+
+    // IMPORTANT: abilita la logica "colonna per colonna"
+    // così lo scroll indietro è VISIBILE e può tornare fino a page1
+    enteredPage2ByScroll = true;
+
+    // Parti dalla fine (tutto visibile)
+    scrollProgress = endYear;
+    scrollDirection = 0;
+
+    // Non serve forzare p.active=true perché lo setti già nel draw
+    // (ma se vuoi lasciarlo non rompe)
   }
 }
+
 
 // ===============================
 // Ciclo principale
@@ -306,7 +313,7 @@ function drawPage1() {
   noStroke();
   fill(200);
   textSize(20);
-textLeading(31);
+  textLeading(31);
   const titleX = width / 2;
   const titleY = MENU_BTN_Y + MENU_BTN_SIZE / 2;
 
@@ -387,14 +394,33 @@ textLeading(31);
   }
 
   // --- Automatic circle expansion after full scroll ---
-  if (autoExpandStarted) {
+  /*if (autoExpandStarted) {
     centerCircleSize = lerp(centerCircleSize, max(width, height) * 2, 0.03);
 
     // When fully expanded, go to next page
     if (centerCircleSize > max(width, height)) {
       goNextPage();
     }
+  }*/
+
+    // --- Automatic circle expansion after full scroll ---
+  if (autoExpandStarted) {
+
+    // Se non sei più al fondo (stai tornando su), STOP all'espansione
+    // (soglia piccola per evitare micro-jitter sul bordo)
+    if (scrollOffset < maxScroll - 2) {
+      autoExpandStarted = false;
+      centerCircleSize = 10;
+    } else {
+      centerCircleSize = lerp(centerCircleSize, max(width, height) * 2, 0.03);
+
+      // When fully expanded, go to next page
+      if (centerCircleSize > max(width, height)) {
+        goNextPage();
+      }
+    }
   }
+
 
   fill(20);
   stroke(0, 255, 255);
@@ -438,7 +464,7 @@ function drawIntroBlockData(str, x, y, w) {
   textSize(14);
   noStroke();
   fill(255, a);
-textLeading(31)
+  textLeading(31)
   text(str, x, y, w);
 }
 
@@ -486,7 +512,7 @@ textAlign(CENTER, BOTTOM);
 
 // calcolo larghezza testo per posizionare i chevron ai lati
   const tw = textWidth(label);
-  const gap = 300;                 // distanza tra testo e chevron
+  const gap = 350;                 // distanza tra testo e chevron
   const chevronY = labelY - 6;     // centratura visiva rispetto alla baseline
 
   const leftX  = cx - tw / 2 - gap;
@@ -715,8 +741,7 @@ if (isHoverATM) {
   textAlign(LEFT, TOP);
   fill(0, 255, 255);
   text("ATMOSPHERIC", boxX + padding, boxY + padding);
-  text("texxxxtxttx ", boxX + padding, boxY + padding + lineHeight);
-  text("tectctc text", boxX + padding, boxY + padding + lineHeight * 2);
+  text("Nuclear detonations \nwith atmospheric dispersion. ", boxX + padding, boxY + 1.5*padding + lineHeight);
   pop();
 }
 
@@ -741,9 +766,9 @@ if (isHoverUND) {
   textSize(12);
   textAlign(LEFT, TOP);
   fill(0, 255, 255);
-  text("Underground", boxX + padding, boxY + padding);
-  text("texxxxtxttx ", boxX + padding, boxY + padding + lineHeight);
-  text("tectctc text", boxX + padding, boxY + padding + lineHeight * 2);
+  text("UNDERGROUND", boxX + padding, boxY + padding);
+  text("Nuclear detonations \nunder the ground level.", boxX + padding, boxY + 1.5*padding + lineHeight);
+  //text("tectctc text", boxX + padding, boxY + padding + lineHeight * 2);
   pop();
 }
 
@@ -1058,8 +1083,29 @@ function drawGlowingChevronLeft(cx, cy, halfW, h) {
   pop();
 }
 
+function handleIntroScroll(delta) {
+  spreadSpeed += delta * 0.05;
+
+  // scroll bidirezionale
+  scrollOffset += delta * 0.5;
+  scrollOffset = constrain(scrollOffset, 0, maxScroll);
+
+  // se scrolli su: spegni espansione
+  if (delta < 0) {
+    autoExpandStarted = false;
+    centerCircleSize = 10;
+  }
+
+  // espansione solo se sei al fondo e spingi giù
+  if (scrollOffset >= maxScroll && delta > 0 && !autoExpandStarted) {
+    autoExpandStarted = true;
+    expandStartFrame = frameCount;
+  }
+}
+
+
 function mouseWheel(event) { 
-  if (page === 1) {
+  /*if (page === 1) {
     spreadSpeed += event.delta * 0.05;
 
     if (scrollOffset < maxScroll) {
@@ -1072,10 +1118,56 @@ function mouseWheel(event) {
         expandStartFrame = frameCount;
       }
     }
-  } else if (page === 2) {
-    if (event.delta > 0) scrollDirection = 1;
-    else if (event.delta < 0) scrollDirection = -1;
+  } */
+  if (page === 1) {
+    spreadSpeed += event.delta * 0.05;
+
+    // 1) scroll SEMPRE bidirezionale (anche quando sei già a maxScroll)
+    scrollOffset += event.delta * 0.5;
+    scrollOffset = constrain(scrollOffset, 0, maxScroll);
+
+    // 2) se stai scrollando SU, l'espansione deve essere disattivata subito
+    if (event.delta < 0) {
+      autoExpandStarted = false;
+      centerCircleSize = 10; // reset se era già partito qualcosa
+    }
+
+    // 3) l'espansione parte SOLO se sei in fondo E stai spingendo GIÙ
+    if (scrollOffset >= maxScroll && event.delta > 0 && !autoExpandStarted) {
+      autoExpandStarted = true;
+      expandStartFrame = frameCount;
+    }
+
+      {
+    handleIntroScroll(event.delta);
+    return false;
   }
+} else if (page === 2) {
+
+    if (event.delta > 0) {
+    scrollDirection = 1;
+    return false;
+  }
+
+    // scroll up -> indietro nella timeline
+    if (event.delta < 0) {
+
+      // Se sei già all'inizio e continui a scrollare su: torna alla intro (page 1)
+      const EPS = 0.02; // tolleranza per float
+      if (scrollProgress <= (startYear - 1) + EPS) {
+        goBackToIntroBottom(event.delta);  // funzione sotto
+        return false;
+      }
+
+      scrollDirection = -1;
+      return false;
+    }
+
+    return false;
+
+  }
+
+ // fallback
   return false;
 }
 
@@ -1199,16 +1291,14 @@ function keyPressed() {
   }
 
 
+    // Only on page2 and when menu is not open
+    if (page !== 2 || menuOpen) return;
 
-
-  // Only on page2 and when menu is not open
-  if (page !== 2 || menuOpen) return;
-
-  if (keyCode === RIGHT_ARROW && infoStep < 3) {
-    infoStep++;
-  } else if (keyCode === LEFT_ARROW && infoStep > 0) {
-    infoStep--;
-  }
+    if (keyCode === RIGHT_ARROW && infoStep < 3) {
+      infoStep++;
+    } else if (keyCode === LEFT_ARROW && infoStep > 0) {
+      infoStep--;
+    }
 }
 
 
@@ -1384,6 +1474,34 @@ function disegnaAsseEAnni() {
   }
 }
 
+function goBackToIntroBottom() {
+  page = 1;
+  // pulisci l'hash così lo stato URL corrisponde alla pagina reale
+  history.replaceState(null, "", window.location.pathname);
+
+  scrollDirection = 0;
+
+  // blocca qualsiasi espansione/transition rimasta appesa
+  autoExpandStarted = false;
+  centerCircleSize = 10;
+
+  // IMPORTANTE per evitare rientro immediato in page2:
+  // ti posiziona poco prima del fondo, così l’utente può scrollare su (smooth)
+  // e per rientrare in page2 deve fare uno scroll down reale.
+  scrollOffset = maxScroll - 30;   // <- regola (20-80) a gusto
+  scrollOffset = constrain(scrollOffset, 0, maxScroll);
+
+  // se avevi snapping o stati simili, qui li "spengi"
+  snapping = false;
+
+  // UI opzionale: gestisci bottoni
+  const backBtn = document.getElementById("backToTopBtn");
+  if (backBtn) backBtn.style.display = "none";
+
+  const skipBtn = document.getElementById("skipIntroBtn");
+  if (skipBtn && skipBtn.parentElement) skipBtn.parentElement.style.display = "block";
+}
+
 function goNextPage() {
   // Vai alla pagina 2 (grafico)
   page = 2;
@@ -1403,6 +1521,8 @@ function goNextPage() {
     skipBtn.parentElement.style.display = "none";
   }
 }
+
+
 
 // ===============================
 // LISTENER MENU → CAMBIO PAGINA
