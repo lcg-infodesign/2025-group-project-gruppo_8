@@ -470,18 +470,34 @@ cursor(ARROW);
     stroke(0, 255, 255, 80);
   }
 
-  // latitude
-  for (let i = 0; i <= 6; i++) {
-    let lat = LAT_MIN + (i * (LAT_MAX - LAT_MIN)) / 6;
-    let y = latToMapY(lat);
-    line(offsetX, y, offsetX + scaledW, y);
-    noStroke();
-    textSize(12);
-    textAlign(CENTER, RIGHT);
-    fill(0, 255, 255);
-    text(lat.toFixed(0) + "°", offsetX - 20, y);
-    stroke(0, 255, 255, 80);
+// latitude
+for (let i = 0; i <= 6; i++) {
+  let lat = LAT_MIN + (i * (LAT_MAX - LAT_MIN)) / 6;
+  let y = latToMapY(lat);
+
+  // 网格线
+  stroke(0, 255, 255, 80);
+  line(offsetX, y, offsetX + scaledW, y);
+
+  // 文字
+  noStroke();
+  fill(0, 255, 255);
+  textSize(12);
+
+  if (i === 6) {
+    // 最上面：文字顶部对齐地图最高点
+    textAlign(CENTER, TOP);
+  } else if (i === 0) {
+    // 最下面：文字底部对齐地图最低点
+    textAlign(CENTER, BOTTOM);
+  } else {
+    // 中间：居中对齐
+    textAlign(CENTER, CENTER);
   }
+
+  text(lat.toFixed(0) + "°", offsetX - 20, y);
+}
+
 
   let px = lonToMapX(bombData.longitude);
   let py = latToMapY(bombData.latitude);
@@ -614,106 +630,109 @@ window.addEventListener("load", () => {
   }
 });
 function drawHiroshimaAnnotation() {
-  // ... 1-6 部分保持完全一致 ...
   let horizLength = 100;
-  let finalHorizEndX = centerX + 150; 
-  let finalHorizEndY = centerY - 150; 
-  let angle = atan2(finalHorizEndY - centerY, finalHorizEndX - centerX);
+
+  let finalAnchorX = centerX + 150;
+  let finalAnchorY = centerY - 200;
+
+  let angle = atan2(finalAnchorY - centerY, finalAnchorX - centerX);
+
   let startX = centerX + cos(angle) * animBlueR;
   let startY = centerY + sin(angle) * animBlueR;
-  
+
   stroke(0, 255, 255);
   strokeWeight(1);
   noFill();
 
+  // --- progress ---
   hDiagProgress = lerp(hDiagProgress, 1, 0.02);
-  if (hDiagProgress > 0.5) {
-    hHorizProgress = lerp(hHorizProgress, 1, 0.02);
+  if (hDiagProgress > 0.6) {
+    hHorizProgress = lerp(hHorizProgress, 1, 0.05);
   }
 
-  let diagCurrentX = startX + (finalHorizEndX - startX) * hDiagProgress;
-  let diagCurrentY = startY + (finalHorizEndY - startY) * hDiagProgress;
+  // --- 斜线当前末端（= 横线起点锚点）---
+  let anchorX = lerp(startX, finalAnchorX, hDiagProgress);
+  let anchorY = lerp(startY, finalAnchorY, hDiagProgress);
 
-  line(startX, startY, diagCurrentX, diagCurrentY);
-  line(diagCurrentX, diagCurrentY, diagCurrentX + horizLength, diagCurrentY);
+  // 画斜线
+  line(startX, startY, anchorX, anchorY);
 
-  // --- 7. 文字与跳转逻辑 ---
+  // --- 横线从 anchor 向右生长 ---
+  let currentHorizLength = horizLength * hHorizProgress;
+  line(anchorX, anchorY, anchorX + currentHorizLength, anchorY);
+
+  // --- 文字：被横线“推着走” ---
+  let textX = anchorX + currentHorizLength + 10;
+
   let hText = "Little Boy\nHiroshima, 1945";
-  
-  // 核心修改：让判定位置和 text(...) 绘制的位置对齐
-  let actualDrawX = diagCurrentX + horizLength + 10; 
-  
-  let isHiroshimaHover = 
-    mouseX >= actualDrawX && mouseX <= actualDrawX + 130 &&
-    mouseY >= diagCurrentY - 15 && mouseY <= diagCurrentY + 15;
+
+  let isHiroshimaHover =
+    mouseX >= textX &&
+    mouseX <= textX + 130 &&
+    mouseY >= anchorY - 15 &&
+    mouseY <= anchorY + 15;
 
   noStroke();
-  let textAlpha = map(hHorizProgress, 0, 1, 0, 255);
-  
-  if (isHiroshimaHover && hHorizProgress > 0.8) {
+  if (isHiroshimaHover && hHorizProgress > 0.95) {
     cursor(HAND);
-    fill(255); // 现在变白的位置准了
+    fill(255);
   } else {
-    fill(0, 255, 255, textAlpha);
+    fill(0, 255, 255);
   }
 
   textFont(myFont2);
   textSize(14);
   textAlign(LEFT, CENTER);
-  // 保持你要求的原始绘制位置
-  text(hText, diagCurrentX + horizLength + 10, diagCurrentY);
+  text(hText, textX, anchorY);
 }
 function drawBombAnnotation() {
   if (!bombData) return;
 
-  // 1. 设置最终目标点（横线的右端点）
   let horizLength = 120;
-  let finalHorizEndX = width * 0.23 + horizLength; 
-  let horizEndY = height * 0.1;
 
-  // 2. 动态角度计算：确保斜线轨道指向最终目标
-  let angle = atan2(horizEndY - centerY, finalHorizEndX - centerX);
+  let finalAnchorX = width * 0.23;
+  let finalAnchorY = height * 0.1;
 
-  // 3. 起点（随炸弹圆环动画 animR 变化）
+  let angle = atan2(finalAnchorY - centerY, finalAnchorX - centerX);
+
   let startX = centerX + cos(angle) * animR;
   let startY = centerY + sin(angle) * animR;
 
-  // 4. 样式设置
   let c = color(getYieldColor(bombData.yield_u));
   stroke(c);
   strokeWeight(1);
   noFill();
 
-  // 5. 动画进度
   if (this.diagProgress === undefined) this.diagProgress = 0;
   if (this.horizProgress === undefined) this.horizProgress = 0;
 
-  // 斜线生长动画
   this.diagProgress = lerp(this.diagProgress, 1, 0.02);
-  // 当前斜线的末端点 (也是横线的右端点)
-  let diagCurrentX = startX + (finalHorizEndX - startX) * this.diagProgress;
-  let diagCurrentY = startY + (horizEndY - startY) * this.diagProgress;
-
-  if (this.diagProgress > 0.5) {
+  if (this.diagProgress > 0.6) {
     this.horizProgress = lerp(this.horizProgress, 1, 0.05);
   }
 
-  line(startX, startY, diagCurrentX, diagCurrentY);
+  // --- 斜线末端（锚点）---
+  let anchorX = lerp(startX, finalAnchorX, this.diagProgress);
+  let anchorY = lerp(startY, finalAnchorY, this.diagProgress);
 
-  line(diagCurrentX - horizLength, diagCurrentY, diagCurrentX, diagCurrentY);
+  line(startX, startY, anchorX, anchorY);
 
-  let textX = (diagCurrentX - horizLength) - 10; 
-  
+  // --- 横线向左生长 ---
+  let currentHorizLength = horizLength * this.horizProgress;
+  line(anchorX - currentHorizLength, anchorY, anchorX, anchorY);
+
+  // --- 文字被横线推出去 ---
+  let textX = anchorX - currentHorizLength - 10;
+
   noStroke();
-  let textAlpha = map(this.horizProgress, 0, 1, 0, 255);
-  fill(red(c), green(c), blue(c), textAlpha);
-  
+  fill(red(c), green(c), blue(c));
+
   textFont(myFont1);
   textSize(20);
   textAlign(RIGHT, CENTER);
-
-  text(bombData.name, textX, diagCurrentY);
+  text(bombData.name, textX, anchorY);
 }
+
 function mousePressed() {
 // --- 1. 点击 Little Boy 跳转 (针对统一后的动效位置) ---
   if (hHorizProgress > 0.8) {
