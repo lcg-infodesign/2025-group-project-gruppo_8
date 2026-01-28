@@ -730,7 +730,7 @@ if (isHoverATM) {
   fill(0, 0, 0, 200);
 
   let boxW = 180;
-  let boxH = padding * 2 + lineHeight * 3;
+  let boxH = padding * 2 + lineHeight * 3.5;
 
   let boxX = offsetX;
   let boxY = 138;
@@ -741,7 +741,8 @@ if (isHoverATM) {
   textAlign(LEFT, TOP);
   fill(0, 255, 255);
   text("ATMOSPHERIC", boxX + padding, boxY + padding);
-  text("Nuclear detonations \nwith atmospheric dispersion. ", boxX + padding, boxY + 1.5*padding + lineHeight);
+  text("Nuclear detonations", boxX + padding, boxY + 2*padding + lineHeight);
+  text("with atmospheric dispersion.", boxX + padding, boxY + 2*padding + lineHeight * 2);
   pop();
 }
 
@@ -756,7 +757,7 @@ if (isHoverUND) {
   fill(0, 0, 0, 200);
 
   let boxW = 180;
-  let boxH = padding * 2 + lineHeight * 3;
+  let boxH = padding * 2 + lineHeight * 3.5;
 
   let boxX = offsetX;
   let boxY = 138;
@@ -767,8 +768,8 @@ if (isHoverUND) {
   textAlign(LEFT, TOP);
   fill(0, 255, 255);
   text("UNDERGROUND", boxX + padding, boxY + padding);
-  text("Nuclear detonations \nunder the ground level.", boxX + padding, boxY + 1.5*padding + lineHeight);
-  //text("tectctc text", boxX + padding, boxY + padding + lineHeight * 2);
+  text("Nuclear detonations", boxX + padding, boxY + 2*padding + lineHeight);
+  text("under the ground level.", boxX + padding, boxY + 2*padding + lineHeight * 2);
   pop();
 }
 
