@@ -318,10 +318,10 @@ textLeading(31);
 
   // Intro texts — same spacing logic as Insight (consistent margins + max width)
   const str1 =
-  "Between 1945 and 1998, \n nuclear testing reshaped geopolitics,\n science, and the environment.\nOver two thousand explosions\nleft a lasting mark on the planet.";
+  "Between 1945 and 1998, \n nuclear testing reshaped geopolitics,\n science, and the environment.";
     
   const str3 =
-  "Each particle is a real test.";
+  "Over two thousand explosions\nleft a lasting mark on the planet.\nEach particle is a real test.";
   const str2 =
     "This website is a digital archive \n that presents nuclear testing \n as an interactive timeline.";
   const str4 = "Data from the SIPRI-FOA Report";
