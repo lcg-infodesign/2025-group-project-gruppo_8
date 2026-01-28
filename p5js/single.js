@@ -45,21 +45,21 @@ const purposeTextMap = {
   "*UNKNOWN": "missing information in the original dataset",
   PNE: "Peaceful nuclear explosions for industrial applications or testing peaceful nuclear technologies.",
   "WR/SE":
-    "Tests weapons-related:,activities associated with a weapons development programme, and tests assessing nuclear weapon safety in the event of an accident.",
+    "Tests weapons-related: activities associated with a weapons development programme, and tests assessing nuclear weapon safety in the event of an accident.",
   "WR/WE":
-    "Tests weapons-related:,activities associated with a weapons development programme, and tests evaluating the effects of a nuclear detonation on various targets.",
+    "Tests weapons-related: activities associated with a weapons development programme, and tests evaluating the effects of a nuclear detonation on various targets.",
   "WR/PNE":
-    "Explosions weapons-related:,activities associated with a weapons development programme, and peaceful nuclear explosions for industrial applications or testing peaceful nuclear technologies.",
+    "Explosions weapons-related: activities associated with a weapons development programme, and peaceful nuclear explosions for industrial applications or testing peaceful nuclear technologies.",
   "WE/SAM":
     "Tests evaluating the effects of a nuclear detonation on various targets and tests examining accidental modes and emergency scenarios involving nuclear weapons.",
   "WR/P/SA":
     "A test examining accidental modes and emergency scenarios involving nuclear weapons, an explosion associated with a weapons development programme, one peaceful nuclear explosions for industrial applications or testing peaceful nuclear technologies.",
   "WR/SAM":
-    "Tests weapons-related:,activities associated with a weapons development programme, and tests examining accidental modes and emergency scenarios involving nuclear weapons.",
+    "Tests weapons-related: activities associated with a weapons development programme, and tests examining accidental modes and emergency scenarios involving nuclear weapons.",
   "WR/F/SA":
     "A test examining accidental modes and emergency scenarios involving nuclear weapons, two explosions associated with a weapons development programme, an explosion conducted to study phenomena produced by a nuclear explosion.",
   "WR/FMS":
-    "Tests weapons-related:,activities associated with a weapons development programme, and tests conducted to study phenomena produced by a nuclear explosion.",
+    "Tests weapons-related: activities associated with a weapons development programme, and tests conducted to study phenomena produced by a nuclear explosion.",
   "WR/P/S":
     "Three weapons-related explosions, activities associated with a weapons development programme, one peaceful nuclear explosions for industrial applications or testing peaceful nuclear technologies and a test examining accidental modes and emergency scenarios involving nuclear weapons. ",
   "WR/F/S":
@@ -99,6 +99,10 @@ const typeTextMap = {
   CRATER: "Nuclear device detonated within a prepared ground crater.",
   MINE: "Nuclear device detonated inside an existing mine.",
 };
+
+const purposeTitle = {
+
+}
 
 function preload() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -196,7 +200,7 @@ function draw() {
     drawZoomedMap();
     return;
   }
-  
+
   drawBombRing();
   if (!bombData) {
     fill(255);
@@ -317,7 +321,7 @@ function drawInfo() {
     textAlign(LEFT, CENTER);
     textSize(14);
     textFont(myFont2);
-    text(getTypeText(bombData.type), width - boxW - 0.02*width, boxY + boxH / 2, width * 0.18);
+    text(getTypeText(bombData.type), width - boxW - 0.02 * width, boxY + boxH / 2, width * 0.18);
   }
 
   if (!mapImg || !bombData) return;
@@ -379,6 +383,7 @@ function drawInfo() {
   textFont(myFont3);
   textSize(14);
   textAlign(LEFT, TOP);
+      text(bombData.year,offsetX, boxY - 50)
   text("Type: " + bombData.type, offsetX, boxY - 30);
   text("Purpose: " + bombData.purpose, width * 0.03, offsetY - 30);
   text("Country: " + bombData.country, offsetX, offsetY - 30);
@@ -435,7 +440,7 @@ function getTypeText(type) {
 
 function drawZoomedMap() {
   if (!mapImg || !bombData) return;
-cursor(ARROW);
+  cursor(ARROW);
   image(mapImg, offsetX, offsetY, scaledW, scaledH);
 
   stroke(0, 255, 255, 150);
@@ -470,33 +475,33 @@ cursor(ARROW);
     stroke(0, 255, 255, 80);
   }
 
-// latitude
-for (let i = 0; i <= 6; i++) {
-  let lat = LAT_MIN + (i * (LAT_MAX - LAT_MIN)) / 6;
-  let y = latToMapY(lat);
+  // latitude
+  for (let i = 0; i <= 6; i++) {
+    let lat = LAT_MIN + (i * (LAT_MAX - LAT_MIN)) / 6;
+    let y = latToMapY(lat);
 
-  // 网格线
-  stroke(0, 255, 255, 80);
-  line(offsetX, y, offsetX + scaledW, y);
+    // 网格线
+    stroke(0, 255, 255, 80);
+    line(offsetX, y, offsetX + scaledW, y);
 
-  // 文字
-  noStroke();
-  fill(0, 255, 255);
-  textSize(12);
+    // 文字
+    noStroke();
+    fill(0, 255, 255);
+    textSize(12);
 
-  if (i === 6) {
-    // 最上面：文字顶部对齐地图最高点
-    textAlign(CENTER, TOP);
-  } else if (i === 0) {
-    // 最下面：文字底部对齐地图最低点
-    textAlign(CENTER, BOTTOM);
-  } else {
-    // 中间：居中对齐
-    textAlign(CENTER, CENTER);
+    if (i === 6) {
+      // 最上面：文字顶部对齐地图最高点
+      textAlign(CENTER, TOP);
+    } else if (i === 0) {
+      // 最下面：文字底部对齐地图最低点
+      textAlign(CENTER, BOTTOM);
+    } else {
+      // 中间：居中对齐
+      textAlign(CENTER, CENTER);
+    }
+
+    text(lat.toFixed(0) + "°", offsetX - 20, y);
   }
-
-  text(lat.toFixed(0) + "°", offsetX - 20, y);
-}
 
 
   let px = lonToMapX(bombData.longitude);
@@ -551,42 +556,42 @@ for (let i = 0; i <= 6; i++) {
   fill(0, 255, 255);
   textFont(myFont3);
   textSize(20);
-// --- 统一高度 ---
-let currentY = offsetY-10;
+  // --- 统一高度 ---
+  let currentY = offsetY - 10;
 
-// 1. 左侧文字：the location is often approximate. (左对齐地图)
-push();
-textFont(myFont2);
-textSize(14);
-textAlign(LEFT, BOTTOM);
-fill(0, 255, 255);
-// 直接对齐地图左边界 offsetX
-text("the location is often approximate.", offsetX, currentY);
-pop();
-let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude, 0, 2) + ")";
+  // 1. 左侧文字：the location is often approximate. (左对齐地图)
+  push();
+  textFont(myFont2);
+  textSize(14);
+  textAlign(LEFT, BOTTOM);
+  fill(0, 255, 255);
+  // 直接对齐地图左边界 offsetX
+  text("the location is often approximate.", offsetX, currentY);
+  pop();
+  let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude, 0, 2) + ")";
   let centerX = width / 2;
   textFont(myFont3);
   textSize(20);
   let coordW = textWidth(coordText);
   let coordH = 20;
 
-  let isCoordHover = 
+  let isCoordHover =
     mouseX >= centerX - coordW / 2 &&
     mouseX <= centerX + coordW / 2 &&
     mouseY >= currentY - coordH &&
     mouseY <= currentY;
 
   push();
-  translate(centerX, currentY); 
+  translate(centerX, currentY);
   textAlign(CENTER, BOTTOM);
   if (isCoordHover) {
     cursor(HAND); // 坐标悬停变手
-    fill(255);    
-    scale(1.05); 
+    fill(255);
+    scale(1.05);
   } else {
-    fill(0, 255, 255); 
+    fill(0, 255, 255);
   }
-  text(coordText, 0, 0); 
+  text(coordText, 0, 0);
   pop();
 
   // 3. 右侧文字：Hint
@@ -596,13 +601,13 @@ let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude
   textAlign(RIGHT, BOTTOM);
   let hintX = offsetX + scaledW;
   let hintText = "<< Click coordinates to view on Google Maps";
-  
+
   // --- 新增：计算 Hint 的悬停范围 ---
   let hintW = textWidth(hintText);
-  let isHintHover = 
-    mouseX >= hintX - hintW && 
+  let isHintHover =
+    mouseX >= hintX - hintW &&
     mouseX <= hintX &&
-    mouseY >= currentY - 14 && 
+    mouseY >= currentY - 14 &&
     mouseY <= currentY;
 
   const pulse = (sin(frameCount * 0.08) + 1) / 2;
@@ -610,7 +615,7 @@ let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude
 
   // --- 修改：Hint 悬停时变手并变色 ---
   if (isHintHover) {
-    cursor(HAND); 
+    cursor(HAND);
     fill(255, alphaGlow); // 悬停时变白色（保留呼吸感）
   } else {
     fill(0, 255, 255, alphaGlow);
@@ -690,8 +695,8 @@ function drawBombAnnotation() {
 
   let horizLength = 120;
 
-  let finalAnchorX = width * 0.23;
-  let finalAnchorY = height * 0.1;
+  let finalAnchorX = width * 0.31;
+  let finalAnchorY = height * 0.3;
 
   let angle = atan2(finalAnchorY - centerY, finalAnchorX - centerX);
 
@@ -734,7 +739,7 @@ function drawBombAnnotation() {
 }
 
 function mousePressed() {
-// --- 1. 点击 Little Boy 跳转 (针对统一后的动效位置) ---
+  // --- 1. 点击 Little Boy 跳转 (针对统一后的动效位置) ---
   if (hHorizProgress > 0.8) {
     // 最终位置: centerX + 150 (finalHorizEndX) + 100 (horizLength) + 10 (offset)
     let finalX = centerX + 150 + 100 + 10;
@@ -755,20 +760,20 @@ function mousePressed() {
   hDiagProgress = 0; // 重置进度
   hHorizProgress = 0;
   // 如果 drawBombAnnotation 也需要重置，请确保其变量也是全局的
-  this.diagProgress = 0; 
+  this.diagProgress = 0;
   this.horizProgress = 0;
 
   animPlaying = true;
 
 
   if (bombData && mapZoomed) {
-    let currentY = offsetY - 10; 
+    let currentY = offsetY - 10;
     let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude, 0, 2) + ")";
     let coordW = textWidth(coordText);
     let coordH = 20;
     let centerX = width / 2;
 
-    let isCoordClicked = 
+    let isCoordClicked =
       mouseX >= centerX - coordW / 2 &&
       mouseX <= centerX + coordW / 2 &&
       mouseY >= currentY - coordH &&
@@ -779,9 +784,9 @@ function mousePressed() {
     let hintText = "<< Click coordinates to view on Google Maps";
     let hintW = textWidth(hintText);
     let hintX = offsetX + scaledW; // 右边界
-    
-    let isHintClicked = 
-      mouseX >= hintX - hintW && 
+
+    let isHintClicked =
+      mouseX >= hintX - hintW &&
       mouseX <= hintX &&
       mouseY >= currentY - 14 && // 14 是 textSize
       mouseY <= currentY;
@@ -790,7 +795,7 @@ function mousePressed() {
     if (isCoordClicked || isHintClicked) {
       let lat = bombData.latitude;
       let lon = bombData.longitude;
-let googleMapsURL = `https://www.google.com/maps?q=${lat},${lon}&t=k`;
+      let googleMapsURL = `https://www.google.com/maps?q=${lat},${lon}&t=k`;
       window.open(googleMapsURL, "_blank");
       return;
     }
