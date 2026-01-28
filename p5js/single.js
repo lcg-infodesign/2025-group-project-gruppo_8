@@ -127,6 +127,38 @@ PNE:"Peaceful nuclear explosions",
   "WR/WE/S": "Weapons & effect & accident tests",
 }
 
+const typeTitle = {
+  AIRDROP:
+    "Airdrop",
+  ATMOSPH:
+    "Atmospheric",
+  SPACE: "Exoatmospheric",
+  BALLOON:
+    "Balloon-Suspended",
+  BARGE:
+    "Barge-Mounted",
+  SHIP: "Ship-Based",
+  ROCKET:
+    "Rocket-Delivered",
+  SHAFT:
+    "Vertical Shaft Underground",
+  "SHAFT/GR":
+    "Ground-Based Shaft",
+  "SHAFT/LG":
+    "Lagoon Shaft",
+  SURFACE:
+    "Surface",
+  TOWER: "Tower-Mounted",
+  TUNNEL: "Tunnel-Based Underground",
+  GALLERY:
+    "Gallery Underground",
+  UW: "Underwater",
+  UG: "Underground",
+  WATERSUR: "Water-Surface",
+  CRATER: "Crater",
+  MINE: "Mine-Based",
+}
+
 function preload() {
   const urlParams = new URLSearchParams(window.location.search);
   bombID = urlParams.get("id") || "1"; //Ottieni l'ID della bomba dall'URL, se non presente usa "1"
@@ -407,8 +439,8 @@ function drawInfo() {
   textFont(myFont3);
   textSize(14);
   textAlign(LEFT, TOP);
-      text("Year:"+ bombData.year, offsetX, boxY - 60)
-  text("Type: " + bombData.type, offsetX, boxY - 30);
+      text("Year: "+ bombData.year, offsetX, boxY - 60)
+  text("Type: " + getTypeTitle(bombData.type), offsetX, boxY - 30);
   text("Purpose: " + getPurposeTitle(bombData.purpose), width * 0.03, offsetY - 30);
   text("Country: " + bombData.country, offsetX, offsetY - 30);
   textSize(24);
@@ -465,6 +497,11 @@ function getTypeText(type) {
 function getPurposeTitle(purpose) {
   if (!purpose) return "";
   return purposeTitle[purpose.toUpperCase()] || "Unknown";
+}
+
+function getTypeTitle(type) {
+  if (!type) return "";
+  return typeTitle[type.toUpperCase()] || "Unknown";
 }
 
 
