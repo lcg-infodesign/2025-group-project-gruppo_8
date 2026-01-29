@@ -95,7 +95,7 @@ function draw() {
   fill(200);
   textSize(20);
   textAlign(CENTER, TOP);
-  text("NUCLEAR TEST EACH YEAR", width / 2, 30);
+  //text("NUCLEAR TEST EACH YEAR", width / 2, 30);
 
   // Visualizza l'anno e le frecce di navigazione
   drawYearNavigation(currentYear); 
@@ -456,15 +456,15 @@ function getColorLevel(y) {
 
 function drawYearNavigation(currentYear) {
   textAlign(CENTER, TOP);
-  textSize(48);
+  textSize(60);
   fill(0, 255, 255);
   textFont(myFont3);
-  text(currentYear, width / 2, 90);
+  text(currentYear, width / 2, 80);
   
   textFont(myFont2);
   fill(0, 255, 255);
   textSize(14);
-  text("YEAR", width / 2, 70);
+  text("NUCLEAR TEST EACH YEAR", width / 2, 70);
 
 
   const alphaBase = 200;
@@ -577,50 +577,50 @@ function drawTestDots(yearData) {
     //  country name and total
     push();
     translate(x, lineY); 
-    if (isNameHovered) {
-      scale(1.08);  
-    }
+    // if (isNameHovered) {
+    //   scale(1.08);  
+    // }
 
     // country name
     textAlign(CENTER, CENTER);
     textFont(myFont2);
     textSize(14);
-    if (isNameHovered) {
-      fill(255);
-    } else {
+    // if (isNameHovered) {
+    //   fill(255);
+    // } else {
       fill(0, 255, 255);
       noStroke();
-    }
+    // }
     text(country, 0, 0);
 
-    // total number above name when hovered
-    if (isNameHovered) {
-      let historicalTotal = countryTotalCounts[country] || 0;
-      let totalText = historicalTotal;
-      let padding = 8; 
-      let numX = (nameW / 2) + padding; 
+    // // total number above name when hovered
+    // if (isNameHovered) {
+    //   let historicalTotal = countryTotalCounts[country] || 0;
+    //   let totalText = historicalTotal;
+    //   let padding = 8; 
+    //   let numX = (nameW / 2) + padding; 
 
-      noStroke();
-      fill(255);
-      textFont(myFont3);
-      textSize(14);
-      textAlign(LEFT, CENTER);
+    //   noStroke();
+    //   fill(255);
+    //   textFont(myFont3);
+    //   textSize(14);
+    //   textAlign(LEFT, CENTER);
 
-      let yOffset = -2;
-      text(totalText, numX, yOffset);
+    //   let yOffset = -2;
+    //   text(totalText, numX, yOffset);
 
-      // arrow
-      let tw = textWidth(totalText);
-      let arrowX = numX + tw + 8;
-      let s = 4;
-      let arrowY = yOffset + 3;
-      fill(255);
-      triangle(
-          arrowX, arrowY - s,
-          arrowX, arrowY + s,
-          arrowX + s + 2, arrowY
-        );
-      }
+    //   // arrow
+    //   let tw = textWidth(totalText);
+    //   let arrowX = numX + tw + 8;
+    //   let s = 4;
+    //   let arrowY = yOffset + 3;
+    //   fill(255);
+    //   triangle(
+    //       arrowX, arrowY - s,
+    //       arrowX, arrowY + s,
+    //       arrowX + s + 2, arrowY
+    //     );
+    //   }
     pop();
   });
 }
@@ -630,12 +630,12 @@ function drawBottomInfo(yearData) {
 
   fill(150, 150, 150);
   textAlign(RIGHT, TOP);
-  textSize(14);
+  textSize(20);
   textFont(myFont2);
-  text("TOTAL BOMBS", width - 80, 70);
-  textSize(48);
+  text("TOTAL BOMBS", width - 80, 137);
+  textSize(60);
   textFont(myFont3);
-  text(total, width - 80, 90);
+  text(total, width - 80, 57);
 }
 
 function drawLegend() {
@@ -739,11 +739,12 @@ function mousePressed() {
   const fixedSpacing = 150; // 
   const lineY = height / 2 + 50;
 
-  countries.forEach((country, idx) => {
+// 在详情页的 mousePressed 函数中修改跳转逻辑
+countries.forEach((country, idx) => {
     let x = width / 2 + (idx - (countries.length - 1) / 2) * fixedSpacing;
-    let areaSinistra = 40;  // 
-    let areaDestra = 110;   // 
-    let areaAltezza = 20;   // 
+    let areaSinistra = 40;  
+    let areaDestra = 110;   
+    let areaAltezza = 20;   
 
     if (
       mouseX > x - areaSinistra &&
@@ -751,17 +752,12 @@ function mousePressed() {
       mouseY > lineY - areaAltezza &&
       mouseY < lineY + areaAltezza
     ) {
- window.location.href =
-  `index.html?year=${years[currentYearIndex]}&resetCountry=true#page2`;
-
-
-return;
+      // 修改这里：传递 country 参数给主页 index.html
+      // 同时保留 #page2 锚点以直接定位到图表页
+      window.location.href = `index.html?country=${country}#page2`;
+      return;
     }
-
-  });
-
-
-
+});
 
 }
 
@@ -869,3 +865,8 @@ window.addEventListener("load", () => {
     window.location.href = "index.html#page2";
   }
 });
+// 下一页的点击逻辑示例
+function onCountryClick(countryName) {
+    // 跳转回主地图页，并带上国家参数
+    window.location.href = `index.html?country=${countryName}#page2`;
+}
