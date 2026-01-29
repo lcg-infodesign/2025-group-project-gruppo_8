@@ -32,6 +32,7 @@ let page = 1;
 let data = [];
 let enteredPage2ByScroll = false; 
 
+let introTimelinePlaying = false;
 
 
 // Page2 top-right text carousel (4 steps)
@@ -842,6 +843,14 @@ if (isHoverUND) {
     scrollProgress = constrain(scrollProgress, startYear - 1, endYear);
     lastStepTime = millis();
   }
+
+//stop automatico SOLO a fine animazione (non per click)
+if (introTimelinePlaying && scrollProgress >= endYear) {
+  scrollDirection = 0;
+  introTimelinePlaying = false;
+}
+
+
   textFont(myFont2);
   disegnaAsseEAnni();
 
@@ -1364,9 +1373,6 @@ function keyPressed() {
 
 
 
-function mouseReleased() {
-  if (page === 2) scrollDirection = 0;
-}
 
 // ===============================
 // particles in page1
@@ -1579,26 +1585,22 @@ function goBackToIntroBottom() {
 }
 
 function goNextPage() {
-  // Vai alla pagina 2 (grafico)
   page = 2;
 
-  // Stessa logica di goToOverview:
-  // porta subito la timeline alla fine
- 
-  enteredPage2ByScroll = true; // <-- AGGIUNTO
+  enteredPage2ByScroll = true;
+  scrollProgress = startYear - 1;
 
-  scrollProgress = startYear - 1; // <-- CAMBIATO (prima era endYear)
+  scrollDirection = 1;
+  introTimelinePlaying = true; // <<< BLOCCA L’ANIMAZIONE
 
-  scrollDirection = 1; // parte l'animazione come se stessi scrollando giù
   lastStepTime = millis();
 
-
-  // Nascondi il bottone se per caso è ancora visibile
   const skipBtn = document.getElementById("skipIntroBtn");
   if (skipBtn && skipBtn.parentElement) {
     skipBtn.parentElement.style.display = "none";
   }
 }
+
 
 function drawCountryMenu() {
   const x = width / 2;
