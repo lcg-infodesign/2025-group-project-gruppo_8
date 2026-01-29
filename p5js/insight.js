@@ -1,528 +1,589 @@
-let img1, img2, img3;
-let thumbs = [];
-let largeImages = [];
-let showPreview = false;
-let previewImg = null;
+let insightSketch = function(p) {
+  // Variabili contenuto
+  let img1, img2, img3;
+  let thumbs = [];
+  let largeImages = [];
+  let showPreview = false;
+  let previewImg = null;
 
-// ----------------------------------------------------
-// 文本内容
-// ----------------------------------------------------
-let topText = "HIROSHIMA E NAGASAKI";
-let Text1 = "The use of nuclear weapons in armed conflict has occurred only twice: when the United States detonated two atomic bombs over the Japanese cities of Hiroshima and Nagasaki, during World War II. On 6 th and 9 th of August 1945, these aerial attacks claimed the lives of 150,000 to 246,000 people, most of whom were civilians.";
-let Text2 = "The atomic bomb dropped on Hiroshima was named Little Boy, it was a uranium gun-type fission weapon developed by the Manhattan Project. It was dropped by the B-29 Enola Gay on Hiroshima on August 6, 1945, marking it the first use of a nuclear weapon in warfare. It exploded with an energy equivalent to approximately 15 kilotons of TNT, causing widespread devastation with an explosion radius of about 1.3 kilometers (0.81 mi).";
-let Text3 = "The name of the atomic bomb dropped on Nagasaki was Fat Man, it was a plutonium-based implosion-type nuclear bomb. It was dropped from the B-29 bomber Bockscar on Nagasaki on August 9, 1945. It exploded with an energy equivalent to approximately 21 kilotons of TNT, weighing 10,300 pounds and making it most powerful design to ever be used in warfare.";
+  let currentTopic = "hiroshima";
+  let pageTitle = "Insight";
+  let contentTitle = "";
+  let Text1, Text2, Text3;
 
-// layout variables
-let scrollY = 0;
-let targetScrollY = 0;
-let canvasHeight;
+  const contentConfig = {
+    "hiroshima": {
+      title: "Hiroshima & Nagasaki",
+      texts: [
+        "The use of nuclear weapons in armed conflict has occurred only twice: when the United States detonated two atomic bombs over the Japanese cities of Hiroshima and Nagasaki, during World War II. On 6 th and 9 th of August 1945, these aerial attacks claimed the lives of 150,000 to 246,000 people, most of whom were civilians.",
+        "The atomic bomb dropped on Hiroshima was named Little Boy, it was a uranium gun-type fission weapon developed by the Manhattan Project. It was dropped by the B-29 Enola Gay on Hiroshima on August 6, 1945, marking it the first use of a nuclear weapon in warfare. It exploded with an energy equivalent to approximately 15 kilotons of TNT, causing widespread devastation with an explosion radius of about 1.3 kilometers (0.81 mi).",
+        "The name of the atomic bomb dropped on Nagasaki was Fat Man, it was a plutonium-based implosion-type nuclear bomb. It was dropped from the B-29 bomber Bockscar on Nagasaki on August 9, 1945. It exploded with an energy equivalent to approximately 21 kilotons of TNT, weighing 10,300 pounds and making it most powerful design to ever be used in warfare."
+      ],
+      imagePaths: [
+        "images/hiroshima-bombing-article-about-atomic-bomb.jpg",
+        "images/insight_img2.jpg",
+        "images/hiding_the_radiation_of_the_atomic_bombs_1050x700.avif"
+      ],
+      thumbnails: ["4", "5", "6", "7", "8", "9", "10"],
+      bottomTexts: [
+        "Carl Mydans Hiroshima Japan 1947, Atomic",
+        "A barefoot boy waiting in line and staring ahead at a crematorium after the Nagasaki bombing, with his dead baby brother strapped to his back. \nPhoto by US Marine photographer Joe O'Donnell",
+        "From notes by LIFE's Bernard Hoffman to the magazine's long-time picture editor, Wilson Hicks, in New York, September 1945",
+        "Mother and child in Hiroshima, Japan, December 1945 Alfred Eisenstaedt",
+        "A correspondent stands in the rubble in Hiroshima on Sept. 8, 1945, a month after the first atomic bomb ever used in warfare was dropped by the U.S.\nStanley Troutman / AP",
+        "The devastated city of Nagasaki after an atomic bomb was dropped on it by a US Air Force B-29 bomber —AFP",
+        "The mushroom cloud rising over Hiroshima, Japan on August 6, 1945"
+      ],
+      hasThreeSections: true
+    },
+    "moratoria58": {
+      title: "Moratorium 1958",
+      texts: [
+        "The 1958 nuclear test moratorium was a unilateral suspension of nuclear weapons testing announced by the Soviet Union on March 31, 1958, and followed by the United States and United Kingdom.",
+        "This moratorium lasted from November 1958 to September 1961, representing the first significant pause in nuclear testing since the beginning of the atomic age.",
+        "The moratorium broke down when the Soviet Union resumed testing in 1961, citing the need to respond to increased international tensions and the Berlin Crisis."
+      ],
+      imagePaths: [
+        "images/insight_1958_img1.jpg",
+        "images/insight_img2.jpg",
+        "images/hiding_the_radiation_of_the_atomic_bombs_1050x700.avif"
+      ],
+      thumbnails: [],
+      bottomTexts: [],
+      hasThreeSections: false
+    },
+    "trattato63": {
+      title: "Test Ban Treaty 1963",
+      texts: [
+        "The Partial Test Ban Treaty (PTBT), also known as the Limited Test Ban Treaty, was signed on August 5, 1963, by the United States, United Kingdom, and Soviet Union.",
+        "The treaty prohibited all test detonations of nuclear weapons except for those conducted underground, effectively banning nuclear weapons tests in the atmosphere, underwater, and in outer space.",
+        "The treaty was a response to growing international concern about radioactive fallout from atmospheric tests and represented a first step toward nuclear arms control."
+      ],
+      imagePaths: [
+        "images/1963.png",
+        "images/insight_img2.jpg",
+        "images/hiding_the_radiation_of_the_atomic_bombs_1050x700.avif"
+      ],
+      thumbnails: [],
+      bottomTexts: [],
+      hasThreeSections: false
+    },
+    "trattato96": {
+      title: "Test Ban Treaty 1996",
+      texts: [
+        "The Comprehensive Nuclear-Test-Ban Treaty (CTBT) is a multilateral treaty that bans all nuclear explosions, for both civilian and military purposes, in all environments.",
+        "Adopted by the United Nations General Assembly on September 10, 1996, the treaty has been signed by 185 nations and ratified by 170, but has not entered into force due to the non-ratification by eight specific nuclear technology holder countries.",
+        "The treaty established the Comprehensive Nuclear-Test-Ban Treaty Organization (CTBTO) to monitor compliance through a global network of monitoring stations."
+      ],
+      imagePaths: [
+        "images/1996.png",
+        "images/insight_img2.jpg",
+        "images/hiding_the_radiation_of_the_atomic_bombs_1050x700.avif"
+      ],
+      thumbnails: [],
+      bottomTexts: [],
+      hasThreeSections: false
+    },
+    "tsarbomba": {
+      title: "Tsar Bomba - 50 MT",
+      texts: [
+        "The Tsar Bomba was the most powerful nuclear weapon ever detonated, with a yield of 50 megatons of TNT, developed by the Soviet Union and tested on October 30, 1961.",
+        "The bomb was originally designed for a 100-megaton yield, but was scaled down to reduce radioactive fallout. Even at half its potential yield, it was 3,800 times more powerful than the Hiroshima bomb.",
+        "The fireball was about 8 kilometers (5.0 mi) in diameter and the mushroom cloud reached a height of 67 km (42 mi). The heat from the explosion could have caused third-degree burns 100 km (62 mi) away."
+      ],
+      imagePaths: [
+        "images/tsar1.jpg",
+        "images/tsar2.png",
+        "images/tsar3.png"
+      ],
+      thumbnails: [],
+      bottomTexts: [],
+      hasThreeSections: true
+    }
+  };
 
-let topMargin = 40;
-let sideMargin = 80;
-let textGap = -200;
-let spacing = 80;
-let maxTextWidth = 400;
-let topTextSideMargin = 400;
+  // Variabili layout
+  let scrollY = 0;
+  let targetScrollY = 0;
+  let canvasHeight;
 
-let imgW, imgH;
+  let topMargin = 40;
+  let sideMargin = 80;
+  let textGap = -200;
+  let spacing = 100;
+  let maxTextWidth = 500;
+  let topTextSideMargin = 400;
 
-let previewIndex = -1;     // 当前预览的大图索引
-let previewArrowSize = 20; // 左右箭头尺寸
+  let imgW, imgH;
 
+  let previewIndex = -1;
+  let previewArrowSize = 20;
 
-// thumbnails
-let thumbOffset = 0;
-let targetThumbOffset = 0;
-let thumbSize = 120;
-let thumbGap = 30;
+  let thumbOffset = 0;
+  let targetThumbOffset = 0;
+  let thumbSize = 120;
+  let thumbGap = 30;
 
-let myFont1, myFont2, myFont3;
+  let myFont1, myFont2, myFont3;
 
-let titleAlpha = map(scrollY, 0, 200, 255, 0, true);
+  let titleAlpha;
+  let fadeIn = 0;
+  let floatOffset = 20;
 
-let previewBottomTextPadding = 40; // distance from bottom of image
-let screenBottomPadding = 20;      // distance from bottom of the canvas
+  p.preload = function() {
+    myFont1 = p.loadFont("fonts/LexendZetta-Regular.ttf");
+    myFont2 = p.loadFont("fonts/LibreFranklin-Regular.otf");
+    myFont3 = p.loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
 
+    const urlParams = new URLSearchParams(window.location.search);
+    currentTopic = urlParams.get('topic') || 'hiroshima';
+    
+    const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
+    
+    img1 = p.loadImage(config.imagePaths[0]);
+    img2 = config.hasThreeSections ? p.loadImage(config.imagePaths[1]) : null;
+    img3 = config.hasThreeSections ? p.loadImage(config.imagePaths[2]) : null;
+    
+    thumbs = [];
+    largeImages = [];
+    if (currentTopic === "hiroshima") {
+      config.thumbnails.forEach(thumbName => {
+        let t = p.loadImage(`images/insight_img${thumbName}.jpg`);
+        thumbs.push(t);
+        largeImages.push(t);
+      });
+    }
+    
+    contentTitle = config.title;
+    Text1 = config.texts[0];
+    Text2 = config.hasThreeSections ? config.texts[1] : "";
+    Text3 = config.hasThreeSections ? config.texts[2] : "";
+  };
 
-function preload() {
-  // fonts (keep same filenames in your project)
-  myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
-  myFont2 = loadFont("fonts/LibreFranklin-Regular.otf");
-  myFont3 = loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
+  p.setup = function() {
+    calculateCanvasHeight();
+    let c = p.createCanvas(p.windowWidth, p.windowHeight);
+    c.style("position", "fixed");
+    c.style("top", "0px");
+    c.style("left", "0px");
+    c.style("z-index", "1");
 
-  // main images — ensure these exist in images/
-  img1 = loadImage(`images/hiroshima-bombing-article-about-atomic-bomb.jpg`);
-  img2 = loadImage(`images/insight_img2.jpg`);
-  img3 = loadImage(`images/hiding_the_radiation_of_the_atomic_bombs_1050x700.avif`);
+    p.textSize(22);
+    imgW = p.windowWidth * 0.62;
+    imgH = imgW * 800 / 1200;
+    
+    fadeIn = 0;
+    floatOffset = 20;
+  };
 
-  // thumbs and largeImages (7 thumbnails expected)
-  for (let i = 4; i <= 10; i++) {
-    let t = loadImage(`images/insight_img${i}.jpg`);
-    thumbs.push(t);
-    // for preview we reuse the same images (or replace with high-res paths)
-    largeImages.push(loadImage(`images/insight_img${i}.jpg`));
-  }
-}
+  p.draw = function() {
+    p.background(20);
+    p.fill(255);
 
-function setup() {
-  calculateCanvasHeight();
-  let c = createCanvas(windowWidth, windowHeight);
-  c.style("position", "fixed");
-  c.style("top", "0px");
-  c.style("left", "0px");
-  c.style("z-index", "-1");
+    scrollY += (targetScrollY - scrollY) * 0.12;
+    thumbOffset += (targetThumbOffset - thumbOffset) * 0.18;
+    
+    fadeIn = p.min(fadeIn + 3, 255);
+    floatOffset = p.max(floatOffset - 0.6, 0);
 
-  textSize(22);
-  imgW = width * 0.62;
-  imgH = imgW * 800 / 1200;
-}
+    titleAlpha = p.map(scrollY, 0, 200, 255, 0, true); 
+    p.fill(200, titleAlpha);
+    p.textAlign(p.CENTER, p.TOP);
+    p.textFont(myFont1);
+    p.noStroke();
+    p.textSize(20);
+    p.text(pageTitle, p.width / 2, 30);
 
-function draw() {
-  background(0);
-  fill(255);
+    let topTextW = p.width - topTextSideMargin * 2;
+    let topTextH = estimateTextHeight(pageTitle, topTextW);
 
-  // smooth scrolling
-  scrollY += (targetScrollY - scrollY) * 0.12;
-  thumbOffset += (targetThumbOffset - thumbOffset) * 0.18;
+    const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
+    const hasThreeSections = config.hasThreeSections;
 
-  // top title
-  let titleAlpha = map(scrollY, 0, 200, 255, 0, true); 
-  fill(200, titleAlpha);
-  textAlign(CENTER, TOP);
-textFont(myFont1);
-  noStroke();
-  textSize(20);
-  text(topText, width / 2, 30);
+    let y1 = topMargin + topTextH + 100 + floatOffset;
+    
+    p.tint(255, 180 * fadeIn / 255);
+    p.image(img1, sideMargin, y1 - scrollY * 0.9, imgW, imgH);
+    p.noTint();
 
-  // compute top text width & height
-  let topTextW = width - topTextSideMargin * 2;
-  let topTextH = estimateTextHeight(topText, topTextW);
+    let titleX = sideMargin + imgW + textGap + maxTextWidth + 180;
+    let titleY = y1 - scrollY * 0.9 + 0;
+    
+    p.textAlign(p.RIGHT, p.TOP);
+    p.textFont(myFont1);
+    p.noStroke();
+    p.fill(0, 255, 255, fadeIn);
+    p.textSize(16);
+    p.text(contentTitle, titleX, titleY);
 
-  // -------------------------
-  // 第一行 (左图右文)
-  // -------------------------
-  let y1 = topMargin + topTextH + spacing;
-  tint(255, 180);
-  image(img1, sideMargin, y1 - scrollY * 0.9, imgW, imgH);
-  noTint();
+    let textX1 = sideMargin + imgW + textGap;
+    let textW1 = maxTextWidth;
+    
+    let textCenterY = y1 - scrollY * 0.9 + imgH / 2;
+    let textHeight1 = estimateTextHeight(Text1, textW1);
+    let textY1 = textCenterY - textHeight1 / 2;
+    
+    let alpha1 = p.map(y1 - scrollY, p.height, 0, 0, 255, true);
+    drawTextWithFloat(Text1, textX1, textY1, textW1, alpha1, -20, 20);
 
-  let textX1 = sideMargin + imgW + textGap;
-  let textW1 = min(width - sideMargin - textX1, maxTextWidth);
-  let alpha1 = map(y1 - scrollY, height, 0, 0, 255, true);
-  drawTextInteractive(Text1, textX1, y1 + 100 - scrollY, textW1, alpha1, -20, 20);
+    if (hasThreeSections && img2) {
+      let y2 = y1 + imgH + spacing;
+      
+      let imgX2 = p.width - sideMargin - imgW;
+      p.tint(255, 120 * fadeIn / 255);
+      p.image(img2, imgX2, y2 - scrollY * 0.9, imgW, imgH);
+      p.noTint();
 
-  // -------------------------
-  // 第二行 (右图左文)
-  // -------------------------
-  let y2 = y1 + imgH + spacing;
-  let imgX2 = width - sideMargin - imgW;
-  tint(255, 120);
-  image(img2, imgX2, y2 - scrollY * 0.9, imgW, imgH);
-  noTint();
+      let textX2 = sideMargin + 100;
+      let textW2 = maxTextWidth;
+      
+      let textCenterY2 = y2 - scrollY * 0.9 + imgH / 2;
+      let textHeight2 = estimateTextHeight(Text2, textW2);
+      let textY2 = textCenterY2 - textHeight2 / 2;
+      
+      let alpha2 = p.map(y2 - scrollY, p.height, 0, 0, 255, true);
+      drawTextWithFloat(Text2, textX2, textY2, textW2, alpha2, 20, -20);
 
-  let textX2 = sideMargin + 100;
-  let textW2 = min(imgX2 - textX2 - textGap, maxTextWidth);
-  let alpha2 = map(y2 - scrollY, height, 0, 0, 255, true);
-  drawTextInteractive(Text2, textX2, y2 + 200 - scrollY, textW2, alpha2, 20, -20);
+      let y3 = y2 + imgH + spacing;
+      
+      p.tint(255, 180 * fadeIn / 255);
+      p.image(img3, sideMargin, y3 - scrollY * 0.9, imgW, imgH);
+      p.noTint();
 
-  // -------------------------
-  // 第三行 (左图右文)
-  // -------------------------
-  let y3 = y2 + imgH + spacing;
-  tint(255, 180);
-  image(img3, sideMargin, y3 - scrollY * 0.9, imgW, imgH);
-  noTint();
+      let textX3 = sideMargin + imgW + textGap;
+      let textW3 = maxTextWidth;
+      
+      let textCenterY3 = y3 - scrollY * 0.9 + imgH / 2;
+      let textHeight3 = estimateTextHeight(Text3, textW3);
+      let textY3 = textCenterY3 - textHeight3 / 2;
+      
+      let alpha3 = p.map(y3 - scrollY, p.height, 0, 0, 255, true);
+      drawTextWithFloat(Text3, textX3, textY3, textW3, alpha3, -20, 20);
 
-  let textX3 = sideMargin + imgW + textGap;
-  let textW3 = min(width - sideMargin - textX3, maxTextWidth);
-  let alpha3 = map(y3 - scrollY, height, 0, 0, 255, true);
-  drawTextInteractive(Text3, textX3, y3 + 300 - scrollY, textW3, alpha3, -20, 20);
-
-  // -------------------------
-  // 底部缩略图（固定在文档底部位置，根据 scrollY 变化）
-  // -------------------------
-  let thumbY = calculateThumbY(scrollY);
-  drawThumbnails(thumbY);
-
-  // -------------------------
-  // 预览显示
-  // -------------------------
-  if (showPreview && previewImg) {
-    drawPreviewOverlay();
-  }
-}
-
-// ==============================
-// mousePressed: 缩略图、箭头、关闭预览逻辑
-// ==============================
-function mousePressed() {
-  // if preview shown: 点击任意处关闭
-  if (showPreview) {
-    // 点击左箭头（上一张）
-    let leftX = 100;
-    let arrowY1 = height / 2 - previewArrowSize;
-    let arrowY2 = height / 2 + previewArrowSize;
-    if (mouseX > leftX && mouseX < leftX + previewArrowSize &&
-        mouseY > arrowY1 && mouseY < arrowY2) {
-
-        previewIndex = (previewIndex - 1 + largeImages.length) % largeImages.length;
-        previewImg = largeImages[previewIndex];
-        return;
+      if (currentTopic === "hiroshima") {
+        let thumbY = calculateThumbY(scrollY);
+        if (thumbY < p.height + 200 && thumbs.length > 0) {
+          drawThumbnails(thumbY);
+        }
+      }
     }
 
-    // 点击右箭头（下一张）
-    let rightX = width - 100 - previewArrowSize;
-    if (mouseX > rightX && mouseX < rightX + previewArrowSize &&
-        mouseY > arrowY1 && mouseY < arrowY2) {
+    if (showPreview && previewImg && currentTopic === "hiroshima") {
+      drawPreviewOverlay();
+    }
+  };
 
-        previewIndex = (previewIndex + 1) % largeImages.length;
-        previewImg = largeImages[previewIndex];
-        return;
+  function drawTextWithFloat(txt, x, y, maxW, alpha, o1, o2) {
+    p.push();
+    let finalAlpha = p.min(alpha, fadeIn);
+    p.fill(255, finalAlpha);
+    
+    let offsetY = floatOffset * (1 - fadeIn / 255);
+    let offset = p.map(finalAlpha, 0, 255, o1, o2);
+    p.translate(offset, offsetY);
+    
+    p.textSize(21);
+    p.textFont(myFont2);
+    p.textAlign(p.LEFT, p.TOP);
+    p.textLeading(28);
+    p.text(txt, x, y, maxW);
+    p.pop();
+  }
+
+  function drawTextInteractive(txt, x, y, maxW, alpha, o1, o2) {
+    p.push();
+    p.fill(255, alpha);
+    let offset = p.map(alpha, 0, 255, o1, o2);
+    p.translate(offset, 0);
+    p.textSize(21);
+    p.textFont(myFont2);
+    p.textAlign(p.LEFT, p.TOP);
+    p.textLeading(28);
+    p.text(txt, x, y, maxW);
+    p.pop();
+  }
+
+  function estimateTextHeight(txt, maxW) {
+    p.textFont(myFont2);
+    p.textSize(21);
+    p.textLeading(28);
+
+    let words = txt.split(/\s+/);
+    let lineCount = 1;
+    let lineWidth = 0;
+    for (let w of words) {
+      let wWidth = p.textWidth(w + " ");
+      if (lineWidth + wWidth > maxW) {
+        lineCount++;
+        lineWidth = wWidth;
+      } else {
+        lineWidth += wWidth;
+      }
+    }
+    return lineCount * 28;
+  }
+
+  function calculateCanvasHeight() {
+    imgW = p.windowWidth * 0.62;
+    imgH = imgW * 800 / 1200;
+
+    let topTextW = p.windowWidth - topTextSideMargin * 2;
+    let topTextH = estimateTextHeight(pageTitle, topTextW);
+
+    const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
+    const hasThreeSections = config.hasThreeSections;
+
+    if (hasThreeSections) {
+      let height = topMargin + topTextH + 140 + (spacing + imgH) * 3;
+      
+      if (currentTopic === "hiroshima") {
+        height += 600;
+      } else {
+        height += 200;
+      }
+      
+      canvasHeight = height;
+    } else {
+      let contentHeight = topMargin + topTextH + 140 + imgH + 100;
+      canvasHeight = Math.min(contentHeight, p.windowHeight);
+    }
+  }
+
+  function calculateThumbY(currentScrollY) {
+    if (currentTopic !== "hiroshima") return -1000;
+
+    const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
+    const hasThreeSections = config.hasThreeSections;
+    
+    if (!hasThreeSections) return -1000;
+
+    let topTextW = p.width - topTextSideMargin * 2;
+    let topTextH = estimateTextHeight(pageTitle, topTextW);
+    let y1 = topMargin + topTextH + 140;
+    let y2 = y1 + imgH + spacing;
+    let y3 = y2 + imgH + spacing;
+
+    let base = y3 + imgH + spacing + 180;
+    return base - currentScrollY;
+  }
+
+  function drawThumbnails(y) {
+    if (currentTopic !== "hiroshima") return;
+    
+    if (y < -100) return;
+
+    let totalW = thumbs.length * thumbSize + (thumbs.length - 1) * thumbGap;
+    let startX = (p.width - totalW) / 2 + thumbOffset;
+
+    p.noStroke();
+    p.fill(255);
+
+    let arrowW = 40, arrowH = thumbSize;
+    let arrowY = y;
+
+    const visibleEnd = p.width - sideMargin;
+    const initialStripStart = (p.width - totalW) / 2;
+    const maxScrollNegative = visibleEnd - (initialStripStart + totalW);
+    const maxScroll = p.min(0, maxScrollNegative);
+
+    if (thumbOffset < -5) {
+      let x = sideMargin - arrowW;
+      if (p.mouseX > x && p.mouseX < x + arrowW && p.mouseY > arrowY && p.mouseY < arrowY + arrowH) {
+        p.fill(110, 133, 219, 150);
+        p.rect(x, arrowY, arrowW, arrowH, 0);
+        p.fill(255);
+      }
+      p.noStroke();
+      p.fill(255);
+      p.triangle(x + 15, arrowY + arrowH/2, x + arrowW - 15, arrowY + 20, x + arrowW - 15, arrowY + arrowH - 20);
     }
 
-    // 点击空白处关闭
-    showPreview = false;
-    return;
-  }
+    if (thumbOffset > maxScroll + 5) {
+      let x = p.width - sideMargin;
+      if (p.mouseX > x - arrowW && p.mouseX < x && p.mouseY > arrowY && p.mouseY < arrowY + arrowH) {
+        p.fill(110, 133, 219, 150);
+        p.rect(x - arrowW, arrowY, arrowW, arrowH, 0);
+        p.fill(255);
+      }
+      p.noStroke();
+      p.fill(255);
+      p.triangle(x - 15, arrowY + arrowH/2, x - arrowW + 15, arrowY + 20, x - arrowW + 15, arrowY + arrowH - 20);
+    }
 
+    let hoveredIndex = -1;
+    let currentThumbX = (p.width - totalW) / 2 + thumbOffset;
+    if (y > -thumbSize && y < p.height) {
+      for (let i = 0; i < thumbs.length; i++) {
+        let x = currentThumbX + i * (thumbSize + thumbGap);
+        if (p.mouseX > x && p.mouseX < x + thumbSize && p.mouseY > y && p.mouseY < y + thumbSize) {
+          hoveredIndex = i;
+          break;
+        }
+      }
+    }
 
-  // calculate thumb area and scrolling bounds
-  let thumbY = calculateThumbY(scrollY);
-  let totalW = thumbs.length * thumbSize + (thumbs.length - 1) * thumbGap;
-  let arrowW = 40, arrowH = thumbSize;
-
-  const visibleEnd = width - sideMargin;
-  const initialStripStart = (width - totalW) / 2;
-  const maxScrollNegative = visibleEnd - (initialStripStart + totalW);
-  const maxScroll = Math.min(0, maxScrollNegative);
-
-  let scrollAmount = (thumbSize + thumbGap);
-
-  // left arrow click
-  let leftArrowX = sideMargin - arrowW;
-  if (targetThumbOffset < -5 &&
-      mouseX > leftArrowX && mouseX < leftArrowX + arrowW &&
-      mouseY > thumbY && mouseY < thumbY + arrowH) {
-    targetThumbOffset = constrain(targetThumbOffset + scrollAmount, maxScroll, 0);
-    return;
-  }
-
-  // right arrow click
-  let rightArrowX = width - sideMargin;
-  if (targetThumbOffset > maxScroll + 5 &&
-      mouseX > rightArrowX - arrowW && mouseX < rightArrowX &&
-      mouseY > thumbY && mouseY < thumbY + arrowH) {
-    targetThumbOffset = constrain(targetThumbOffset - scrollAmount, maxScroll, 0);
-    return;
-  }
-
-  // click on thumbnails
-  if (thumbY > -thumbSize && thumbY < height) {
-    let startX = (width - totalW) / 2 + thumbOffset;
     for (let i = 0; i < thumbs.length; i++) {
       let x = startX + i * (thumbSize + thumbGap);
-      if (mouseX > x && mouseX < x + thumbSize &&
-          mouseY > thumbY && mouseY < thumbY + thumbSize) {
-        previewIndex = i;
-        previewImg = largeImages[previewIndex];
-        showPreview = true;
-        return;
+      if (x + thumbSize > -50 && x < p.width + 50) {
+        let thumbImg = thumbs[i];
+
+        let ratioToCover = p.max(thumbSize / thumbImg.width, thumbSize / thumbImg.height);
+        let displayW = thumbImg.width * ratioToCover;
+        let displayH = thumbImg.height * ratioToCover;
+        let offsetX = x + (thumbSize - displayW) / 2;
+        let offsetY = y + (thumbSize - displayH) / 2;
+
+        p.fill(20);
+        p.noStroke();
+        p.rect(x, y, thumbSize, thumbSize, 0);
+
+        p.drawingContext.save();
+        p.drawingContext.beginPath();
+        p.drawingContext.rect(x, y, thumbSize, thumbSize);
+        p.drawingContext.clip();
+
+        if (i === hoveredIndex) p.tint(255, 150); else p.noTint();
+        p.image(thumbImg, offsetX, offsetY, displayW, displayH);
+        p.drawingContext.restore();
+        p.noTint();
+
+        if (i === hoveredIndex) {
+          p.noFill();
+          p.stroke(110, 133, 219);
+          p.strokeWeight(3);
+          p.rect(x, y, thumbSize, thumbSize, 0);
+        } else {
+          p.noFill();
+          p.stroke(255, 50);
+          p.strokeWeight(1);
+          p.rect(x, y, thumbSize, thumbSize, 0);
+        }
       }
     }
+
+    p.noStroke();
   }
-}
 
-// ==============================
-// drawThumbnails: 绘制缩略图及箭头
-// ==============================
-function drawThumbnails(y) {
-  let totalW = thumbs.length * thumbSize + (thumbs.length - 1) * thumbGap;
-  let startX = (width - totalW) / 2 + thumbOffset;
+  function drawPreviewOverlay() {
+    if (currentTopic !== "hiroshima") return;
 
-  noStroke();
-  fill(255);
+    p.push();
+    p.noStroke();
+    p.fill(0, 220);
+    p.rect(0, 0, p.width, p.height);
 
-  // arrow sizing
-  let arrowW = 40, arrowH = thumbSize;
-  let arrowY = y;
+    let targetHeight = 600;
+    let ph = targetHeight;
+    let pw = (previewImg.width / previewImg.height) * ph;
 
-  const visibleEnd = width - sideMargin;
-  const initialStripStart = (width - totalW) / 2;
-  const maxScrollNegative = visibleEnd - (initialStripStart + totalW);
-  const maxScroll = Math.min(0, maxScrollNegative);
+    let imgX = (p.width - pw) / 2;
+    let imgY = (p.height - ph) / 2;
+    p.image(previewImg, imgX, imgY, pw, ph);
 
-  // left arrow (show only if can scroll right)
-  if (thumbOffset < -5) {
-    let x = sideMargin - arrowW;
-    if (mouseX > x && mouseX < x + arrowW && mouseY > arrowY && mouseY < arrowY + arrowH) {
-      fill(110, 133, 219, 150);
-      rect(x, arrowY, arrowW, arrowH, 0);
-      fill(255);
-    } else {
-      fill(255, 200);
+    let midY = p.height / 2;
+
+    let lx = 100;
+    let leftHover = p.mouseX > lx && p.mouseX < lx + previewArrowSize &&
+                  p.mouseY > midY - previewArrowSize && p.mouseY < midY + previewArrowSize;
+    p.fill(leftHover ? p.color(255, 255, 255) : p.color(255, 150));
+    p.triangle(
+      lx, midY,
+      lx + previewArrowSize, midY - previewArrowSize,
+      lx + previewArrowSize, midY + previewArrowSize
+    );
+
+    let rx = p.width - 100 - previewArrowSize;
+    let rightHover = p.mouseX > rx && p.mouseX < rx + previewArrowSize &&
+                   p.mouseY > midY - previewArrowSize && p.mouseY < midY + previewArrowSize;
+    p.fill(rightHover ? p.color(255, 255, 255) : p.color(255, 150));
+    p.triangle(
+      rx + previewArrowSize, midY,
+      rx, midY - previewArrowSize,
+      rx, midY + previewArrowSize
+    );
+
+    const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
+    let currentBottomText = config.bottomTexts[previewIndex] || "";
+
+    p.textSize(14);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.fill(255);
+    p.text(currentBottomText, p.width / 2, imgY + ph + 40);
+    p.pop();
+  }
+
+  p.mousePressed = function() {
+    if (currentTopic === "hiroshima" && showPreview && previewImg) {
+      let leftX = 100;
+      let arrowY1 = p.height / 2 - previewArrowSize;
+      let arrowY2 = p.height / 2 + previewArrowSize;
+      
+      if (p.mouseX > leftX && p.mouseX < leftX + previewArrowSize &&
+          p.mouseY > arrowY1 && p.mouseY < arrowY2) {
+          previewIndex = (previewIndex - 1 + largeImages.length) % largeImages.length;
+          previewImg = largeImages[previewIndex];
+          return;
+      }
+
+      let rightX = p.width - 100 - previewArrowSize;
+      if (p.mouseX > rightX && p.mouseX < rightX + previewArrowSize &&
+          p.mouseY > arrowY1 && p.mouseY < arrowY2) {
+          previewIndex = (previewIndex + 1) % largeImages.length;
+          previewImg = largeImages[previewIndex];
+          return;
+      }
+
+      showPreview = false;
+      return;
     }
-    stroke(0);
-    noFill();
-    // triangle arrow
-    noStroke();
-    fill(255);
-    triangle(x + 15, arrowY + arrowH/2, x + arrowW - 15, arrowY + 20, x + arrowW - 15, arrowY + arrowH - 20);
-  }
 
-  // right arrow (show only if can scroll left)
-  if (thumbOffset > maxScroll + 5) {
-    let x = width - sideMargin;
-    if (mouseX > x - arrowW && mouseX < x && mouseY > arrowY && mouseY < arrowY + arrowH) {
-      fill(110, 133, 219, 150);
-      rect(x - arrowW, arrowY, arrowW, arrowH, 0);
-      fill(255);
-    } else {
-      fill(255, 200);
-    }
-    noStroke();
-    fill(255);
-    triangle(x - 15, arrowY + arrowH/2, x - arrowW + 15, arrowY + 20, x - arrowW + 15, arrowY + arrowH - 20);
-  }
-
-  // hovered index detection
-  let hoveredIndex = -1;
-  let currentThumbX = (width - totalW) / 2 + thumbOffset;
-  if (y > -thumbSize && y < height) {
-    for (let i = 0; i < thumbs.length; i++) {
-      let x = currentThumbX + i * (thumbSize + thumbGap);
-      if (mouseX > x && mouseX < x + thumbSize && mouseY > y && mouseY < y + thumbSize) {
-        hoveredIndex = i;
-        break;
+    if (currentTopic === "hiroshima") {
+      let thumbY = calculateThumbY(scrollY);
+      if (thumbY > -thumbSize && thumbY < p.height) {
+        let totalW = thumbs.length * thumbSize + (thumbs.length - 1) * thumbGap;
+        let startX = (p.width - totalW) / 2 + thumbOffset;
+        
+        for (let i = 0; i < thumbs.length; i++) {
+          let x = startX + i * (thumbSize + thumbGap);
+          if (p.mouseX > x && p.mouseX < x + thumbSize &&
+              p.mouseY > thumbY && p.mouseY < thumbY + thumbSize) {
+            previewIndex = i;
+            previewImg = largeImages[previewIndex];
+            showPreview = true;
+            return;
+          }
+        }
       }
     }
-  }
+  };
 
-  // draw thumbs (cover mode)
-  for (let i = 0; i < thumbs.length; i++) {
-    let x = startX + i * (thumbSize + thumbGap);
-    if (x + thumbSize > -50 && x < width + 50) {
-      let thumbImg = thumbs[i];
-
-      // cover scaling
-      let ratioToCover = max(thumbSize / thumbImg.width, thumbSize / thumbImg.height);
-      let displayW = thumbImg.width * ratioToCover;
-      let displayH = thumbImg.height * ratioToCover;
-      let offsetX = x + (thumbSize - displayW) / 2;
-      let offsetY = y + (thumbSize - displayH) / 2;
-
-      // background box
-      fill(50);
-      noStroke();
-      rect(x, y, thumbSize, thumbSize, 0);
-
-      // clipping region
-      drawingContext.save();
-      drawingContext.beginPath();
-      drawingContext.rect(x, y, thumbSize, thumbSize);
-      drawingContext.clip();
-
-      if (i === hoveredIndex) tint(255, 150); else noTint();
-      image(thumbImg, offsetX, offsetY, displayW, displayH);
-      drawingContext.restore();
-      noTint();
-
-      // border
-      if (i === hoveredIndex) {
-        noFill();
-        stroke(110, 133, 219);
-        strokeWeight(3);
-        rect(x, y, thumbSize, thumbSize, 0);
-      } else {
-        noFill();
-        stroke(255, 50);
-        strokeWeight(1);
-        rect(x, y, thumbSize, thumbSize, 0);
-      }
+  p.mouseWheel = function(event) {
+    if (showPreview) return false;
+    
+    const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
+    const hasThreeSections = config.hasThreeSections;
+    
+    if (!hasThreeSections) {
+      targetScrollY = 0;
+      return false;
     }
-  }
-
-  noStroke();
-}
-
-// ==============================
-// drawPreviewOverlay: 放大预览
-// ==============================
-function drawPreviewOverlay() {
-  push();
-  noStroke();
-  fill(0, 220);
-  rect(0, 0, width, height);
-  drawingContext.filter = "none";
-
-  // ---- 大图尺寸适配 ----
-  // ---- 大图尺寸适配（固定高度，高度一样，宽度自适应） ----
-  let targetHeight = 600;  // 你想要的大图高度
-  let pw, ph;
-
-  
-
-ph = targetHeight;
-pw = (previewImg.width / previewImg.height) * ph;
-
-  // 高度固定
-  ph = targetHeight;
-
-  // 按原图比例计算宽度
-  pw = (previewImg.width / previewImg.height) * ph;
-
-  
-
-// 居中绘制
-image(previewImg, (width - pw) / 2, (height - ph) / 2, pw, ph);
-
-
-  // ---- 显示大图 ----
-  let imgX = (width - pw) / 2;
-  let imgY = (height - ph) / 2;
-  image(previewImg, imgX, imgY, pw, ph);
-
-  // ============================
-  //     左右箭头（可点击）
-  // ============================
-
-  // 中心位置
-  let midY = height / 2;
-  let arrowColorNormal = color(255, 150); // 默认颜色
-  let arrowColorHover = color(255);       // 悬停颜色
-  
-
-  // 左箭头（⬅）
-  let lx = 100;
-  let leftHover = mouseX > lx && mouseX < lx + previewArrowSize &&
-                mouseY > midY - previewArrowSize && mouseY < midY + previewArrowSize;
-  fill(leftHover ? arrowColorHover : arrowColorNormal);
-
-  triangle(
-    lx, midY,
-    lx + previewArrowSize, midY - previewArrowSize,
-    lx + previewArrowSize, midY + previewArrowSize
-  );
-
-  // 右箭头（➡）
-  let rx = width -  100 - previewArrowSize;
-  let rightHover = mouseX > rx && mouseX < rx + previewArrowSize &&
-                 mouseY > midY - previewArrowSize && mouseY < midY + previewArrowSize;
-  fill(rightHover ? arrowColorHover : arrowColorNormal);
-  triangle(
-    rx + previewArrowSize,midY,
-    rx, midY - previewArrowSize,
-    rx, midY + previewArrowSize
-
-  );
-
-  // 根据 previewIndex 显示不同文字
-  let bottomTexts = [
-  "Carl Mydans Hiroshima Japan 1947, Atomic",
-  "A barefoot boy waiting in line and staring ahead at a crematorium after the Nagasaki bombing, with his dead baby brother strapped to his back. \nPhoto by US Marine photographer Joe O’Donnell",
-  "From notes by LIFE’s Bernard Hoffman to the magazine’s long-time picture editor, Wilson Hicks, in New York, September 1945",
-  "Mother and child in Hiroshima, Japan, December 1945 Alfred Eisenstaedt",
-  "A correspondent stands in the rubble in Hiroshima on Sept. 8, 1945, a month after the first atomic bomb ever used in warfare was dropped by the U.S.\nStanley Troutman / AP",
-  "The devastated city of Nagasaki after an atomic bomb was dropped on it by a US Air Force B-29 bomber —AFP",
-  "The mushroom cloud rising over Hiroshima, Japan on August 6, 1945",
-
-  ];
-  // 获取当前图片对应文字
-  let currentBottomText = bottomTexts[previewIndex] || "";
-  
-
-  textSize(14);
-  textAlign(CENTER, CENTER);
-  text(currentBottomText, width / 2, imgY + ph + 40 - 15 );
-  pop();
-}
-
-
-// ==============================
-// drawTextInteractive: 字体渐显与微动
-// ==============================
-function drawTextInteractive(txt, x, y, maxW, alpha, o1, o2) {
-  push();
-  fill(255, alpha);
-  let offset = map(alpha, 0, 255, o1, o2);
-  translate(offset, 0);
-  textSize(18);
-  textFont(myFont2);
-  textAlign(LEFT, TOP);
-  textLeading(24);
-  text(txt, x, y, maxW);
-  pop();
-}
-
-// ==============================
-// estimateTextHeight: 字数换行估算（用于布局）
-// ==============================
-function estimateTextHeight(txt, maxW) {
-  // ensure text metrics match drawing settings
-  textFont(myFont2);
-  textSize(22);
-  textLeading(24);
-
-  let words = txt.split(/\s+/);
-  let lineCount = 1;
-  let lineWidth = 0;
-  for (let w of words) {
-    let wWidth = textWidth(w + " ");
-    if (lineWidth + wWidth > maxW) {
-      lineCount++;
-      lineWidth = wWidth;
+    
+    targetScrollY += event.delta;
+    
+    if (currentTopic === "hiroshima") {
+      targetScrollY = p.constrain(targetScrollY, 0, p.max(0, canvasHeight - p.height));
     } else {
-      lineWidth += wWidth;
+      let maxScrollY = topMargin + estimateTextHeight(pageTitle, p.width - topTextSideMargin * 2) + 140 + (spacing + imgH) * 3 + 200 - p.height;
+      targetScrollY = p.constrain(targetScrollY, 0, p.max(0, maxScrollY));
     }
-  }
-  return lineCount * 24;
-}
+    
+    return false;
+  };
 
-// ==============================
-// mouseWheel: 页面滚动
-// ==============================
-function mouseWheel(event) {
-  // when preview is open, block scrolling
-  if (showPreview) return false;
-  targetScrollY += event.delta;
-  targetScrollY = constrain(targetScrollY, 0, max(0, canvasHeight - height));
-  return false;
-}
+  p.windowResized = function() {
+    p.resizeCanvas(p.windowWidth, p.windowHeight);
+    calculateCanvasHeight();
+  };
+};
 
-// ==============================
-// calculateCanvasHeight: 修复 ReferenceError
-// ==============================
-function calculateCanvasHeight() {
-  // recalc image sizes according to current windowWidth
-  imgW = windowWidth * 0.62;
-  imgH = imgW * 800 / 1200;
-
-  let topTextW = windowWidth - topTextSideMargin * 2;
-  let topTextH = estimateTextHeight(topText, topTextW);
-
-  // total height: top + three sections + bottom padding for thumbnails
-  canvasHeight = topMargin + topTextH + (spacing + imgH) * 3 + 600;
-}
-
-// ==============================
-// calculateThumbY: 修复 ReferenceError
-// ==============================
-// returns the vertical position (in screen coordinates) where thumbnails should be drawn
-function calculateThumbY(currentScrollY) {
-  // derive positions similar to draw() layout
-  let topTextW = width - topTextSideMargin * 2;
-  let topTextH = estimateTextHeight(topText, topTextW);
-  let y1 = topMargin + topTextH + spacing;
-  let y2 = y1 + imgH + spacing;
-  let y3 = y2 + imgH + spacing;
-
-  // position thumbnails a bit below the last image
-  let base = y3 + imgH + spacing + 180;
-
-  // convert document position to screen position by subtracting scroll offset
-  return base - currentScrollY;
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  calculateCanvasHeight();
-}
+new p5(insightSketch);
