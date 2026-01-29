@@ -4,11 +4,11 @@
 // ===============================
 // Country filter
 // ===============================
-let selectedCountry = "All country";
+let selectedCountry = "ALL COUNTRIES";
 const countries = [
-  "All country",
+  "ALL COUNTRIES",
   "INDIA",
-  "PAKIST",
+  "PAKISTAN",
   "CHINA",
   "FRANCE",
   "UK",
@@ -16,21 +16,23 @@ const countries = [
   "USSR"
 ];
 
+
 // Menu UI
 let menuOpen = false;
 let animatedOnce = false;
-const BTN_W = 200;
-const BTN_H = 36;
+const BTN_W = 125;
+const BTN_H = 30;
 const GAP = 10;
-const RADIUS = 12;
+const RADIUS = 6;
 const PADDING_AREA = 14;
 
 let menuButtons = [];
-
+let menuItems = []; 
+let listButtons = [];
 
 let page = 1;
 let data = [];
-let enteredPage2ByScroll = false; 
+let enteredPage2ByScroll = false;
 
 let introTimelinePlaying = false;
 
@@ -140,17 +142,17 @@ function goToOverview() {
     skipBtn.parentElement.style.display = "none";
   }
 }
- 
+
 //    // goToOverview DA USARE PER APPARIRE LE BOMBE GRADUALI SE CLICCHI SKIP //
 //function goToOverview() {
-  //enteredPage2ByScroll = true;
-  //page = 2;
-  //scrollProgress = startYear - 1;
-  //scrollDirection = 1;
-  //const skipBtn = document.getElementById("skipIntroBtn");
-  //if (skipBtn && skipBtn.parentElement) {
-  //  skipBtn.parentElement.style.display = "none";
-  //}
+//enteredPage2ByScroll = true;
+//page = 2;
+//scrollProgress = startYear - 1;
+//scrollDirection = 1;
+//const skipBtn = document.getElementById("skipIntroBtn");
+//if (skipBtn && skipBtn.parentElement) {
+//  skipBtn.parentElement.style.display = "none";
+//}
 //}
 
 function preload() {
@@ -215,6 +217,28 @@ function setup() {
 
   creaParticlesDaTabella();
   checkHashNavigation();
+function initMenu() {
+  let mainX = width / 2 - BTN_W / 2 + 20; 
+  let mainY = 170;
+  let columnGap = 10; 
+
+  listButtons = [];
+  for (let i = 0; i < countries.length; i++) {
+    // 0 = 左列, 1 = 右列
+    let col = i < 4 ? 0 : 1; 
+    let row = i % 4;
+    
+    // 计算对齐：
+    // 如果是左列(0)，x = mainX - (BTN_W + columnGap)/2
+    // 如果是右列(1)，x = mainX + (BTN_W + columnGap)/2
+    let offsetX = (col === 0) ? -(BTN_W + columnGap) / 2 : (BTN_W + columnGap) / 2;
+    let targetX = mainX + offsetX;
+    let targetY = mainY + BTN_H + GAP + row * (BTN_H + GAP);
+    
+    listButtons.push(new MenuButton(targetX, mainY, countries[i], targetY));
+  }
+}
+  initMenu();
 }
 
 function computeIntroTargets() {
@@ -226,7 +250,7 @@ function computeIntroTargets() {
   );
 
   // maxScroll = quando vuoi far partire l'espansione (subito dopo str4)
-  maxScroll = max(introTargets[3] + 40, introTargets[3]); 
+  maxScroll = max(introTargets[3] + 40, introTargets[3]);
 }
 
 function windowResized() {
@@ -327,10 +351,10 @@ function drawPage1() {
 
 
   if (snapping) {
-  scrollOffset = lerp(scrollOffset, snapTarget, SNAP_LERP);
-  if (abs(scrollOffset - snapTarget) < 0.6) {
-    scrollOffset = snapTarget;
-    snapping = false;
+    scrollOffset = lerp(scrollOffset, snapTarget, SNAP_LERP);
+    if (abs(scrollOffset - snapTarget) < 0.6) {
+      scrollOffset = snapTarget;
+      snapping = false;
     }
   }
 
@@ -353,10 +377,10 @@ function drawPage1() {
 
   // Intro texts — same spacing logic as Insight (consistent margins + max width)
   const str1 =
-  "Between 1945 and 1998, \n nuclear testing reshaped geopolitics,\n science, and the environment.";
-    
+    "Between 1945 and 1998, \n nuclear testing reshaped geopolitics,\n science, and the environment.";
+
   const str3 =
-  "Over two thousand explosions\nleft a lasting mark on the planet.\nEach particle is a real test.";
+    "Over two thousand explosions\nleft a lasting mark on the planet.\nEach particle is a real test.";
   const str2 =
     "This website is a digital archive \n that presents nuclear testing \n as an interactive timeline.";
   const str4 = "Data from the SIPRI-FOA Report";
@@ -377,11 +401,11 @@ function drawPage1() {
     introStartY + introStepY * 0 - scrollOffset,
     MAX_TEXT_W
   );
-  
+
   drawIntroBlock(
-    str2, 
-    leftX, 
-    introStartY + introStepY * 1 - scrollOffset, 
+    str2,
+    leftX,
+    introStartY + introStepY * 1 - scrollOffset,
     MAX_TEXT_W);
 
   drawIntroBlock(
@@ -409,7 +433,7 @@ function drawPage1() {
   }
 
   //--------------------------------------------- PULSANTE BACK INATTIVO--------------------------------------------------
- // drawUpHintArrow();
+  // drawUpHintArrow();
 
 
   // particelle centrale
@@ -431,7 +455,7 @@ function drawPage1() {
     }
   }*/
 
-    // --- Automatic circle expansion after full scroll ---
+  // --- Automatic circle expansion after full scroll ---
   if (autoExpandStarted) {
 
     // Se non sei più al fondo (stai tornando su), STOP all'espansione
@@ -477,7 +501,7 @@ function drawIntroBlock(str, x, y, w) {
   textSize(21);
   noStroke();
   fill(255, a);
-textLeading(31)
+  textLeading(31)
   text(str, x, y, w);
 }
 
@@ -532,18 +556,18 @@ function drawScrollHintArrow() {
   */
 
   // label + side chevrons
-const label = "SCROLL DOWN FOR MORE";
+  const label = "SCROLL DOWN FOR MORE";
 
-textFont(myFont2);
-textSize(12);
-textAlign(CENTER, BOTTOM);
+  textFont(myFont2);
+  textSize(12);
+  textAlign(CENTER, BOTTOM);
 
-// calcolo larghezza testo per posizionare i chevron ai lati
+  // calcolo larghezza testo per posizionare i chevron ai lati
   const tw = textWidth(label);
   const gap = 350;                 // distanza tra testo e chevron
   const chevronY = labelY - 6;     // centratura visiva rispetto alla baseline
 
-  const leftX  = cx - tw / 2 - gap;
+  const leftX = cx - tw / 2 - gap;
   const rightX = cx + tw / 2 + gap;
 
   // chevrons (identici) ai lati
@@ -552,8 +576,8 @@ textAlign(CENTER, BOTTOM);
   strokeWeight(2);
   noFill();
 
-  line(leftX - halfW,  chevronY - h, leftX,  chevronY);
-  line(leftX + halfW,  chevronY - h, leftX,  chevronY);
+  line(leftX - halfW, chevronY - h, leftX, chevronY);
+  line(leftX + halfW, chevronY - h, leftX, chevronY);
 
   line(rightX - halfW, chevronY - h, rightX, chevronY);
   line(rightX + halfW, chevronY - h, rightX, chevronY);
@@ -654,7 +678,7 @@ function isOverUpHint(mx, my) {
   const cy = 44;
   const w = 140;
   const h = 70;
-  return mx >= cx - w/2 && mx <= cx + w/2 && my >= cy - 20 && my <= cy + h;
+  return mx >= cx - w / 2 && mx <= cx + w / 2 && my >= cy - 20 && my <= cy + h;
 }
 
 
@@ -664,7 +688,7 @@ function isOverUpHint(mx, my) {
 // ===============================
 function drawPage2() {
   background(20);
-drawCountryMenu();
+  drawCountryMenu();
 
   // Hover detection for years/columns + cursor
   updateHoverPage2();
@@ -684,9 +708,9 @@ drawCountryMenu();
   //textAlign(CENTER, TOP);
   //text("TOTAL AMOUNT OF BOMBS", width / 2, 35);
 
-  textFont(myFont2);  
+  textFont(myFont2);
   noStroke();
-  fill(0,255,255);
+  fill(0, 255, 255);
   textSize(20);
   textAlign(CENTER, TOP);
   text("Bombs Launched", width / 2, 137);
@@ -702,10 +726,20 @@ drawCountryMenu();
   textSize(14);
   textAlign(CENTER, TOP);
   //text("TOTAL AMOUNT OF BOMBS", width / 2, 80);
-  let activeParticles = particles2.filter((p) => p.active).length;
+let activeParticles;
+// 找到这部分代码进行修改
+if (selectedCountry === "ALL COUNTRIES") {
+    activeParticles = particles2.filter((p) => p.active).length;
+} else {
+    // 使用转换函数处理 selectedCountry
+    let target = getDatasetCountryName(selectedCountry); 
+    activeParticles = particles2.filter((p) => 
+      p.active && normalizeCountry(p.country) === normalizeCountry(target)
+    ).length;
+}
   textFont(myFont3);
   textSize(60);
-  fill(0,255,255);
+  fill(0, 255, 255);
   text(activeParticles, width / 2, 57);
 
   // Top-right text carousel (line + text + arrows)
@@ -748,59 +782,59 @@ drawCountryMenu();
   textAlign(LEFT, BOTTOM);
   text("Underground", offsetX, offsetY - 85);
 
-// hover sopra Atmospheric
-const isHoverATM = hoverOnAtmospheric(offsetX, margin);
+  // hover sopra Atmospheric
+  const isHoverATM = hoverOnAtmospheric(offsetX, margin);
 
-if (isHoverATM) {
-  push();
-  const padding = 8;
-  const lineHeight = 16;
+  if (isHoverATM) {
+    push();
+    const padding = 8;
+    const lineHeight = 16;
 
-  fill(0, 0, 0, 200);
+    fill(0, 0, 0, 200);
 
-  let boxW = 180;
-  let boxH = padding * 2 + lineHeight * 3.5;
+    let boxW = 180;
+    let boxH = padding * 2 + lineHeight * 3.5;
 
-  let boxX = offsetX;
-  let boxY = 138;
+    let boxX = offsetX;
+    let boxY = 138;
 
-  rect(boxX, boxY, boxW, boxH, 5);
+    rect(boxX, boxY, boxW, boxH, 5);
 
-  textSize(12);
-  textAlign(LEFT, TOP);
-  fill(0, 255, 255);
-  text("ATMOSPHERIC", boxX + padding, boxY + padding);
-  text("Nuclear detonations", boxX + padding, boxY + 2*padding + lineHeight);
-  text("with atmospheric dispersion.", boxX + padding, boxY + 2*padding + lineHeight * 2);
-  pop();
-}
+    textSize(12);
+    textAlign(LEFT, TOP);
+    fill(0, 255, 255);
+    text("ATMOSPHERIC", boxX + padding, boxY + padding);
+    text("Nuclear detonations", boxX + padding, boxY + 2 * padding + lineHeight);
+    text("with atmospheric dispersion.", boxX + padding, boxY + 2 * padding + lineHeight * 2);
+    pop();
+  }
 
-// hover sopra underground
-const isHoverUND = hoverOnUnderground(offsetX, offsetY);
+  // hover sopra underground
+  const isHoverUND = hoverOnUnderground(offsetX, offsetY);
 
-if (isHoverUND) {
-  push();
-  const padding = 8;
-  const lineHeight = 16;
+  if (isHoverUND) {
+    push();
+    const padding = 8;
+    const lineHeight = 16;
 
-  fill(0, 0, 0, 200);
+    fill(0, 0, 0, 200);
 
-  let boxW = 180;
-  let boxH = padding * 2 + lineHeight * 3.5;
+    let boxW = 180;
+    let boxH = padding * 2 + lineHeight * 3.5;
 
-  let boxX = offsetX;
-  let boxY = 138;
+    let boxX = offsetX;
+    let boxY = 138;
 
-  rect(boxX, boxY, boxW, boxH, 5);
+    rect(boxX, boxY, boxW, boxH, 5);
 
-  textSize(12);
-  textAlign(LEFT, TOP);
-  fill(0, 255, 255);
-  text("UNDERGROUND", boxX + padding, boxY + padding);
-  text("Nuclear detonations", boxX + padding, boxY + 2*padding + lineHeight);
-  text("under the ground level.", boxX + padding, boxY + 2*padding + lineHeight * 2);
-  pop();
-}
+    textSize(12);
+    textAlign(LEFT, TOP);
+    fill(0, 255, 255);
+    text("UNDERGROUND", boxX + padding, boxY + padding);
+    text("Nuclear detonations", boxX + padding, boxY + 2 * padding + lineHeight);
+    text("under the ground level.", boxX + padding, boxY + 2 * padding + lineHeight * 2);
+    pop();
+  }
 
 
   legend.forEach((item, i) => {
@@ -844,24 +878,24 @@ if (isHoverUND) {
     lastStepTime = millis();
   }
 
-//stop automatico SOLO a fine animazione (non per click)
-if (introTimelinePlaying && scrollProgress >= endYear) {
-  scrollDirection = 0;
-  introTimelinePlaying = false;
-}
+  //stop automatico SOLO a fine animazione (non per click)
+  if (introTimelinePlaying && scrollProgress >= endYear) {
+    scrollDirection = 0;
+    introTimelinePlaying = false;
+  }
 
 
   textFont(myFont2);
   disegnaAsseEAnni();
 
   for (let p of particles2) {
-   if (enteredPage2ByScroll) {
-  // attivazione colonna per colonna
-  p.active = p.year <= floor(scrollProgress);
-} else {
-  // comportamento attuale (tutte insieme)
-  p.active = true;
-}
+    if (enteredPage2ByScroll) {
+      // attivazione colonna per colonna
+      p.active = p.year <= floor(scrollProgress);
+    } else {
+      // comportamento attuale (tutte insieme)
+      p.active = true;
+    }
 
     p.update();
     p.draw();
@@ -871,7 +905,7 @@ if (introTimelinePlaying && scrollProgress >= endYear) {
   drawColumnCTA();
 }
 
- function hoverOnAtmospheric(offsetX, margin) {
+function hoverOnAtmospheric(offsetX, margin) {
   const x = offsetX;
   const y = margin + 282;
 
@@ -966,7 +1000,7 @@ function updateHoverPage2() {
   }
 
 
-  
+
   // spazio orizzontale tra anni (colonne)
   const yearStep = (width - 2 * margin) / (endYear - startYear);
   const hitX = yearStep * 0.45; // quanto "larga" è l'area hover della colonna
@@ -1046,16 +1080,16 @@ function drawTopRightInfoCarousel() {
 
   const boxX = lineX + 18;
   const titleY = 75;   // stessa y del "TOTAL AMOUNT OF BOMBS"
-  const boxY = titleY ; // allineamento top testo
+  const boxY = titleY; // allineamento top testo
 
   const boxW = 400;
-  const boxH = 210;   
+  const boxH = 210;
 
   // Vertical cyan line from top
   push();
   stroke(0, 255, 255, 160);
   strokeWeight(2);
-  line(lineX, topY, lineX, boxY + boxH+38);
+  line(lineX, topY, lineX, boxY + boxH + 38);
   pop();
 
   // Text block
@@ -1142,7 +1176,7 @@ function handleIntroScroll(delta) {
 }
 
 
-function mouseWheel(event) { 
+function mouseWheel(event) {
   /*if (page === 1) {
     spreadSpeed += event.delta * 0.05;
 
@@ -1176,16 +1210,16 @@ function mouseWheel(event) {
       expandStartFrame = frameCount;
     }
 
-      {
-    handleIntroScroll(event.delta);
-    return false;
-  }
-} else if (page === 2) {
+    {
+      handleIntroScroll(event.delta);
+      return false;
+    }
+  } else if (page === 2) {
 
     if (event.delta > 0) {
-    scrollDirection = 1;
-    return false;
-  }
+      scrollDirection = 1;
+      return false;
+    }
 
     // scroll up -> indietro nella timeline
     if (event.delta < 0) {
@@ -1205,14 +1239,13 @@ function mouseWheel(event) {
 
   }
 
- // fallback
+  // fallback
   return false;
 }
 
 function mousePressed() {
 
   // ------------ page 1 ------------
-  
   if (page === 1) {
     if (isOverDownHint(mouseX, mouseY)) {
       introNext();  // comportamento a step (sotto)
@@ -1224,8 +1257,6 @@ function mousePressed() {
     }
   }
 
-  
-  
   /*if (page === 1) {
     if (isOverScrollHint(mouseX, mouseY)) {
       introNext();   // te la faccio creare al punto 5
@@ -1306,39 +1337,30 @@ function mousePressed() {
         break;
       }
     }
+// 在 mousePressed 的 page === 2 判断中替换
 if (page === 2) {
-  const mainX = width / 2 - BTN_W / 2;
-  const mainY = 190;
+  let mainX = width / 2 - BTN_W / 2 + 20;
+  let mainY = 170;
 
-  // click main button
-  if (mouseX >= mainX && mouseX <= mainX + BTN_W &&
+  // 点击主按钮开关
+  if (mouseX >= mainX && mouseX <= mainX + BTN_W && 
       mouseY >= mainY && mouseY <= mainY + BTN_H) {
     menuOpen = !menuOpen;
     return;
   }
 
+  // 如果菜单开着，检查子项点击
   if (menuOpen) {
-    const visibleCountries = countries.filter(c => c !== selectedCountry || c === "All country");
-
-    for (let i = 0; i < visibleCountries.length; i++) {
-      let bx = mainX;
-      let by = mainY + BTN_H + GAP + i * (BTN_H + GAP);
-
-      if (mouseX >= bx && mouseX <= bx + BTN_W &&
-          mouseY >= by && mouseY <= by + BTN_H) {
-        selectedCountry = visibleCountries[i];
+    for (let btn of listButtons) {
+      if (btn.isHovered()) {
+        selectedCountry = btn.label;
         menuOpen = false;
         return;
       }
     }
   }
 }
-
-
-
   }
-
-
 }
 
 
@@ -1361,14 +1383,14 @@ function keyPressed() {
   }
 
 
-    // Only on page2 and when menu is not open
-    if (page !== 2 || menuOpen) return;
+  // Only on page2 and when menu is not open
+  if (page !== 2 || menuOpen) return;
 
-    if (keyCode === RIGHT_ARROW && infoStep < 3) {
-      infoStep++;
-    } else if (keyCode === LEFT_ARROW && infoStep > 0) {
-      infoStep--;
-    }
+  if (keyCode === RIGHT_ARROW && infoStep < 3) {
+    infoStep++;
+  } else if (keyCode === LEFT_ARROW && infoStep > 0) {
+    infoStep--;
+  }
 }
 
 
@@ -1433,12 +1455,15 @@ class Particle2 {
     this.x = lerp(this.x, this.tx, this.speed);
     this.y = lerp(this.y, this.ty, this.speed);
   }
-  draw() {
+draw() {
     if (!this.active) return;
-let visible =
-  selectedCountry === "All country" ||
-  normalizeCountry(this.country) === normalizeCountry(selectedCountry);
 
+    // 同样在这里使用转换函数
+    let target = getDatasetCountryName(selectedCountry);
+    
+    let visible =
+      selectedCountry === "ALL COUNTRIES" ||
+      normalizeCountry(this.country) === normalizeCountry(target);
     const isHover = hoveredYear === this.year;
     const rr = isHover ? this.r * 1.25 : this.r;
 
@@ -1485,25 +1510,25 @@ function creaParticlesDaTabella() {
       let rowYear = data[i].year;
       let type = data[i].type;
       if (rowYear === year && !UGTypes.includes(type)) {
-       nonUGBombs.push({ yieldVal: data[i].yield, country: data[i].country });
+        nonUGBombs.push({ yieldVal: data[i].yield, country: data[i].country });
 
       }
     }
     nonUGBombs.sort(
       (a, b) => getColorLevel(a.yieldVal) - getColorLevel(b.yieldVal)
     );
-  
 
-for (let i = 0; i < nonUGBombs.length; i++) {
-  let row = floor(i / cols),
-      col = i % cols;
-  let cx = x - colWidth / 2 + col * (cellSize + gap);
-  let cy = yAxis - (row + 6) * (cellSize + gap);
 
-  particles2.push(
-    new Particle2(year, false, nonUGBombs[i].yieldVal, cx, cy, nonUGBombs[i].country)
-  );
-}
+    for (let i = 0; i < nonUGBombs.length; i++) {
+      let row = floor(i / cols),
+        col = i % cols;
+      let cx = x - colWidth / 2 + col * (cellSize + gap);
+      let cy = yAxis - (row + 6) * (cellSize + gap);
+
+      particles2.push(
+        new Particle2(year, false, nonUGBombs[i].yieldVal, cx, cy, nonUGBombs[i].country)
+      );
+    }
 
     let ugBombs = [];
     for (let i = 0; i < data.length; i++) {
@@ -1521,9 +1546,9 @@ for (let i = 0; i < nonUGBombs.length; i++) {
         col = i % cols;
       let cx = x - colWidth / 2 + col * (cellSize + gap);
       let cy = yAxis + (row + 6) * (cellSize + gap);
-     particles2.push(
-  new Particle2(year, true, ugBombs[i].yieldVal, cx, cy, ugBombs[i].country)
-);
+      particles2.push(
+        new Particle2(year, true, ugBombs[i].yieldVal, cx, cy, ugBombs[i].country)
+      );
     }
   }
 }
@@ -1543,7 +1568,7 @@ function disegnaAsseEAnni() {
     rotate(HALF_PI);
 
     if (isHover) {
-      fill(0,255,255);
+      fill(0, 255, 255);
       textSize(14);
       scale(1.06); // ingrandimento leggero
     } else {
@@ -1603,67 +1628,49 @@ function goNextPage() {
 
 
 function drawCountryMenu() {
-  const x = width / 2;
-  const y = 190;
+  let mainX = width / 2 - BTN_W / 2 + 20;
+  let mainY = 170;
 
-  let mainX = x - BTN_W / 2;
-  let mainY = y;
+  // 绘制主按钮
+  drawMainButton(mainX, mainY);
 
-  // main button
-  stroke(0, 255, 255);
-  strokeWeight(2);
-  noFill();
-  rect(mainX, mainY, BTN_W, BTN_H, RADIUS);
-
-  noStroke();
-  fill(0, 255, 255);
-  textAlign(CENTER, CENTER);
-  text(selectedCountry, mainX + BTN_W / 2, mainY + BTN_H / 2);
-
-  // Open/close menu
+  // 处理下拉列表
   if (menuOpen) {
-    const visibleCountries = countries.filter(c => c !== selectedCountry || c === "All country");
+    for (let i = 0; i < listButtons.length; i++) {
+      let btn = listButtons[i];
+      // 只有在打开时才更新位置动画
+      btn.update();
+      btn.display();
+    }
 
-    for (let i = 0; i < visibleCountries.length; i++) {
-      let bx = mainX;
-      let by = mainY + BTN_H + GAP + i * (BTN_H + GAP);
-
-      stroke(0, 255, 255);
-      strokeWeight(2);
-      noFill();
-      rect(bx, by, BTN_W, BTN_H, RADIUS);
-
-      noStroke();
-      fill(0, 255, 255);
-      textAlign(CENTER, CENTER);
-      text(visibleCountries[i], bx + BTN_W / 2, by + BTN_H / 2);
-
-      // hover highlight
-      if (mouseX >= bx && mouseX <= bx + BTN_W && mouseY >= by && mouseY <= by + BTN_H) {
-        fill(0);
-        rect(bx, by, BTN_W, BTN_H, RADIUS);
-        fill(0);
-        text(visibleCountries[i], bx + BTN_W / 2, by + BTN_H / 2);
-      }
+    // 自动检测离开区域关闭菜单 (Polimi风格的交互细节)
+    if (!isMouseInMenuArea(mainX, mainY)) {
+      menuOpen = false;
+    }
+  } else {
+    // 菜单关闭时，重置所有按钮位置到主按钮处，方便下次弹出动画
+    for (let btn of listButtons) {
+      btn.visibleY = mainY;
+      btn.x = mainX;
     }
   }
 }
 
 function isMouseInMenuArea(mainX, mainY) {
-  let left = mainX - PADDING_AREA;
-  let right = mainX + BTN_W + PADDING_AREA;
+  let columnGap = 10;
+  let totalW = BTN_W * 2 + columnGap;
+  
+  // 左边界：中轴线往左半个总宽
+  let left = mainX + (BTN_W / 2) - (totalW / 2) - PADDING_AREA;
+  let right = left + totalW + PADDING_AREA * 2;
   let top = mainY - PADDING_AREA;
-  let bottom = mainY + BTN_H + PADDING_AREA + (countries.length) * (BTN_H + GAP);
+  let bottom = mainY + BTN_H + PADDING_AREA + 4 * (BTN_H + GAP);
 
   return (
     mouseX >= left && mouseX <= right &&
     mouseY >= top && mouseY <= bottom
   );
 }
-
-
-
-
 // ===============================
 // LISTENER MENU → CAMBIO PAGINA
 // ===============================
@@ -1675,11 +1682,86 @@ window.addEventListener("changePage", (e) => {
     page = e.detail.page;
   }
 });
- 
+
 function getVisibleCountries() {
-  return countries.filter(c => c !== selectedCountry || c === "All country");
+  return countries.filter(c => c !== selectedCountry || c === "ALL COUNTRIES");
 }
 
 function normalizeCountry(c) {
   return c.trim().toUpperCase();
+}
+
+function drawMainButton(x, y) {
+  // 1. 先画左边的 "by" 单词
+  fill(0, 255, 255); // 蓝色
+  noStroke();
+  textFont(myFont2);
+  textSize(20);
+  textAlign(RIGHT, CENTER); // 右对齐，方便紧贴按钮左侧
+  
+  // x 是按钮左边缘，减去一个间距（比如 12px）
+  text("by", x - 15, y + BTN_H / 2 - 4);
+  let isHover = mouseX >= x && mouseX <= x + BTN_W && mouseY >= y && mouseY <= y + BTN_H;
+  
+  stroke(0, 255, 255);
+  strokeWeight(2);
+  if (isHover || menuOpen) fill(0, 255, 255);
+  else noFill();
+  
+  rect(x, y, BTN_W, BTN_H, RADIUS);
+
+  noStroke();
+  fill(isHover || menuOpen ? 20 : color(0, 255, 255));
+  textAlign(CENTER, CENTER);
+  textFont(myFont2);
+  textSize(14);
+  text(selectedCountry, x + BTN_W / 2, y + BTN_H / 2 - 1);
+}
+
+class MenuButton {
+  constructor(targetX, y, label, targetY) {
+    this.initialX = width / 2 - BTN_W / 2 + 30; // 主按钮的 X
+    this.targetX = targetX;
+    this.x = this.initialX; // 当前动态 X
+    this.visibleY = y;
+    this.targetY = targetY;
+    this.w = BTN_W;
+    this.h = BTN_H;
+    this.label = label;
+  }
+
+  update() {
+    let easing = 0.2;
+    // 同时平移 X 和 Y
+    this.x += (this.targetX - this.x) * easing;
+    this.visibleY += (this.targetY - this.visibleY) * easing;
+  }
+
+  display() {
+    let hovered = this.isHovered();
+    stroke(0, 255, 255);
+    strokeWeight(2);
+    if (hovered) fill(0, 255, 255);
+    else fill(20, 220);
+
+    rect(this.x, this.visibleY, this.w, this.h, RADIUS); // 使用动态 this.x
+
+    noStroke();
+    fill(hovered ? 20 : color(0, 255, 255));
+    textAlign(CENTER, CENTER);
+    text(this.label, this.x + this.w / 2, this.visibleY + this.h / 2 - 1);
+  }
+
+  isHovered() {
+    return (
+      mouseX >= this.x && mouseX <= this.x + this.w &&
+      mouseY >= this.visibleY && mouseY <= this.visibleY + this.h
+    );
+  }
+}
+
+// 统一处理国家名匹配逻辑
+function getDatasetCountryName(label) {
+  if (label === "PAKISTAN") return "PAKIST";
+  return label;
 }
