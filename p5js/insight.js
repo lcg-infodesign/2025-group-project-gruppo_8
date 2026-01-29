@@ -170,359 +170,322 @@ function mousePressed() {
         return;
     }
 
-    // 点击右箭头（下一张）
-    let rightX = width - 100 - previewArrowSize;
-    if (mouseX > rightX && mouseX < rightX + previewArrowSize &&
-        mouseY > arrowY1 && mouseY < arrowY2) {
+    if (showPreview && previewImg && currentTopic === "hiroshima") {
+      drawPreviewOverlay();
+    }
+  };
 
-        previewIndex = (previewIndex + 1) % largeImages.length;
-        previewImg = largeImages[previewIndex];
-        return;
+  function drawTextWithFloat(txt, x, y, maxW, alpha, o1, o2) {
+    p.push();
+    let finalAlpha = p.min(alpha, fadeIn);
+    p.fill(255, finalAlpha);
+    
+    let offsetY = floatOffset * (1 - fadeIn / 255);
+    let offset = p.map(finalAlpha, 0, 255, o1, o2);
+    p.translate(offset, offsetY);
+    
+    p.textSize(21);
+    p.textFont(myFont2);
+    p.textAlign(p.LEFT, p.TOP);
+    p.textLeading(28);
+    p.text(txt, x, y, maxW);
+    p.pop();
+  }
+
+  function drawTextInteractive(txt, x, y, maxW, alpha, o1, o2) {
+    p.push();
+    p.fill(255, alpha);
+    let offset = p.map(alpha, 0, 255, o1, o2);
+    p.translate(offset, 0);
+    p.textSize(21);
+    p.textFont(myFont2);
+    p.textAlign(p.LEFT, p.TOP);
+    p.textLeading(28);
+    p.text(txt, x, y, maxW);
+    p.pop();
+  }
+
+  function estimateTextHeight(txt, maxW) {
+    p.textFont(myFont2);
+    p.textSize(21);
+    p.textLeading(28);
+
+    let words = txt.split(/\s+/);
+    let lineCount = 1;
+    let lineWidth = 0;
+    for (let w of words) {
+      let wWidth = p.textWidth(w + " ");
+      if (lineWidth + wWidth > maxW) {
+        lineCount++;
+        lineWidth = wWidth;
+      } else {
+        lineWidth += wWidth;
+      }
+    }
+    return lineCount * 28;
+  }
+
+  function calculateCanvasHeight() {
+    imgW = p.windowWidth * 0.62;
+    imgH = imgW * 800 / 1200;
+
+    let topTextW = p.windowWidth - topTextSideMargin * 2;
+    let topTextH = estimateTextHeight(pageTitle, topTextW);
+
+    const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
+    const hasThreeSections = config.hasThreeSections;
+
+    if (hasThreeSections) {
+      let height = topMargin + topTextH + 140 + (spacing + imgH) * 3;
+      
+      if (currentTopic === "hiroshima") {
+        height += 600;
+      } else {
+        height += 200;
+      }
+      
+      canvasHeight = height;
+    } else {
+      let contentHeight = topMargin + topTextH + 140 + imgH + 100;
+      canvasHeight = Math.min(contentHeight, p.windowHeight);
+    }
+  }
+
+  function calculateThumbY(currentScrollY) {
+    if (currentTopic !== "hiroshima") return -1000;
+
+    const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
+    const hasThreeSections = config.hasThreeSections;
+    
+    if (!hasThreeSections) return -1000;
+
+    let topTextW = p.width - topTextSideMargin * 2;
+    let topTextH = estimateTextHeight(pageTitle, topTextW);
+    let y1 = topMargin + topTextH + 140;
+    let y2 = y1 + imgH + spacing;
+    let y3 = y2 + imgH + spacing;
+
+    let base = y3 + imgH + spacing + 180;
+    return base - currentScrollY;
+  }
+
+  function drawThumbnails(y) {
+    if (currentTopic !== "hiroshima") return;
+    
+    if (y < -100) return;
+
+    let totalW = thumbs.length * thumbSize + (thumbs.length - 1) * thumbGap;
+    let startX = (p.width - totalW) / 2 + thumbOffset;
+
+    p.noStroke();
+    p.fill(255);
+
+    let arrowW = 40, arrowH = thumbSize;
+    let arrowY = y;
+
+    const visibleEnd = p.width - sideMargin;
+    const initialStripStart = (p.width - totalW) / 2;
+    const maxScrollNegative = visibleEnd - (initialStripStart + totalW);
+    const maxScroll = p.min(0, maxScrollNegative);
+
+    if (thumbOffset < -5) {
+      let x = sideMargin - arrowW;
+      if (p.mouseX > x && p.mouseX < x + arrowW && p.mouseY > arrowY && p.mouseY < arrowY + arrowH) {
+        p.fill(110, 133, 219, 150);
+        p.rect(x, arrowY, arrowW, arrowH, 0);
+        p.fill(255);
+      }
+      p.noStroke();
+      p.fill(255);
+      p.triangle(x + 15, arrowY + arrowH/2, x + arrowW - 15, arrowY + 20, x + arrowW - 15, arrowY + arrowH - 20);
     }
 
-    // 点击空白处关闭
-    showPreview = false;
-    return;
-  }
+    if (thumbOffset > maxScroll + 5) {
+      let x = p.width - sideMargin;
+      if (p.mouseX > x - arrowW && p.mouseX < x && p.mouseY > arrowY && p.mouseY < arrowY + arrowH) {
+        p.fill(110, 133, 219, 150);
+        p.rect(x - arrowW, arrowY, arrowW, arrowH, 0);
+        p.fill(255);
+      }
+      p.noStroke();
+      p.fill(255);
+      p.triangle(x - 15, arrowY + arrowH/2, x - arrowW + 15, arrowY + 20, x - arrowW + 15, arrowY + arrowH - 20);
+    }
 
+    let hoveredIndex = -1;
+    let currentThumbX = (p.width - totalW) / 2 + thumbOffset;
+    if (y > -thumbSize && y < p.height) {
+      for (let i = 0; i < thumbs.length; i++) {
+        let x = currentThumbX + i * (thumbSize + thumbGap);
+        if (p.mouseX > x && p.mouseX < x + thumbSize && p.mouseY > y && p.mouseY < y + thumbSize) {
+          hoveredIndex = i;
+          break;
+        }
+      }
+    }
 
-  // calculate thumb area and scrolling bounds
-  let thumbY = calculateThumbY(scrollY);
-  let totalW = thumbs.length * thumbSize + (thumbs.length - 1) * thumbGap;
-  let arrowW = 40, arrowH = thumbSize;
-
-  const visibleEnd = width - sideMargin;
-  const initialStripStart = (width - totalW) / 2;
-  const maxScrollNegative = visibleEnd - (initialStripStart + totalW);
-  const maxScroll = Math.min(0, maxScrollNegative);
-
-  let scrollAmount = (thumbSize + thumbGap);
-
-  // left arrow click
-  let leftArrowX = sideMargin - arrowW;
-  if (targetThumbOffset < -5 &&
-      mouseX > leftArrowX && mouseX < leftArrowX + arrowW &&
-      mouseY > thumbY && mouseY < thumbY + arrowH) {
-    targetThumbOffset = constrain(targetThumbOffset + scrollAmount, maxScroll, 0);
-    return;
-  }
-
-  // right arrow click
-  let rightArrowX = width - sideMargin;
-  if (targetThumbOffset > maxScroll + 5 &&
-      mouseX > rightArrowX - arrowW && mouseX < rightArrowX &&
-      mouseY > thumbY && mouseY < thumbY + arrowH) {
-    targetThumbOffset = constrain(targetThumbOffset - scrollAmount, maxScroll, 0);
-    return;
-  }
-
-  // click on thumbnails
-  if (thumbY > -thumbSize && thumbY < height) {
-    let startX = (width - totalW) / 2 + thumbOffset;
     for (let i = 0; i < thumbs.length; i++) {
       let x = startX + i * (thumbSize + thumbGap);
-      if (mouseX > x && mouseX < x + thumbSize &&
-          mouseY > thumbY && mouseY < thumbY + thumbSize) {
-        previewIndex = i;
-        previewImg = largeImages[previewIndex];
-        showPreview = true;
-        return;
+      if (x + thumbSize > -50 && x < p.width + 50) {
+        let thumbImg = thumbs[i];
+
+        let ratioToCover = p.max(thumbSize / thumbImg.width, thumbSize / thumbImg.height);
+        let displayW = thumbImg.width * ratioToCover;
+        let displayH = thumbImg.height * ratioToCover;
+        let offsetX = x + (thumbSize - displayW) / 2;
+        let offsetY = y + (thumbSize - displayH) / 2;
+
+        p.fill(20);
+        p.noStroke();
+        p.rect(x, y, thumbSize, thumbSize, 0);
+
+        p.drawingContext.save();
+        p.drawingContext.beginPath();
+        p.drawingContext.rect(x, y, thumbSize, thumbSize);
+        p.drawingContext.clip();
+
+        if (i === hoveredIndex) p.tint(255, 150); else p.noTint();
+        p.image(thumbImg, offsetX, offsetY, displayW, displayH);
+        p.drawingContext.restore();
+        p.noTint();
+
+        if (i === hoveredIndex) {
+          p.noFill();
+          p.stroke(110, 133, 219);
+          p.strokeWeight(3);
+          p.rect(x, y, thumbSize, thumbSize, 0);
+        } else {
+          p.noFill();
+          p.stroke(255, 50);
+          p.strokeWeight(1);
+          p.rect(x, y, thumbSize, thumbSize, 0);
+        }
       }
     }
+
+    p.noStroke();
   }
-}
 
-// ==============================
-// drawThumbnails: 绘制缩略图及箭头
-// ==============================
-function drawThumbnails(y) {
-  let totalW = thumbs.length * thumbSize + (thumbs.length - 1) * thumbGap;
-  let startX = (width - totalW) / 2 + thumbOffset;
+  function drawPreviewOverlay() {
+    if (currentTopic !== "hiroshima") return;
 
-  noStroke();
-  fill(255);
+    p.push();
+    p.noStroke();
+    p.fill(0, 220);
+    p.rect(0, 0, p.width, p.height);
 
-  // arrow sizing
-  let arrowW = 40, arrowH = thumbSize;
-  let arrowY = y;
+    let targetHeight = 600;
+    let ph = targetHeight;
+    let pw = (previewImg.width / previewImg.height) * ph;
 
-  const visibleEnd = width - sideMargin;
-  const initialStripStart = (width - totalW) / 2;
-  const maxScrollNegative = visibleEnd - (initialStripStart + totalW);
-  const maxScroll = Math.min(0, maxScrollNegative);
+    let imgX = (p.width - pw) / 2;
+    let imgY = (p.height - ph) / 2;
+    p.image(previewImg, imgX, imgY, pw, ph);
 
-  // left arrow (show only if can scroll right)
-  if (thumbOffset < -5) {
-    let x = sideMargin - arrowW;
-    if (mouseX > x && mouseX < x + arrowW && mouseY > arrowY && mouseY < arrowY + arrowH) {
-      fill(110, 133, 219, 150);
-      rect(x, arrowY, arrowW, arrowH, 0);
-      fill(255);
-    } else {
-      fill(255, 200);
+    let midY = p.height / 2;
+
+    let lx = 100;
+    let leftHover = p.mouseX > lx && p.mouseX < lx + previewArrowSize &&
+                  p.mouseY > midY - previewArrowSize && p.mouseY < midY + previewArrowSize;
+    p.fill(leftHover ? p.color(255, 255, 255) : p.color(255, 150));
+    p.triangle(
+      lx, midY,
+      lx + previewArrowSize, midY - previewArrowSize,
+      lx + previewArrowSize, midY + previewArrowSize
+    );
+
+    let rx = p.width - 100 - previewArrowSize;
+    let rightHover = p.mouseX > rx && p.mouseX < rx + previewArrowSize &&
+                   p.mouseY > midY - previewArrowSize && p.mouseY < midY + previewArrowSize;
+    p.fill(rightHover ? p.color(255, 255, 255) : p.color(255, 150));
+    p.triangle(
+      rx + previewArrowSize, midY,
+      rx, midY - previewArrowSize,
+      rx, midY + previewArrowSize
+    );
+
+    const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
+    let currentBottomText = config.bottomTexts[previewIndex] || "";
+
+    p.textSize(14);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.fill(255);
+    p.text(currentBottomText, p.width / 2, imgY + ph + 40);
+    p.pop();
+  }
+
+  p.mousePressed = function() {
+    if (currentTopic === "hiroshima" && showPreview && previewImg) {
+      let leftX = 100;
+      let arrowY1 = p.height / 2 - previewArrowSize;
+      let arrowY2 = p.height / 2 + previewArrowSize;
+      
+      if (p.mouseX > leftX && p.mouseX < leftX + previewArrowSize &&
+          p.mouseY > arrowY1 && p.mouseY < arrowY2) {
+          previewIndex = (previewIndex - 1 + largeImages.length) % largeImages.length;
+          previewImg = largeImages[previewIndex];
+          return;
+      }
+
+      let rightX = p.width - 100 - previewArrowSize;
+      if (p.mouseX > rightX && p.mouseX < rightX + previewArrowSize &&
+          p.mouseY > arrowY1 && p.mouseY < arrowY2) {
+          previewIndex = (previewIndex + 1) % largeImages.length;
+          previewImg = largeImages[previewIndex];
+          return;
+      }
+
+      showPreview = false;
+      return;
     }
-    stroke(0);
-    noFill();
-    // triangle arrow
-    noStroke();
-    fill(255);
-    triangle(x + 15, arrowY + arrowH/2, x + arrowW - 15, arrowY + 20, x + arrowW - 15, arrowY + arrowH - 20);
-  }
 
-  // right arrow (show only if can scroll left)
-  if (thumbOffset > maxScroll + 5) {
-    let x = width - sideMargin;
-    if (mouseX > x - arrowW && mouseX < x && mouseY > arrowY && mouseY < arrowY + arrowH) {
-      fill(110, 133, 219, 150);
-      rect(x - arrowW, arrowY, arrowW, arrowH, 0);
-      fill(255);
-    } else {
-      fill(255, 200);
-    }
-    noStroke();
-    fill(255);
-    triangle(x - 15, arrowY + arrowH/2, x - arrowW + 15, arrowY + 20, x - arrowW + 15, arrowY + arrowH - 20);
-  }
-
-  // hovered index detection
-  let hoveredIndex = -1;
-  let currentThumbX = (width - totalW) / 2 + thumbOffset;
-  if (y > -thumbSize && y < height) {
-    for (let i = 0; i < thumbs.length; i++) {
-      let x = currentThumbX + i * (thumbSize + thumbGap);
-      if (mouseX > x && mouseX < x + thumbSize && mouseY > y && mouseY < y + thumbSize) {
-        hoveredIndex = i;
-        break;
+    if (currentTopic === "hiroshima") {
+      let thumbY = calculateThumbY(scrollY);
+      if (thumbY > -thumbSize && thumbY < p.height) {
+        let totalW = thumbs.length * thumbSize + (thumbs.length - 1) * thumbGap;
+        let startX = (p.width - totalW) / 2 + thumbOffset;
+        
+        for (let i = 0; i < thumbs.length; i++) {
+          let x = startX + i * (thumbSize + thumbGap);
+          if (p.mouseX > x && p.mouseX < x + thumbSize &&
+              p.mouseY > thumbY && p.mouseY < thumbY + thumbSize) {
+            previewIndex = i;
+            previewImg = largeImages[previewIndex];
+            showPreview = true;
+            return;
+          }
+        }
       }
     }
-  }
+  };
 
-  // draw thumbs (cover mode)
-  for (let i = 0; i < thumbs.length; i++) {
-    let x = startX + i * (thumbSize + thumbGap);
-    if (x + thumbSize > -50 && x < width + 50) {
-      let thumbImg = thumbs[i];
-
-      // cover scaling
-      let ratioToCover = max(thumbSize / thumbImg.width, thumbSize / thumbImg.height);
-      let displayW = thumbImg.width * ratioToCover;
-      let displayH = thumbImg.height * ratioToCover;
-      let offsetX = x + (thumbSize - displayW) / 2;
-      let offsetY = y + (thumbSize - displayH) / 2;
-
-      // background box
-      fill(50);
-      noStroke();
-      rect(x, y, thumbSize, thumbSize, 0);
-
-      // clipping region
-      drawingContext.save();
-      drawingContext.beginPath();
-      drawingContext.rect(x, y, thumbSize, thumbSize);
-      drawingContext.clip();
-
-      if (i === hoveredIndex) tint(255, 150); else noTint();
-      image(thumbImg, offsetX, offsetY, displayW, displayH);
-      drawingContext.restore();
-      noTint();
-
-      // border
-      if (i === hoveredIndex) {
-        noFill();
-        stroke(110, 133, 219);
-        strokeWeight(3);
-        rect(x, y, thumbSize, thumbSize, 0);
-      } else {
-        noFill();
-        stroke(255, 50);
-        strokeWeight(1);
-        rect(x, y, thumbSize, thumbSize, 0);
-      }
+  p.mouseWheel = function(event) {
+    if (showPreview) return false;
+    
+    const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
+    const hasThreeSections = config.hasThreeSections;
+    
+    if (!hasThreeSections) {
+      targetScrollY = 0;
+      return false;
     }
-  }
-
-  noStroke();
-}
-
-// ==============================
-// drawPreviewOverlay: 放大预览
-// ==============================
-function drawPreviewOverlay() {
-  push();
-  noStroke();
-  fill(0, 220);
-  rect(0, 0, width, height);
-  drawingContext.filter = "none";
-
-  // ---- 大图尺寸适配 ----
-  // ---- 大图尺寸适配（固定高度，高度一样，宽度自适应） ----
-  let targetHeight = 600;  // 你想要的大图高度
-  let pw, ph;
-
-  
-
-ph = targetHeight;
-pw = (previewImg.width / previewImg.height) * ph;
-
-  // 高度固定
-  ph = targetHeight;
-
-  // 按原图比例计算宽度
-  pw = (previewImg.width / previewImg.height) * ph;
-
-  
-
-// 居中绘制
-image(previewImg, (width - pw) / 2, (height - ph) / 2, pw, ph);
-
-
-  // ---- 显示大图 ----
-  let imgX = (width - pw) / 2;
-  let imgY = (height - ph) / 2;
-  image(previewImg, imgX, imgY, pw, ph);
-
-  // ============================
-  //     左右箭头（可点击）
-  // ============================
-
-  // 中心位置
-  let midY = height / 2;
-  let arrowColorNormal = color(255, 150); // 默认颜色
-  let arrowColorHover = color(255);       // 悬停颜色
-  
-
-  // 左箭头（⬅）
-  let lx = 100;
-  let leftHover = mouseX > lx && mouseX < lx + previewArrowSize &&
-                mouseY > midY - previewArrowSize && mouseY < midY + previewArrowSize;
-  fill(leftHover ? arrowColorHover : arrowColorNormal);
-
-  triangle(
-    lx, midY,
-    lx + previewArrowSize, midY - previewArrowSize,
-    lx + previewArrowSize, midY + previewArrowSize
-  );
-
-  // 右箭头（➡）
-  let rx = width -  100 - previewArrowSize;
-  let rightHover = mouseX > rx && mouseX < rx + previewArrowSize &&
-                 mouseY > midY - previewArrowSize && mouseY < midY + previewArrowSize;
-  fill(rightHover ? arrowColorHover : arrowColorNormal);
-  triangle(
-    rx + previewArrowSize,midY,
-    rx, midY - previewArrowSize,
-    rx, midY + previewArrowSize
-
-  );
-
-  // 根据 previewIndex 显示不同文字
-  let bottomTexts = [
-  "Carl Mydans Hiroshima Japan 1947, Atomic",
-  "A barefoot boy waiting in line and staring ahead at a crematorium after the Nagasaki bombing, with his dead baby brother strapped to his back. \nPhoto by US Marine photographer Joe O’Donnell",
-  "From notes by LIFE’s Bernard Hoffman to the magazine’s long-time picture editor, Wilson Hicks, in New York, September 1945",
-  "Mother and child in Hiroshima, Japan, December 1945 Alfred Eisenstaedt",
-  "A correspondent stands in the rubble in Hiroshima on Sept. 8, 1945, a month after the first atomic bomb ever used in warfare was dropped by the U.S.\nStanley Troutman / AP",
-  "The devastated city of Nagasaki after an atomic bomb was dropped on it by a US Air Force B-29 bomber —AFP",
-  "The mushroom cloud rising over Hiroshima, Japan on August 6, 1945",
-
-  ];
-  // 获取当前图片对应文字
-  let currentBottomText = bottomTexts[previewIndex] || "";
-  
-
-  textSize(14);
-  textAlign(CENTER, CENTER);
-  text(currentBottomText, width / 2, imgY + ph + 40 - 15 );
-  pop();
-}
-
-
-// ==============================
-// drawTextInteractive: 字体渐显与微动
-// ==============================
-function drawTextInteractive(txt, x, y, maxW, alpha, o1, o2) {
-  push();
-  fill(255, alpha);
-  let offset = map(alpha, 0, 255, o1, o2);
-  translate(offset, 0);
-  textSize(18);
-  textFont(myFont2);
-  textAlign(LEFT, TOP);
-  textLeading(24);
-  text(txt, x, y, maxW);
-  pop();
-}
-
-// ==============================
-// estimateTextHeight: 字数换行估算（用于布局）
-// ==============================
-function estimateTextHeight(txt, maxW) {
-  // ensure text metrics match drawing settings
-  textFont(myFont2);
-  textSize(22);
-  textLeading(24);
-
-  let words = txt.split(/\s+/);
-  let lineCount = 1;
-  let lineWidth = 0;
-  for (let w of words) {
-    let wWidth = textWidth(w + " ");
-    if (lineWidth + wWidth > maxW) {
-      lineCount++;
-      lineWidth = wWidth;
+    
+    targetScrollY += event.delta;
+    
+    if (currentTopic === "hiroshima") {
+      targetScrollY = p.constrain(targetScrollY, 0, p.max(0, canvasHeight - p.height));
     } else {
-      lineWidth += wWidth;
+      let maxScrollY = topMargin + estimateTextHeight(pageTitle, p.width - topTextSideMargin * 2) + 140 + (spacing + imgH) * 3 + 200 - p.height;
+      targetScrollY = p.constrain(targetScrollY, 0, p.max(0, maxScrollY));
     }
-  }
-  return lineCount * 24;
-}
+    
+    return false;
+  };
 
-// ==============================
-// mouseWheel: 页面滚动
-// ==============================
-function mouseWheel(event) {
-  // when preview is open, block scrolling
-  if (showPreview) return false;
-  targetScrollY += event.delta;
-  targetScrollY = constrain(targetScrollY, 0, max(0, canvasHeight - height));
-  return false;
-}
+  p.windowResized = function() {
+    p.resizeCanvas(p.windowWidth, p.windowHeight);
+    calculateCanvasHeight();
+  };
+};
 
-// ==============================
-// calculateCanvasHeight: 修复 ReferenceError
-// ==============================
-function calculateCanvasHeight() {
-  // recalc image sizes according to current windowWidth
-  imgW = windowWidth * 0.62;
-  imgH = imgW * 800 / 1200;
-
-  let topTextW = windowWidth - topTextSideMargin * 2;
-  let topTextH = estimateTextHeight(topText, topTextW);
-
-  // total height: top + three sections + bottom padding for thumbnails
-  canvasHeight = topMargin + topTextH + (spacing + imgH) * 3 + 600;
-}
-
-// ==============================
-// calculateThumbY: 修复 ReferenceError
-// ==============================
-// returns the vertical position (in screen coordinates) where thumbnails should be drawn
-function calculateThumbY(currentScrollY) {
-  // derive positions similar to draw() layout
-  let topTextW = width - topTextSideMargin * 2;
-  let topTextH = estimateTextHeight(topText, topTextW);
-  let y1 = topMargin + topTextH + spacing;
-  let y2 = y1 + imgH + spacing;
-  let y3 = y2 + imgH + spacing;
-
-  // position thumbnails a bit below the last image
-  let base = y3 + imgH + spacing + 180;
-
-  // convert document position to screen position by subtracting scroll offset
-  return base - currentScrollY;
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  calculateCanvasHeight();
-}
+new p5(insightSketch);

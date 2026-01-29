@@ -6,6 +6,11 @@ let typeImg = null;
 let myFont1, myFont2, myFont3;
 let animR = 0;
 
+let hDiagProgress = 0;
+let hHorizProgress = 0;
+//to google map
+let coordX, coordY, coordW, coordH;
+
 // Map variables
 let mapImg;
 let scaledW, scaledH, offsetX, offsetY;
@@ -15,7 +20,7 @@ const LAT_MIN = -90;
 const LAT_MAX = 90;
 
 let yieldList = [
-  50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100, 50, 20, 10,
+  50000, 20000, 5000, 2000, 500, 200, 50, 20,
 ];
 let radii = [];
 let centerX, centerY;
@@ -24,7 +29,7 @@ let mapZoomed = false;
 let animBlueR = 0;
 
 const purposeTextMap = {
-  WR: "Weapons-related: activities associated with a weapons development programme, also used when a test’s purpose is unspecified.",
+  WR: "Activities associated with a weapons development programme, also used when a test’s purpose is unspecified.",
   COMBAT:
     "Use of atomic bombs in wartime, specifically Hiroshima and Nagasaki in August 1945.",
   WE: "Tests evaluating the effects of a nuclear detonation on various targets.",
@@ -37,24 +42,24 @@ const purposeTextMap = {
   TRANSP: "Tests related to the transportation and storage of nuclear weapons.",
   "PNE:V":
     "Peaceful nuclear explosions for industrial applications or testing peaceful nuclear technologies.",
-  "*UNKNOWN": "missing information in the original dataset",
+  "*UNKNOWN": "Missing information in the original dataset.",
   PNE: "Peaceful nuclear explosions for industrial applications or testing peaceful nuclear technologies.",
   "WR/SE":
-    "Tests weapons-related:,activities associated with a weapons development programme, and tests assessing nuclear weapon safety in the event of an accident.",
+    "Activities associated with a weapons development programme, and tests assessing nuclear weapon safety in the event of an accident.",
   "WR/WE":
-    "Tests weapons-related:,activities associated with a weapons development programme, and tests evaluating the effects of a nuclear detonation on various targets.",
+    "Activities associated with a weapons development programme, and tests evaluating the effects of a nuclear detonation on various targets.",
   "WR/PNE":
-    "Explosions weapons-related:,activities associated with a weapons development programme, and peaceful nuclear explosions for industrial applications or testing peaceful nuclear technologies.",
+    "Activities associated with a weapons development programme, and peaceful nuclear explosions for industrial applications or testing peaceful nuclear technologies.",
   "WE/SAM":
     "Tests evaluating the effects of a nuclear detonation on various targets and tests examining accidental modes and emergency scenarios involving nuclear weapons.",
   "WR/P/SA":
     "A test examining accidental modes and emergency scenarios involving nuclear weapons, an explosion associated with a weapons development programme, one peaceful nuclear explosions for industrial applications or testing peaceful nuclear technologies.",
   "WR/SAM":
-    "Tests weapons-related:,activities associated with a weapons development programme, and tests examining accidental modes and emergency scenarios involving nuclear weapons.",
+    "Activities associated with a weapons development programme, and tests examining accidental modes and emergency scenarios involving nuclear weapons.",
   "WR/F/SA":
     "A test examining accidental modes and emergency scenarios involving nuclear weapons, two explosions associated with a weapons development programme, an explosion conducted to study phenomena produced by a nuclear explosion.",
   "WR/FMS":
-    "Tests weapons-related:,activities associated with a weapons development programme, and tests conducted to study phenomena produced by a nuclear explosion.",
+    "Activities associated with a weapons development programme, and tests conducted to study phenomena produced by a nuclear explosion.",
   "WR/P/S":
     "Three weapons-related explosions, activities associated with a weapons development programme, one peaceful nuclear explosions for industrial applications or testing peaceful nuclear technologies and a test examining accidental modes and emergency scenarios involving nuclear weapons. ",
   "WR/F/S":
@@ -95,6 +100,65 @@ const typeTextMap = {
   MINE: "Nuclear device detonated inside an existing mine.",
 };
 
+const purposeTitle = {
+WR:"Weapons-related",
+COMBAT:"Wartime use",
+WE:"Weapon effects test",
+  ME: "Military exercise test",
+  SE: "Safety test",
+  FMS: "Phenomena study",
+  SAM: "Accident scenario test",
+"PNE:PLO":"Peaceful nuclear explosions",
+ TRANSP: "Transport & storage",
+"PNE:V":"Peaceful nuclear explosions",
+"*UNKNOWN":"Unknown purpose",
+PNE:"Peaceful nuclear explosions",
+  "WR/SE": "Weapons & safety test",
+  "WR/WE": "Weapons & effect test",
+  "WR/PNE": "Weapons & peaceful test",
+  "WE/SAM": "Effects & accident test",
+  "WR/P/SA": "Weapons & accident & peaceful test",
+  "WR/SAM": "Weapons & accident test",
+  "WR/F/SA": "Weapons & accident & phenomena test",
+"WR/FMS":"Tests weapons-related: ",
+  "WR/FMS": "Weapons & phenomena study",
+  "WR/P/S": "Weapons & peaceful & accident tests",
+  "WR/F/S": "Weapons & phenomena & accident tests",
+  "WR/WE/S": "Weapons & effect & accident tests",
+}
+
+const typeTitle = {
+  AIRDROP:
+    "Airdrop",
+  ATMOSPH:
+    "Atmospheric",
+  SPACE: "Exoatmospheric",
+  BALLOON:
+    "Balloon-Suspended",
+  BARGE:
+    "Barge-Mounted",
+  SHIP: "Ship-Based",
+  ROCKET:
+    "Rocket-Delivered",
+  SHAFT:
+    "Vertical Shaft Underground",
+  "SHAFT/GR":
+    "Ground-Based Shaft",
+  "SHAFT/LG":
+    "Lagoon Shaft",
+  SURFACE:
+    "Surface",
+  TOWER: "Tower-Mounted",
+  TUNNEL: "Tunnel-Based Underground",
+  GALLERY:
+    "Gallery Underground",
+  UW: "Underwater",
+  UG: "Underground",
+  WATERSUR: "Water-Surface",
+  CRATER: "Crater",
+  MINE: "Mine-Based",
+}
+
 function preload() {
   const urlParams = new URLSearchParams(window.location.search);
   bombID = urlParams.get("id") || "1"; //Ottieni l'ID della bomba dall'URL, se non presente usa "1"
@@ -106,6 +170,7 @@ function preload() {
 
   table = loadTable("dataset/dataset-singleb.csv", "csv", "header");
   mapImg = loadImage("images/mappa.png");
+  bombBgImg = loadImage("images/single bomb rumore.png");
 
   typeImages["AIRDROP"] = loadImage("images/airdrop.png");
   typeImages["ATMOSPH"] = loadImage("images/atmosph.png");
@@ -130,6 +195,7 @@ function preload() {
 
 function getBombData(row) {
   return {
+     year: row.getString("year"),
     name: row.getString("name"),
     country: row.getString("country"),
     region: row.getString("region"),
@@ -175,17 +241,21 @@ function setup() {
 function draw() {
   background(20);
 
+  // if (bombBgImg) {
+  //   tint(255, 40);
+  //   let imgW = 0.9 * width; 
+  //   let imgH = 0.6 * height; 
+  //   let imgX = (width - imgW) / 2; 
+  //   let imgY = -50; 
+
+  //   image(bombBgImg, imgX, imgY, imgW, imgH);
+  // }
+
+  // tint(255, 255);
   if (mapZoomed) {
     drawZoomedMap();
     return;
   }
-
-  textFont(myFont1);
-  noStroke();
-  fill(200);
-  textSize(20);
-  textAlign(CENTER, TOP);
-  text("SINGLE BOMB", width / 2, 30);
 
   drawBombRing();
   if (!bombData) {
@@ -212,19 +282,21 @@ function draw() {
   }
   //hiroshima
   let rInner = mapYieldToRadius(15);
-animBlueR = lerp(animBlueR, rInner, 0.05);
+  animBlueR = lerp(animBlueR, rInner, 0.05);
 
   stroke(0, 255, 255);
   strokeWeight(1);
   noFill();
   ellipse(centerX, centerY, animBlueR * 2);
+  drawHiroshimaAnnotation();
+  drawBombAnnotation();
 
   drawInfo();
 }
 
 function mapYieldToRadius(y) {
   let minR = 20;
-  let maxR = min(width, height) * 0.8;
+  let maxR = height * 0.8;
 
   let ySafe = max(y, 1);
 
@@ -245,11 +317,11 @@ function getYieldColor(y) {
 function calculateMapDimensions() {
   if (!mapImg) return;
   if (!mapZoomed) {
-    scaledW = 300;
+    scaledW = width * 0.2;
     scaledH = mapImg.height * (scaledW / mapImg.width);
 
-    offsetX = width - scaledW - 50;
-    offsetY = height - scaledH - 90;
+    offsetX = width - scaledW - 0.03 * width;
+    offsetY = 0.25 * height + scaledW + 0.05 * height;
   } else {
     scaledW = width * 0.7;
     scaledH = mapImg.height * (scaledW / mapImg.width);
@@ -269,10 +341,10 @@ function latToMapY(lat) {
 }
 
 function drawInfo() {
-  let boxW = 300,
-    boxH = 300,
-    boxX = width - boxW - 50,
-    boxY = 150;
+  let boxW = 0.2 * width,
+    boxH = boxW,
+    boxX = width - boxW - 0.03 * width,
+    boxY = 0.25 * height;
   stroke(0, 255, 255, 150);
   strokeWeight(1);
   fill(0, 255, 255, 20);
@@ -305,7 +377,7 @@ function drawInfo() {
     textAlign(LEFT, CENTER);
     textSize(14);
     textFont(myFont2);
-    text(getTypeText(bombData.type), boxX + 10, boxY + boxH / 2, 280);
+    text(getTypeText(bombData.type), width - boxW - 0.02 * width, boxY + boxH / 2, width * 0.18);
   }
 
   if (!mapImg || !bombData) return;
@@ -324,90 +396,67 @@ function drawInfo() {
     mouseY >= offsetY &&
     mouseY <= offsetY + scaledH;
 
-
-    
   if (isHoverMap) {
     cursor(HAND);
     fill(0, 150);
     rect(offsetX, offsetY, scaledW, scaledH);
 
-    fill(255);
-    textAlign(CENTER, CENTER);
-    textSize(14);
-    noStroke();
-    textFont(myFont2);
-    text(
-      "region code: " + bombData.region,
-      offsetX,
-      offsetY + scaledH / 2,
-      280
-    );
-
     noFill();
     stroke(0, 255, 255);
     strokeWeight(2);
-    line(
-      offsetX + scaledW - 20,
-      offsetY + 20,
-      offsetX + scaledW - 14,
-      offsetY + 20
-    );
-    line(
-      offsetX + scaledW - 20,
-      offsetY + 20,
-      offsetX + scaledW - 20,
-      offsetY + 14
-    );
-    line(
-      offsetX + scaledW - 10,
-      offsetY + 10,
-      offsetX + scaledW - 16,
-      offsetY + 10
-    );
-    line(
-      offsetX + scaledW - 10,
-      offsetY + 10,
-      offsetX + scaledW - 10,
-      offsetY + 16
-    );
+
+    let iconX = offsetX + scaledW / 2;
+    let iconY = offsetY + scaledH / 2;
+    let iconSize = 100;
+
+    if (!mapZoomed) {
+      let baseSize = 6;
+      let scaleFactor = isHoverMap ? 3 : 1;
+      let s = baseSize * scaleFactor;
+
+      line(iconX - s, iconY - s, iconX + 0, iconY - s);
+      line(iconX - s, iconY - s, iconX - s, iconY + 0);
+      line(iconX + s, iconY + s, iconX + 0, iconY + s);
+      line(iconX + s, iconY + s, iconX + s, iconY + 0);
+
+    } else {
+      line(iconX - iconSize / 2, iconY - iconSize / 2, iconX + iconSize / 2, iconY + iconSize / 2);
+      line(iconX - iconSize / 2, iconY + iconSize / 2, iconX + iconSize / 2, iconY - iconSize / 2);
+    }
+
   } else {
-  cursor(ARROW);  
-}
+    cursor(ARROW);
+  }
 
   stroke(0, 255, 255, 150);
   strokeWeight(1);
   fill(0, 255, 255, 20);
-  rect(50, offsetY, 320, scaledH);
+  rect(width * 0.03, offsetY, width * 0.2, scaledH);
 
   noStroke();
   textAlign(RIGHT, TOP);
   fill(0, 255, 255);
   textFont(myFont3);
   textSize(14);
-  text("Country:" + bombData.country, offsetX + scaledW, 90);
-  text("Type: " + bombData.type, offsetX + scaledW, 120);
-  text("Longitude: " + bombData.longitude, offsetX + 300, offsetY - 30);
   textAlign(LEFT, TOP);
-  text("Nome:", offsetX, 90);
-  text("Purpose: " + bombData.purpose, 50, offsetY - 30);
-  text("Latitude: " + bombData.latitude, offsetX, offsetY - 30);
+      text("Year: "+ bombData.year, offsetX, boxY - 60)
+  text("Type: " + getTypeTitle(bombData.type), offsetX, boxY - 30);
+  text("Purpose: " + getPurposeTitle(bombData.purpose), width * 0.03, offsetY - 30);
+  text("Country: " + bombData.country, offsetX, offsetY - 30);
   textSize(24);
-  text(bombData.name, offsetX, 110);
+  textAlign(LEFT, TOP);
+  let yieldColor = color(getYieldColor(bombData.yield_u));
+  fill(yieldColor);
   textAlign(CENTER, BOTTOM);
   text(bombData.yield_u, width / 2, height - 30);
   textAlign(CENTER, TOP);
   textSize(14);
+  fill(0, 255, 255);
   text("Yield(kt) ", width / 2, height - 90);
-  textAlign(RIGHT, TOP);
+
   textFont(myFont2);
-  text(
-    "The blue ring represents the yield of Little Boy, detonated in Hiroshima in 1945.",
-    offsetX,
-    offsetY + scaledH + 10,
-    scaledW
-  );
   textAlign(LEFT, TOP);
-  fill(200), text(getPurposeText(bombData.purpose), 60, offsetY + 10, 300);
+  fill(255), text(getPurposeText(bombData.purpose), width * 0.04, offsetY + 10, width * 0.18);
 
   let px = lonToMapX(bombData.longitude);
   let py = latToMapY(bombData.latitude);
@@ -445,29 +494,20 @@ function getTypeText(type) {
   return typeTextMap[type.toUpperCase()] || "Unknown Purpose";
 }
 
-function mousePressed() {
-  animR = 0;
-  animPlaying = true;
-
-  let iconX = offsetX + scaledW - 20;
-  let iconY = offsetY + 10;
-  let iconSize = 10;
-
-  let clickedIcon =
-    mouseX >= offsetX &&
-    mouseX <= offsetX + scaledW &&
-    mouseY >= offsetY &&
-    mouseY <= offsetY + scaledH;
-
-  if (clickedIcon) {
-    mapZoomed = !mapZoomed;
-    calculateMapDimensions();
-  }
+function getPurposeTitle(purpose) {
+  if (!purpose) return "";
+  return purposeTitle[purpose.toUpperCase()] || "Unknown";
 }
+
+function getTypeTitle(type) {
+  if (!type) return "";
+  return typeTitle[type.toUpperCase()] || "Unknown";
+}
+
 
 function drawZoomedMap() {
   if (!mapImg || !bombData) return;
-
+  cursor(ARROW);
   image(mapImg, offsetX, offsetY, scaledW, scaledH);
 
   stroke(0, 255, 255, 150);
@@ -477,30 +517,13 @@ function drawZoomedMap() {
 
   stroke(0, 255, 255);
   strokeWeight(2);
-  line(
-    offsetX + scaledW - 20,
-    offsetY + 20,
-    offsetX + scaledW - 14,
-    offsetY + 20
-  );
-  line(
-    offsetX + scaledW - 20,
-    offsetY + 20,
-    offsetX + scaledW - 20,
-    offsetY + 14
-  );
-  line(
-    offsetX + scaledW - 10,
-    offsetY + 10,
-    offsetX + scaledW - 16,
-    offsetY + 10
-  );
-  line(
-    offsetX + scaledW - 10,
-    offsetY + 10,
-    offsetX + scaledW - 10,
-    offsetY + 16
-  );
+
+  let iconX = offsetX + scaledW - 16;
+  let iconY = offsetY + 16;
+  let iconSize = 12;
+
+  line(iconX - iconSize / 2, iconY - iconSize / 2, iconX + iconSize / 2, iconY + iconSize / 2);
+  line(iconX - iconSize / 2, iconY + iconSize / 2, iconX + iconSize / 2, iconY - iconSize / 2);
 
   stroke(0, 255, 255, 150);
   strokeWeight(1);
@@ -523,21 +546,37 @@ function drawZoomedMap() {
   for (let i = 0; i <= 6; i++) {
     let lat = LAT_MIN + (i * (LAT_MAX - LAT_MIN)) / 6;
     let y = latToMapY(lat);
-    line(offsetX, y, offsetX + scaledW, y);
-    noStroke();
-    textSize(12);
-    textAlign(CENTER, RIGHT);
-    fill(0, 255, 255);
-    text(lat.toFixed(0) + "°", offsetX - 20, y);
+
+    // 网格线
     stroke(0, 255, 255, 80);
+    line(offsetX, y, offsetX + scaledW, y);
+
+    // 文字
+    noStroke();
+    fill(0, 255, 255);
+    textSize(12);
+
+    if (i === 6) {
+      // 最上面：文字顶部对齐地图最高点
+      textAlign(CENTER, TOP);
+    } else if (i === 0) {
+      // 最下面：文字底部对齐地图最低点
+      textAlign(CENTER, BOTTOM);
+    } else {
+      // 中间：居中对齐
+      textAlign(CENTER, CENTER);
+    }
+
+    text(lat.toFixed(0) + "°", offsetX - 20, y);
   }
+
 
   let px = lonToMapX(bombData.longitude);
   let py = latToMapY(bombData.latitude);
 
   let baseColor = color(getYieldColor(bombData.yield_u));
 
-  let r = 5 + 3 * sin(frameCount * 0.04);
+  let r = 8 + 3 * sin(frameCount * 0.04);
 
   noStroke();
   fill(baseColor);
@@ -552,7 +591,7 @@ function drawZoomedMap() {
     fill(0, 0, 0, 200);
 
     let boxW = 180;
-    let boxH = padding * 2 + lineHeight * 4;
+    let boxH = padding * 2 + lineHeight * 3;
 
     let boxX = px + 15;
     let boxY = py - boxH / 2;
@@ -567,28 +606,94 @@ function drawZoomedMap() {
     textAlign(LEFT, TOP);
     fill(0, 255, 255);
     text("Country:", boxX + padding, boxY + padding);
-    text("Region:", boxX + padding, boxY + padding + lineHeight * 1);
-    text("Latitude:", boxX + padding, boxY + padding + lineHeight * 2);
-    text("Longitude:", boxX + padding, boxY + padding + lineHeight * 3);
+    text("Latitude:", boxX + padding, boxY + padding + lineHeight * 1);
+    text("Longitude:", boxX + padding, boxY + padding + lineHeight * 2);
 
     textAlign(RIGHT, TOP);
     const valueX = boxX + boxW - padding;
 
     fill(0, 255, 255);
     text(bombData.country, valueX, boxY + padding);
-    text(bombData.region, valueX, boxY + padding + lineHeight * 1);
-    text(nf(bombData.latitude, 0, 4), valueX, boxY + padding + lineHeight * 2);
-    text(nf(bombData.longitude, 0, 4), valueX, boxY + padding + lineHeight * 3);
+    text(nf(bombData.latitude, 0, 2), valueX, boxY + padding + lineHeight * 1);
+    text(nf(bombData.longitude, 0, 2), valueX, boxY + padding + lineHeight * 2);
   }
 
   noStroke();
-  textAlign(CENTER, TOP);
+  textAlign(CENTER, BOTTOM);
   fill(0, 255, 255);
   textFont(myFont3);
+  textSize(20);
+  // --- 统一高度 ---
+  let currentY = offsetY - 10;
+
+  // 1. 左侧文字：the location is often approximate. (左对齐地图)
+  push();
+  textFont(myFont2);
   textSize(14);
-  text("Region Code:", width / 2, 60);
-  textSize(24);
-  text(bombData.region, width / 2, 80);
+  textAlign(LEFT, BOTTOM);
+  fill(0, 255, 255);
+  // 直接对齐地图左边界 offsetX
+  text("the location is often approximate.", offsetX, currentY);
+  pop();
+  let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude, 0, 2) + ")";
+  let centerX = width / 2;
+  textFont(myFont3);
+  textSize(20);
+  let coordW = textWidth(coordText);
+  let coordH = 20;
+
+  let isCoordHover =
+    mouseX >= centerX - coordW / 2 &&
+    mouseX <= centerX + coordW / 2 &&
+    mouseY >= currentY - coordH &&
+    mouseY <= currentY;
+
+  push();
+  translate(centerX, currentY);
+  textAlign(CENTER, BOTTOM);
+  if (isCoordHover) {
+    cursor(HAND); // 坐标悬停变手
+    fill(255);
+    scale(1.05);
+  } else {
+    fill(0, 255, 255);
+  }
+  text(coordText, 0, 0);
+  pop();
+
+  // 3. 右侧文字：Hint
+  push();
+  textFont(myFont2);
+  textSize(14);
+  textAlign(RIGHT, BOTTOM);
+  let hintX = offsetX + scaledW;
+  let hintText = "<< Click coordinates to view on Google Maps";
+
+  // --- 新增：计算 Hint 的悬停范围 ---
+  let hintW = textWidth(hintText);
+  let isHintHover =
+    mouseX >= hintX - hintW &&
+    mouseX <= hintX &&
+    mouseY >= currentY - 14 &&
+    mouseY <= currentY;
+
+  const pulse = (sin(frameCount * 0.08) + 1) / 2;
+  const alphaGlow = 80 + pulse * 175;
+
+  // --- 修改：Hint 悬停时变手并变色 ---
+  if (isHintHover) {
+    cursor(HAND);
+    fill(255, alphaGlow); // 悬停时变白色（保留呼吸感）
+  } else {
+    fill(0, 255, 255, alphaGlow);
+  }
+
+  fill(0, 255, 255, alphaGlow * 0.25);
+  text(hintText, hintX + 1, currentY + 1);
+  // 注意：上面的 fill(255) 逻辑要应用在主文字上
+  if (isHintHover) fill(255); else fill(0, 255, 255, alphaGlow);
+  text(hintText, hintX, currentY);
+  pop();
 }
 
 window.addEventListener("load", () => {
@@ -596,3 +701,210 @@ window.addEventListener("load", () => {
     window.location.href = "index.html#page2";
   }
 });
+function drawHiroshimaAnnotation() {
+  let horizLength = 100;
+
+  let finalAnchorX = centerX + 150;
+  let finalAnchorY = centerY - 200;
+
+  let angle = atan2(finalAnchorY - centerY, finalAnchorX - centerX);
+
+  let startX = centerX + cos(angle) * animBlueR;
+  let startY = centerY + sin(angle) * animBlueR;
+
+  stroke(0, 255, 255);
+  strokeWeight(1);
+  noFill();
+
+  // --- progress ---
+  hDiagProgress = lerp(hDiagProgress, 1, 0.02);
+  if (hDiagProgress > 0.6) {
+    hHorizProgress = lerp(hHorizProgress, 1, 0.05);
+  }
+
+  // --- 斜线当前末端（= 横线起点锚点）---
+  let anchorX = lerp(startX, finalAnchorX, hDiagProgress);
+  let anchorY = lerp(startY, finalAnchorY, hDiagProgress);
+
+  // 画斜线
+  line(startX, startY, anchorX, anchorY);
+
+  // --- 横线从 anchor 向右生长 ---
+  let currentHorizLength = horizLength * hHorizProgress;
+  line(anchorX, anchorY, anchorX + currentHorizLength, anchorY);
+
+  // --- 文字：被横线“推着走” ---
+  let textX = anchorX + currentHorizLength + 10;
+
+  let hText = "Little Boy\nHiroshima, 1945";
+
+  let isHiroshimaHover =
+    mouseX >= textX &&
+    mouseX <= textX + 130 &&
+    mouseY >= anchorY - 15 &&
+    mouseY <= anchorY + 15;
+
+  noStroke();
+  if (isHiroshimaHover && hHorizProgress > 0.95) {
+    cursor(HAND);
+    fill(255);
+  } else {
+    fill(0, 255, 255);
+  }
+
+  textFont(myFont2);
+  textSize(14);
+  textAlign(LEFT, CENTER);
+  text(hText, textX, anchorY);
+}
+function drawBombAnnotation() {
+  if (!bombData) return;
+
+  let horizLength = 120;
+
+  let finalAnchorX = width * 0.31;
+  let finalAnchorY = height * 0.2;
+
+  let angle = atan2(finalAnchorY - centerY, finalAnchorX - centerX);
+
+  let startX = centerX + cos(angle) * animR;
+  let startY = centerY + sin(angle) * animR;
+
+  let c = color(getYieldColor(bombData.yield_u));
+  stroke(c);
+  strokeWeight(1);
+  noFill();
+
+  if (this.diagProgress === undefined) this.diagProgress = 0;
+  if (this.horizProgress === undefined) this.horizProgress = 0;
+
+  this.diagProgress = lerp(this.diagProgress, 1, 0.02);
+  if (this.diagProgress > 0.6) {
+    this.horizProgress = lerp(this.horizProgress, 1, 0.05);
+  }
+
+  // --- 斜线末端（锚点）---
+  let anchorX = lerp(startX, finalAnchorX, this.diagProgress);
+  let anchorY = lerp(startY, finalAnchorY, this.diagProgress);
+
+  line(startX, startY, anchorX, anchorY);
+
+  // --- 横线向左生长 ---
+  let currentHorizLength = horizLength * this.horizProgress;
+  line(anchorX - currentHorizLength, anchorY, anchorX, anchorY);
+
+  // --- 文字被横线推出去 ---
+  let textX = anchorX - currentHorizLength - 10;
+
+  noStroke();
+  fill(red(c), green(c), blue(c));
+
+  textFont(myFont1);
+  textSize(20);
+  textAlign(RIGHT, CENTER);
+  text(bombData.name, textX, anchorY);
+}
+
+function mousePressed() {
+  // --- 1. 点击 Little Boy 跳转 (针对统一后的动效位置) ---
+  if (hHorizProgress > 0.8) {
+    // 最终位置: centerX + 150 (finalHorizEndX) + 100 (horizLength) + 10 (offset)
+    let finalX = centerX + 150 + 100 + 10;
+    let finalY = centerY - 150; // finalHorizEndY
+
+    if (
+      mouseX >= finalX && mouseX <= finalX + 150 &&
+      mouseY >= finalY - 20 && mouseY <= finalY + 20
+    ) {
+      window.location.href = "insight.html";
+      return;
+    }
+  }
+
+  // --- 2. 重置动画变量 (保持不变) ---
+  animR = 0;
+  animBlueR = 0;
+  hDiagProgress = 0; // 重置进度
+  hHorizProgress = 0;
+  // 如果 drawBombAnnotation 也需要重置，请确保其变量也是全局的
+  this.diagProgress = 0;
+  this.horizProgress = 0;
+
+  animPlaying = true;
+
+
+  if (bombData && mapZoomed) {
+    let currentY = offsetY - 10;
+    let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude, 0, 2) + ")";
+    let coordW = textWidth(coordText);
+    let coordH = 20;
+    let centerX = width / 2;
+
+    let isCoordClicked =
+      mouseX >= centerX - coordW / 2 &&
+      mouseX <= centerX + coordW / 2 &&
+      mouseY >= currentY - coordH &&
+      mouseY <= currentY;
+
+    textFont(myFont2); // 切换字体以准确计算宽度
+    textSize(14);
+    let hintText = "<< Click coordinates to view on Google Maps";
+    let hintW = textWidth(hintText);
+    let hintX = offsetX + scaledW; // 右边界
+
+    let isHintClicked =
+      mouseX >= hintX - hintW &&
+      mouseX <= hintX &&
+      mouseY >= currentY - 14 && // 14 是 textSize
+      mouseY <= currentY;
+
+    // 如果两者之一被点击
+    if (isCoordClicked || isHintClicked) {
+      let lat = bombData.latitude;
+      let lon = bombData.longitude;
+      let googleMapsURL = `https://www.google.com/maps?q=${lat},${lon}&t=k`;
+      window.open(googleMapsURL, "_blank");
+      return;
+    }
+  }
+
+  // --- 以下是原有的地图缩放逻辑 ---
+  let clickedOnMap =
+    mouseX >= offsetX &&
+    mouseX <= offsetX + scaledW &&
+    mouseY >= offsetY &&
+    mouseY <= offsetY + scaledH;
+
+  if (mapZoomed) {
+    let iconX = offsetX + scaledW - 16;
+    let iconY = offsetY + 16;
+    let iconSize = 12;
+
+    if (
+      mouseX >= iconX - iconSize &&
+      mouseX <= iconX + iconSize &&
+      mouseY >= iconY - iconSize &&
+      mouseY <= iconY + iconSize
+    ) {
+      mapZoomed = false;
+      calculateMapDimensions();
+      return;
+    }
+  }
+
+  if (!mapZoomed && clickedOnMap) {
+    mapZoomed = true;
+    calculateMapDimensions();
+  } else if (mapZoomed && !clickedOnMap) {
+    mapZoomed = false;
+    calculateMapDimensions();
+  }
+}
+function keyPressed() {
+  if (keyCode === ESCAPE) {
+    if (mapZoomed) {
+      mapZoomed = false;
+      calculateMapDimensions();
+    }
+  }
+}
