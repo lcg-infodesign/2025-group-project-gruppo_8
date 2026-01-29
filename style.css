@@ -66,3 +66,6 @@ canvas {
   transform: translateY(-50%) translateX(3px);
 }
 
+.map-open .back-btn {
+  display: none;
+}

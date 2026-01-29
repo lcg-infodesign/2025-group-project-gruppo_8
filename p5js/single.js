@@ -6,6 +6,9 @@ let typeImg = null;
 let myFont1, myFont2, myFont3;
 let animR = 0;
 
+let hiroshimaTextBounds = null;
+
+
 let hDiagProgress = 0;
 let hHorizProgress = 0;
 //to google map
@@ -507,6 +510,7 @@ function getTypeTitle(type) {
 
 function drawZoomedMap() {
   if (!mapImg || !bombData) return;
+
   cursor(ARROW);
   image(mapImg, offsetX, offsetY, scaledW, scaledH);
 
@@ -518,17 +522,41 @@ function drawZoomedMap() {
   stroke(0, 255, 255);
   strokeWeight(2);
 
+  // ---------- CLOSE ICON (X) ----------
   let iconX = offsetX + scaledW - 16;
   let iconY = offsetY + 16;
   let iconSize = 12;
 
-  line(iconX - iconSize / 2, iconY - iconSize / 2, iconX + iconSize / 2, iconY + iconSize / 2);
-  line(iconX - iconSize / 2, iconY + iconSize / 2, iconX + iconSize / 2, iconY - iconSize / 2);
+  line(
+    iconX - iconSize / 2,
+    iconY - iconSize / 2,
+    iconX + iconSize / 2,
+    iconY + iconSize / 2
+  );
+  line(
+    iconX - iconSize / 2,
+    iconY + iconSize / 2,
+    iconX + iconSize / 2,
+    iconY - iconSize / 2
+  );
 
+  // --- hover sulla X ---
+  let isCloseHover =
+    mouseX >= iconX - iconSize &&
+    mouseX <= iconX + iconSize &&
+    mouseY >= iconY - iconSize &&
+    mouseY <= iconY + iconSize;
+
+  if (isCloseHover) {
+    cursor(HAND);
+  }
+
+  // ---------- GRID ----------
   stroke(0, 255, 255, 150);
   strokeWeight(1);
   fill(0, 255, 255);
   textFont(myFont2);
+
   // longitude
   for (let i = 0; i <= 6; i++) {
     let lon = LON_MIN + (i * (LON_MAX - LON_MIN)) / 6;
@@ -547,35 +575,25 @@ function drawZoomedMap() {
     let lat = LAT_MIN + (i * (LAT_MAX - LAT_MIN)) / 6;
     let y = latToMapY(lat);
 
-    // 网格线
     stroke(0, 255, 255, 80);
     line(offsetX, y, offsetX + scaledW, y);
 
-    // 文字
     noStroke();
     fill(0, 255, 255);
     textSize(12);
 
-    if (i === 6) {
-      // 最上面：文字顶部对齐地图最高点
-      textAlign(CENTER, TOP);
-    } else if (i === 0) {
-      // 最下面：文字底部对齐地图最低点
-      textAlign(CENTER, BOTTOM);
-    } else {
-      // 中间：居中对齐
-      textAlign(CENTER, CENTER);
-    }
+    if (i === 6) textAlign(CENTER, TOP);
+    else if (i === 0) textAlign(CENTER, BOTTOM);
+    else textAlign(CENTER, CENTER);
 
     text(lat.toFixed(0) + "°", offsetX - 20, y);
   }
 
-
+  // ---------- BOMB POINT ----------
   let px = lonToMapX(bombData.longitude);
   let py = latToMapY(bombData.latitude);
 
   let baseColor = color(getYieldColor(bombData.yield_u));
-
   let r = 8 + 3 * sin(frameCount * 0.04);
 
   noStroke();
@@ -606,39 +624,37 @@ function drawZoomedMap() {
     textAlign(LEFT, TOP);
     fill(0, 255, 255);
     text("Country:", boxX + padding, boxY + padding);
-    text("Latitude:", boxX + padding, boxY + padding + lineHeight * 1);
+    text("Latitude:", boxX + padding, boxY + padding + lineHeight);
     text("Longitude:", boxX + padding, boxY + padding + lineHeight * 2);
 
     textAlign(RIGHT, TOP);
     const valueX = boxX + boxW - padding;
 
-    fill(0, 255, 255);
     text(bombData.country, valueX, boxY + padding);
-    text(nf(bombData.latitude, 0, 2), valueX, boxY + padding + lineHeight * 1);
+    text(nf(bombData.latitude, 0, 2), valueX, boxY + padding + lineHeight);
     text(nf(bombData.longitude, 0, 2), valueX, boxY + padding + lineHeight * 2);
   }
 
+  // ---------- TOP TEXT ----------
   noStroke();
   textAlign(CENTER, BOTTOM);
   fill(0, 255, 255);
   textFont(myFont3);
   textSize(20);
-  // --- 统一高度 ---
+
   let currentY = offsetY - 10;
 
-  // 1. 左侧文字：the location is often approximate. (左对齐地图)
+  // left
   push();
   textFont(myFont2);
   textSize(14);
   textAlign(LEFT, BOTTOM);
-  fill(0, 255, 255);
-  // 直接对齐地图左边界 offsetX
-  text("the location is often approximate.", offsetX, currentY);
+  text("The location is often approximate.", offsetX, currentY);
   pop();
+
+  // center coords
   let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude, 0, 2) + ")";
   let centerX = width / 2;
-  textFont(myFont3);
-  textSize(20);
   let coordW = textWidth(coordText);
   let coordH = 20;
 
@@ -652,7 +668,7 @@ function drawZoomedMap() {
   translate(centerX, currentY);
   textAlign(CENTER, BOTTOM);
   if (isCoordHover) {
-    cursor(HAND); // 坐标悬停变手
+    cursor(HAND);
     fill(255);
     scale(1.05);
   } else {
@@ -661,40 +677,37 @@ function drawZoomedMap() {
   text(coordText, 0, 0);
   pop();
 
-  // 3. 右侧文字：Hint
+  // right hint
   push();
   textFont(myFont2);
   textSize(14);
   textAlign(RIGHT, BOTTOM);
-  let hintX = offsetX + scaledW;
-  let hintText = "<< Click coordinates to view on Google Maps";
 
-  // --- 新增：计算 Hint 的悬停范围 ---
+  let hintX = offsetX + scaledW;
+  let hintText = "<< Click to view on Google Maps";
   let hintW = textWidth(hintText);
-  let isHintHover =
-    mouseX >= hintX - hintW &&
-    mouseX <= hintX &&
-    mouseY >= currentY - 14 &&
-    mouseY <= currentY;
 
   const pulse = (sin(frameCount * 0.08) + 1) / 2;
-  const alphaGlow = 80 + pulse * 175;
+const alphaGlow = 80 + pulse * 175;
 
-  // --- 修改：Hint 悬停时变手并变色 ---
-  if (isHintHover) {
-    cursor(HAND);
-    fill(255, alphaGlow); // 悬停时变白色（保留呼吸感）
-  } else {
-    fill(0, 255, 255, alphaGlow);
-  }
+fill(0, 255, 255, alphaGlow * 0.25);
+text(hintText, hintX + 1, currentY + 1);
 
-  fill(0, 255, 255, alphaGlow * 0.25);
-  text(hintText, hintX + 1, currentY + 1);
-  // 注意：上面的 fill(255) 逻辑要应用在主文字上
-  if (isHintHover) fill(255); else fill(0, 255, 255, alphaGlow);
-  text(hintText, hintX, currentY);
+fill(0, 255, 255, alphaGlow);
+text(hintText, hintX, currentY);
+
+  
   pop();
 }
+
+function updateBackBtnVisibility() {
+  if (mapZoomed) {
+    document.body.classList.add("map-open");
+  } else {
+    document.body.classList.remove("map-open");
+  }
+}
+
 
 window.addEventListener("load", () => {
   if (window.location.hash === "#page2") {
@@ -756,6 +769,22 @@ function drawHiroshimaAnnotation() {
   textSize(14);
   textAlign(LEFT, CENTER);
   text(hText, textX, anchorY);
+
+// --- salva bounding box solo a fine animazione ---
+if (hHorizProgress > 0.95) {
+  const padding = 10;
+
+  hiroshimaTextBounds = {
+    x: textX - padding,
+    y: anchorY - 18 - padding,
+    w: 130 + padding * 2,
+    h: 36 + padding * 2
+  };
+} else {
+  hiroshimaTextBounds = null;
+}
+
+
 }
 function drawBombAnnotation() {
   if (!bombData) return;
@@ -806,20 +835,21 @@ function drawBombAnnotation() {
 }
 
 function mousePressed() {
-  // --- 1. 点击 Little Boy 跳转 (针对统一后的动效位置) ---
-  if (hHorizProgress > 0.8) {
-    // 最终位置: centerX + 150 (finalHorizEndX) + 100 (horizLength) + 10 (offset)
-    let finalX = centerX + 150 + 100 + 10;
-    let finalY = centerY - 150; // finalHorizEndY
+  // --- CLICK SU LITTLE BOY (solo a fine animazione) ---
+if (hiroshimaTextBounds) {
+  const b = hiroshimaTextBounds;
 
-    if (
-      mouseX >= finalX && mouseX <= finalX + 150 &&
-      mouseY >= finalY - 20 && mouseY <= finalY + 20
-    ) {
-      window.location.href = "insight.html";
-      return;
-    }
+  if (
+    mouseX >= b.x &&
+    mouseX <= b.x + b.w &&
+    mouseY >= b.y &&
+    mouseY <= b.y + b.h
+  ) {
+    window.location.href = "insight.html";
+    return;
   }
+}
+
 
   // --- 2. 重置动画变量 (保持不变) ---
   animR = 0;
@@ -848,7 +878,7 @@ function mousePressed() {
 
     textFont(myFont2); // 切换字体以准确计算宽度
     textSize(14);
-    let hintText = "<< Click coordinates to view on Google Maps";
+    let hintText = "<< Click to view on Google Maps";
     let hintW = textWidth(hintText);
     let hintX = offsetX + scaledW; // 右边界
 
@@ -886,18 +916,22 @@ function mousePressed() {
       mouseY >= iconY - iconSize &&
       mouseY <= iconY + iconSize
     ) {
-      mapZoomed = false;
-      calculateMapDimensions();
-      return;
+     mapZoomed = false;
+calculateMapDimensions();
+updateBackBtnVisibility();
+return;
+
     }
   }
 
   if (!mapZoomed && clickedOnMap) {
     mapZoomed = true;
     calculateMapDimensions();
+    updateBackBtnVisibility();
   } else if (mapZoomed && !clickedOnMap) {
     mapZoomed = false;
     calculateMapDimensions();
+    updateBackBtnVisibility();
   }
 }
 function keyPressed() {
@@ -905,6 +939,7 @@ function keyPressed() {
     if (mapZoomed) {
       mapZoomed = false;
       calculateMapDimensions();
+      updateBackBtnVisibility();
     }
   }
 }
