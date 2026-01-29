@@ -282,7 +282,7 @@ function drawFooter() {
   fill(110);
   textFont(myFont3);
   textSize(10);
-  textAlign(CENTER, BOTTOM);
+  // textAlign(CENTER, BOTTOM);
   text(
     "Politecnico di Milano · Information Design · Group 8 · A.A. 2025–2026",
     width / 2,
