@@ -1,173 +1,271 @@
-let img1, img2, img3;
-let thumbs = [];
-let largeImages = [];
-let showPreview = false;
-let previewImg = null;
+let insightSketch = function(p) {
+  // Variabili contenuto
+  let img1, img2, img3;
+  let thumbs = [];
+  let largeImages = [];
+  let showPreview = false;
+  let previewImg = null;
 
-// ----------------------------------------------------
-// 文本内容
-// ----------------------------------------------------
-let topText = "HIROSHIMA E NAGASAKI";
-let Text1 = "The use of nuclear weapons in armed conflict has occurred only twice: when the United States detonated two atomic bombs over the Japanese cities of Hiroshima and Nagasaki, during World War II. On 6 th and 9 th of August 1945, these aerial attacks claimed the lives of 150,000 to 246,000 people, most of whom were civilians.";
-let Text2 = "The atomic bomb dropped on Hiroshima was named Little Boy, it was a uranium gun-type fission weapon developed by the Manhattan Project. It was dropped by the B-29 Enola Gay on Hiroshima on August 6, 1945, marking it the first use of a nuclear weapon in warfare. It exploded with an energy equivalent to approximately 15 kilotons of TNT, causing widespread devastation with an explosion radius of about 1.3 kilometers (0.81 mi).";
-let Text3 = "The name of the atomic bomb dropped on Nagasaki was Fat Man, it was a plutonium-based implosion-type nuclear bomb. It was dropped from the B-29 bomber Bockscar on Nagasaki on August 9, 1945. It exploded with an energy equivalent to approximately 21 kilotons of TNT, weighing 10,300 pounds and making it most powerful design to ever be used in warfare.";
+  let currentTopic = "hiroshima";
+  let pageTitle = "Insight";
+  let contentTitle = "";
+  let Text1, Text2, Text3;
 
-// layout variables
-let scrollY = 0;
-let targetScrollY = 0;
-let canvasHeight;
+  const contentConfig = {
+    "hiroshima": {
+      title: "Hiroshima & Nagasaki",
+      texts: [
+        "The use of nuclear weapons in armed conflict has occurred only twice: when the United States detonated two atomic bombs over the Japanese cities of Hiroshima and Nagasaki, during World War II. On 6 th and 9 th of August 1945, these aerial attacks claimed the lives of 150,000 to 246,000 people, most of whom were civilians.",
+        "The atomic bomb dropped on Hiroshima was named Little Boy, it was a uranium gun-type fission weapon developed by the Manhattan Project. It was dropped by the B-29 Enola Gay on Hiroshima on August 6, 1945, marking it the first use of a nuclear weapon in warfare. It exploded with an energy equivalent to approximately 15 kilotons of TNT, causing widespread devastation with an explosion radius of about 1.3 kilometers (0.81 mi).",
+        "The name of the atomic bomb dropped on Nagasaki was Fat Man, it was a plutonium-based implosion-type nuclear bomb. It was dropped from the B-29 bomber Bockscar on Nagasaki on August 9, 1945. It exploded with an energy equivalent to approximately 21 kilotons of TNT, weighing 10,300 pounds and making it most powerful design to ever be used in warfare."
+      ],
+      imagePaths: [
+        "images/hiroshima-bombing-article-about-atomic-bomb.jpg",
+        "images/insight_img2.jpg",
+        "images/hiding_the_radiation_of_the_atomic_bombs_1050x700.avif"
+      ],
+      thumbnails: ["4", "5", "6", "7", "8", "9", "10"],
+      bottomTexts: [
+        "Carl Mydans Hiroshima Japan 1947, Atomic",
+        "A barefoot boy waiting in line and staring ahead at a crematorium after the Nagasaki bombing, with his dead baby brother strapped to his back. \nPhoto by US Marine photographer Joe O'Donnell",
+        "From notes by LIFE's Bernard Hoffman to the magazine's long-time picture editor, Wilson Hicks, in New York, September 1945",
+        "Mother and child in Hiroshima, Japan, December 1945 Alfred Eisenstaedt",
+        "A correspondent stands in the rubble in Hiroshima on Sept. 8, 1945, a month after the first atomic bomb ever used in warfare was dropped by the U.S.\nStanley Troutman / AP",
+        "The devastated city of Nagasaki after an atomic bomb was dropped on it by a US Air Force B-29 bomber —AFP",
+        "The mushroom cloud rising over Hiroshima, Japan on August 6, 1945"
+      ],
+      hasThreeSections: true
+    },
+    "moratoria58": {
+      title: "Moratorium 1958",
+      texts: [
+        "The 1958 nuclear test moratorium was a unilateral suspension of nuclear weapons testing announced by the Soviet Union on March 31, 1958, and followed by the United States and United Kingdom.",
+        "This moratorium lasted from November 1958 to September 1961, representing the first significant pause in nuclear testing since the beginning of the atomic age.",
+        "The moratorium broke down when the Soviet Union resumed testing in 1961, citing the need to respond to increased international tensions and the Berlin Crisis."
+      ],
+      imagePaths: [
+        "images/insight_1958_img1.jpg",
+        "images/insight_img2.jpg",
+        "images/hiding_the_radiation_of_the_atomic_bombs_1050x700.avif"
+      ],
+      thumbnails: [],
+      bottomTexts: [],
+      hasThreeSections: false
+    },
+    "trattato63": {
+      title: "Test Ban Treaty 1963",
+      texts: [
+        "The Partial Test Ban Treaty (PTBT), also known as the Limited Test Ban Treaty, was signed on August 5, 1963, by the United States, United Kingdom, and Soviet Union.",
+        "The treaty prohibited all test detonations of nuclear weapons except for those conducted underground, effectively banning nuclear weapons tests in the atmosphere, underwater, and in outer space.",
+        "The treaty was a response to growing international concern about radioactive fallout from atmospheric tests and represented a first step toward nuclear arms control."
+      ],
+      imagePaths: [
+        "images/1963.png",
+        "images/insight_img2.jpg",
+        "images/hiding_the_radiation_of_the_atomic_bombs_1050x700.avif"
+      ],
+      thumbnails: [],
+      bottomTexts: [],
+      hasThreeSections: false
+    },
+    "trattato96": {
+      title: "Test Ban Treaty 1996",
+      texts: [
+        "The Comprehensive Nuclear-Test-Ban Treaty (CTBT) is a multilateral treaty that bans all nuclear explosions, for both civilian and military purposes, in all environments.",
+        "Adopted by the United Nations General Assembly on September 10, 1996, the treaty has been signed by 185 nations and ratified by 170, but has not entered into force due to the non-ratification by eight specific nuclear technology holder countries.",
+        "The treaty established the Comprehensive Nuclear-Test-Ban Treaty Organization (CTBTO) to monitor compliance through a global network of monitoring stations."
+      ],
+      imagePaths: [
+        "images/1996.png",
+        "images/insight_img2.jpg",
+        "images/hiding_the_radiation_of_the_atomic_bombs_1050x700.avif"
+      ],
+      thumbnails: [],
+      bottomTexts: [],
+      hasThreeSections: false
+    },
+    "tsarbomba": {
+      title: "Tsar Bomba - 50 MT",
+      texts: [
+        "The Tsar Bomba was the most powerful nuclear weapon ever detonated, with a yield of 50 megatons of TNT, developed by the Soviet Union and tested on October 30, 1961.",
+        "The bomb was originally designed for a 100-megaton yield, but was scaled down to reduce radioactive fallout. Even at half its potential yield, it was 3,800 times more powerful than the Hiroshima bomb.",
+        "The fireball was about 8 kilometers (5.0 mi) in diameter and the mushroom cloud reached a height of 67 km (42 mi). The heat from the explosion could have caused third-degree burns 100 km (62 mi) away."
+      ],
+      imagePaths: [
+        "images/tsar1.jpg",
+        "images/tsar2.png",
+        "images/tsar3.png"
+      ],
+      thumbnails: [],
+      bottomTexts: [],
+      hasThreeSections: true
+    }
+  };
 
-let topMargin = 40;
-let sideMargin = 80;
-let textGap = -200;
-let spacing = 80;
-let maxTextWidth = 400;
-let topTextSideMargin = 400;
+  // Variabili layout
+  let scrollY = 0;
+  let targetScrollY = 0;
+  let canvasHeight;
 
-let imgW, imgH;
+  let topMargin = 40;
+  let sideMargin = 80;
+  let textGap = -200;
+  let spacing = 100;
+  let maxTextWidth = 500;
+  let topTextSideMargin = 400;
 
-let previewIndex = -1;     // 当前预览的大图索引
-let previewArrowSize = 20; // 左右箭头尺寸
+  let imgW, imgH;
 
+  let previewIndex = -1;
+  let previewArrowSize = 20;
 
-// thumbnails
-let thumbOffset = 0;
-let targetThumbOffset = 0;
-let thumbSize = 120;
-let thumbGap = 30;
+  let thumbOffset = 0;
+  let targetThumbOffset = 0;
+  let thumbSize = 120;
+  let thumbGap = 30;
 
-let myFont1, myFont2, myFont3;
+  let myFont1, myFont2, myFont3;
 
-let titleAlpha = map(scrollY, 0, 200, 255, 0, true);
+  let titleAlpha;
+  let fadeIn = 0;
+  let floatOffset = 20;
 
-let previewBottomTextPadding = 40; // distance from bottom of image
-let screenBottomPadding = 20;      // distance from bottom of the canvas
+  p.preload = function() {
+    myFont1 = p.loadFont("fonts/LexendZetta-Regular.ttf");
+    myFont2 = p.loadFont("fonts/LibreFranklin-Regular.otf");
+    myFont3 = p.loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
 
+    const urlParams = new URLSearchParams(window.location.search);
+    currentTopic = urlParams.get('topic') || 'hiroshima';
+    
+    const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
+    
+    img1 = p.loadImage(config.imagePaths[0]);
+    img2 = config.hasThreeSections ? p.loadImage(config.imagePaths[1]) : null;
+    img3 = config.hasThreeSections ? p.loadImage(config.imagePaths[2]) : null;
+    
+    thumbs = [];
+    largeImages = [];
+    if (currentTopic === "hiroshima") {
+      config.thumbnails.forEach(thumbName => {
+        let t = p.loadImage(`images/insight_img${thumbName}.jpg`);
+        thumbs.push(t);
+        largeImages.push(t);
+      });
+    }
+    
+    contentTitle = config.title;
+    Text1 = config.texts[0];
+    Text2 = config.hasThreeSections ? config.texts[1] : "";
+    Text3 = config.hasThreeSections ? config.texts[2] : "";
+  };
 
-function preload() {
-  // fonts (keep same filenames in your project)
-  myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
-  myFont2 = loadFont("fonts/LibreFranklin-Regular.otf");
-  myFont3 = loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
+  p.setup = function() {
+    calculateCanvasHeight();
+    let c = p.createCanvas(p.windowWidth, p.windowHeight);
+    c.style("position", "fixed");
+    c.style("top", "0px");
+    c.style("left", "0px");
+    c.style("z-index", "1");
 
-  // main images — ensure these exist in images/
-  img1 = loadImage(`images/hiroshima-bombing-article-about-atomic-bomb.jpg`);
-  img2 = loadImage(`images/insight_img2.jpg`);
-  img3 = loadImage(`images/hiding_the_radiation_of_the_atomic_bombs_1050x700.avif`);
+    p.textSize(22);
+    imgW = p.windowWidth * 0.62;
+    imgH = imgW * 800 / 1200;
+    
+    fadeIn = 0;
+    floatOffset = 20;
+  };
 
-  // thumbs and largeImages (7 thumbnails expected)
-  for (let i = 4; i <= 10; i++) {
-    let t = loadImage(`images/insight_img${i}.jpg`);
-    thumbs.push(t);
-    // for preview we reuse the same images (or replace with high-res paths)
-    largeImages.push(loadImage(`images/insight_img${i}.jpg`));
-  }
-}
+  p.draw = function() {
+    p.background(20);
+    p.fill(255);
 
-function setup() {
-  calculateCanvasHeight();
-  let c = createCanvas(windowWidth, windowHeight);
-  c.style("position", "fixed");
-  c.style("top", "0px");
-  c.style("left", "0px");
-  c.style("z-index", "-1");
+    scrollY += (targetScrollY - scrollY) * 0.12;
+    thumbOffset += (targetThumbOffset - thumbOffset) * 0.18;
+    
+    fadeIn = p.min(fadeIn + 3, 255);
+    floatOffset = p.max(floatOffset - 0.6, 0);
 
-  textSize(22);
-  imgW = width * 0.62;
-  imgH = imgW * 800 / 1200;
-}
+    titleAlpha = p.map(scrollY, 0, 200, 255, 0, true); 
+    p.fill(200, titleAlpha);
+    p.textAlign(p.CENTER, p.TOP);
+    p.textFont(myFont1);
+    p.noStroke();
+    p.textSize(20);
+    p.text(pageTitle, p.width / 2, 30);
 
-function draw() {
-  background(0);
-  fill(255);
+    let topTextW = p.width - topTextSideMargin * 2;
+    let topTextH = estimateTextHeight(pageTitle, topTextW);
 
-  // smooth scrolling
-  scrollY += (targetScrollY - scrollY) * 0.12;
-  thumbOffset += (targetThumbOffset - thumbOffset) * 0.18;
+    const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
+    const hasThreeSections = config.hasThreeSections;
 
-  // top title
-  let titleAlpha = map(scrollY, 0, 200, 255, 0, true); 
-  fill(200, titleAlpha);
-  textAlign(CENTER, TOP);
-  textFont(myFont1);
-  noStroke();
-  textSize(20);
-  text(topText, width / 2, 30);
+    let y1 = topMargin + topTextH + 100 + floatOffset;
+    
+    p.tint(255, 180 * fadeIn / 255);
+    p.image(img1, sideMargin, y1 - scrollY * 0.9, imgW, imgH);
+    p.noTint();
 
-  // compute top text width & height
-  let topTextW = width - topTextSideMargin * 2;
-  let topTextH = estimateTextHeight(topText, topTextW);
+    let titleX = sideMargin + imgW + textGap + maxTextWidth + 180;
+    let titleY = y1 - scrollY * 0.9 + 0;
+    
+    p.textAlign(p.RIGHT, p.TOP);
+    p.textFont(myFont1);
+    p.noStroke();
+    p.fill(0, 255, 255, fadeIn);
+    p.textSize(16);
+    p.text(contentTitle, titleX, titleY);
 
-  // -------------------------
-  // 第一行 (左图右文)
-  // -------------------------
-  let y1 = topMargin + topTextH + spacing;
-  tint(255, 180);
-  image(img1, sideMargin, y1 - scrollY * 0.9, imgW, imgH);
-  noTint();
+    let textX1 = sideMargin + imgW + textGap;
+    let textW1 = maxTextWidth;
+    
+    let textCenterY = y1 - scrollY * 0.9 + imgH / 2;
+    let textHeight1 = estimateTextHeight(Text1, textW1);
+    let textY1 = textCenterY - textHeight1 / 2;
+    
+    let alpha1 = p.map(y1 - scrollY, p.height, 0, 0, 255, true);
+    drawTextWithFloat(Text1, textX1, textY1, textW1, alpha1, -20, 20);
 
-  let textX1 = sideMargin + imgW + textGap;
-  let textW1 = min(width - sideMargin - textX1, maxTextWidth);
-  let alpha1 = map(y1 - scrollY, height, 0, 0, 255, true);
-  drawTextInteractive(Text1, textX1, y1 + 100 - scrollY, textW1, alpha1, -20, 20);
+    if (hasThreeSections && img2) {
+      let y2 = y1 + imgH + spacing;
+      
+      let imgX2 = p.width - sideMargin - imgW;
+      p.tint(255, 120 * fadeIn / 255);
+      p.image(img2, imgX2, y2 - scrollY * 0.9, imgW, imgH);
+      p.noTint();
 
-  // -------------------------
-  // 第二行 (右图左文)
-  // -------------------------
-  let y2 = y1 + imgH + spacing;
-  let imgX2 = width - sideMargin - imgW;
-  tint(255, 120);
-  image(img2, imgX2, y2 - scrollY * 0.9, imgW, imgH);
-  noTint();
+      let textX2 = sideMargin + 100;
+      let textW2 = maxTextWidth;
+      
+      let textCenterY2 = y2 - scrollY * 0.9 + imgH / 2;
+      let textHeight2 = estimateTextHeight(Text2, textW2);
+      let textY2 = textCenterY2 - textHeight2 / 2;
+      
+      let alpha2 = p.map(y2 - scrollY, p.height, 0, 0, 255, true);
+      drawTextWithFloat(Text2, textX2, textY2, textW2, alpha2, 20, -20);
 
-  let textX2 = sideMargin + 100;
-  let textW2 = min(imgX2 - textX2 - textGap, maxTextWidth);
-  let alpha2 = map(y2 - scrollY, height, 0, 0, 255, true);
-  drawTextInteractive(Text2, textX2, y2 + 200 - scrollY, textW2, alpha2, 20, -20);
+      let y3 = y2 + imgH + spacing;
+      
+      p.tint(255, 180 * fadeIn / 255);
+      p.image(img3, sideMargin, y3 - scrollY * 0.9, imgW, imgH);
+      p.noTint();
 
-  // -------------------------
-  // 第三行 (左图右文)
-  // -------------------------
-  let y3 = y2 + imgH + spacing;
-  tint(255, 180);
-  image(img3, sideMargin, y3 - scrollY * 0.9, imgW, imgH);
-  noTint();
+      let textX3 = sideMargin + imgW + textGap;
+      let textW3 = maxTextWidth;
+      
+      let textCenterY3 = y3 - scrollY * 0.9 + imgH / 2;
+      let textHeight3 = estimateTextHeight(Text3, textW3);
+      let textY3 = textCenterY3 - textHeight3 / 2;
+      
+      let alpha3 = p.map(y3 - scrollY, p.height, 0, 0, 255, true);
+      drawTextWithFloat(Text3, textX3, textY3, textW3, alpha3, -20, 20);
 
-  let textX3 = sideMargin + imgW + textGap;
-  let textW3 = min(width - sideMargin - textX3, maxTextWidth);
-  let alpha3 = map(y3 - scrollY, height, 0, 0, 255, true);
-  drawTextInteractive(Text3, textX3, y3 + 300 - scrollY, textW3, alpha3, -20, 20);
-
-  // -------------------------
-  // 底部缩略图（固定在文档底部位置，根据 scrollY 变化）
-  // -------------------------
-  let thumbY = calculateThumbY(scrollY);
-  drawThumbnails(thumbY);
-
-  // -------------------------
-  // 预览显示
-  // -------------------------
-  if (showPreview && previewImg) {
-    drawPreviewOverlay();
-  }
-}
-
-// ==============================
-// mousePressed: 缩略图、箭头、关闭预览逻辑
-// ==============================
-function mousePressed() {
-  // if preview shown: 点击任意处关闭
-  if (showPreview) {
-    // 点击左箭头（上一张）
-    let leftX = 100;
-    let arrowY1 = height / 2 - previewArrowSize;
-    let arrowY2 = height / 2 + previewArrowSize;
-    if (mouseX > leftX && mouseX < leftX + previewArrowSize &&
-        mouseY > arrowY1 && mouseY < arrowY2) {
-
-        previewIndex = (previewIndex - 1 + largeImages.length) % largeImages.length;
-        previewImg = largeImages[previewIndex];
-        return;
+      if (currentTopic === "hiroshima") {
+        let thumbY = calculateThumbY(scrollY);
+        if (thumbY < p.height + 200 && thumbs.length > 0) {
+          drawThumbnails(thumbY);
+        }
+      }
     }
 
     if (showPreview && previewImg && currentTopic === "hiroshima") {
