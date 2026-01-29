@@ -167,6 +167,7 @@ function preload() {
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  
 
   for (let i = 0; i < table.getRowCount(); i++) {
     let row = table.getRow(i);
@@ -239,6 +240,7 @@ function initMenu() {
   }
 }
   initMenu();
+  checkExternalCountryFilter();
 }
 
 function computeIntroTargets() {
@@ -1765,3 +1767,18 @@ function getDatasetCountryName(label) {
   if (label === "PAKISTAN") return "PAKIST";
   return label;
 }
+function checkExternalCountryFilter() {
+  let params = new URLSearchParams(window.location.search);
+  let countryParam = params.get('country');
+  
+  if (countryParam) {
+    // 将 URL 中的国家名赋值给你的全局变量
+    selectedCountry = countryParam.toUpperCase();
+    
+    // 自动跳转到第二页视图
+    page = 2;
+    enteredPage2ByScroll = true;
+    scrollProgress = endYear; // 直接展示最终结果
+  }
+}
+
