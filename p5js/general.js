@@ -4,10 +4,11 @@
 // ===============================
 // Country filter
 // ===============================
-let selectedCountry = "All country";
+let selectedCountry = "ALL COUNTRIES";
 const countries = [
+  "ALL COUNTRIES",
   "INDIA",
-  "PAKIST",
+  "PAKISTAN",
   "CHINA",
   "FRANCE",
   "UK",
@@ -15,17 +16,19 @@ const countries = [
   "USSR"
 ];
 
+
 // Menu UI
 let menuOpen = false;
 let animatedOnce = false;
-const BTN_W = 130;
-const BTN_H = 36;
+const BTN_W = 125;
+const BTN_H = 30;
 const GAP = 10;
 const RADIUS = 6;
 const PADDING_AREA = 14;
 
 let menuButtons = [];
-
+let menuItems = []; 
+let listButtons = [];
 
 let page = 1;
 let data = [];
@@ -214,6 +217,28 @@ function setup() {
 
   creaParticlesDaTabella();
   checkHashNavigation();
+function initMenu() {
+  let mainX = width / 2 - BTN_W / 2 + 20; 
+  let mainY = 170;
+  let columnGap = 10; 
+
+  listButtons = [];
+  for (let i = 0; i < countries.length; i++) {
+    // 0 = 左列, 1 = 右列
+    let col = i < 4 ? 0 : 1; 
+    let row = i % 4;
+    
+    // 计算对齐：
+    // 如果是左列(0)，x = mainX - (BTN_W + columnGap)/2
+    // 如果是右列(1)，x = mainX + (BTN_W + columnGap)/2
+    let offsetX = (col === 0) ? -(BTN_W + columnGap) / 2 : (BTN_W + columnGap) / 2;
+    let targetX = mainX + offsetX;
+    let targetY = mainY + BTN_H + GAP + row * (BTN_H + GAP);
+    
+    listButtons.push(new MenuButton(targetX, mainY, countries[i], targetY));
+  }
+}
+  initMenu();
 }
 
 function computeIntroTargets() {
@@ -701,7 +726,17 @@ function drawPage2() {
   textSize(14);
   textAlign(CENTER, TOP);
   //text("TOTAL AMOUNT OF BOMBS", width / 2, 80);
-  let activeParticles = particles2.filter((p) => p.active).length;
+let activeParticles;
+// 找到这部分代码进行修改
+if (selectedCountry === "ALL COUNTRIES") {
+    activeParticles = particles2.filter((p) => p.active).length;
+} else {
+    // 使用转换函数处理 selectedCountry
+    let target = getDatasetCountryName(selectedCountry); 
+    activeParticles = particles2.filter((p) => 
+      p.active && normalizeCountry(p.country) === normalizeCountry(target)
+    ).length;
+}
   textFont(myFont3);
   textSize(60);
   fill(0, 255, 255);
@@ -1302,33 +1337,29 @@ function mousePressed() {
         break;
       }
     }
-    if (page === 2) {
-      const mainX = width / 2 - BTN_W / 2;
-      const mainY = 190;
+// 在 mousePressed 的 page === 2 判断中替换
+if (page === 2) {
+  let mainX = width / 2 - BTN_W / 2 + 20;
+  let mainY = 170;
 
-      // click main button
-      if (mouseX >= mainX && mouseX <= mainX + BTN_W &&
-        mouseY >= mainY && mouseY <= mainY + BTN_H) {
-        menuOpen = !menuOpen;
+  // 点击主按钮开关
+  if (mouseX >= mainX && mouseX <= mainX + BTN_W && 
+      mouseY >= mainY && mouseY <= mainY + BTN_H) {
+    menuOpen = !menuOpen;
+    return;
+  }
+
+  // 如果菜单开着，检查子项点击
+  if (menuOpen) {
+    for (let btn of listButtons) {
+      if (btn.isHovered()) {
+        selectedCountry = btn.label;
+        menuOpen = false;
         return;
       }
-
-      if (menuOpen) {
-        const visibleCountries = countries.filter(c => c !== selectedCountry || c === "All country");
-
-        for (let i = 0; i < visibleCountries.length; i++) {
-          let bx = mainX;
-          let by = mainY + BTN_H + GAP + i * (BTN_H + GAP);
-
-          if (mouseX >= bx && mouseX <= bx + BTN_W &&
-            mouseY >= by && mouseY <= by + BTN_H) {
-            selectedCountry = visibleCountries[i];
-            menuOpen = false;
-            return;
-          }
-        }
-      }
     }
+  }
+}
   }
 }
 
@@ -1424,12 +1455,15 @@ class Particle2 {
     this.x = lerp(this.x, this.tx, this.speed);
     this.y = lerp(this.y, this.ty, this.speed);
   }
-  draw() {
+draw() {
     if (!this.active) return;
-    let visible =
-      selectedCountry === "All country" ||
-      normalizeCountry(this.country) === normalizeCountry(selectedCountry);
 
+    // 同样在这里使用转换函数
+    let target = getDatasetCountryName(selectedCountry);
+    
+    let visible =
+      selectedCountry === "ALL COUNTRIES" ||
+      normalizeCountry(this.country) === normalizeCountry(target);
     const isHover = hoveredYear === this.year;
     const rr = isHover ? this.r * 1.25 : this.r;
 
@@ -1594,67 +1628,49 @@ function goNextPage() {
 
 
 function drawCountryMenu() {
-  const x = width / 2+10;
-  const y = 170;
+  let mainX = width / 2 - BTN_W / 2 + 20;
+  let mainY = 170;
 
-  let mainX = x - BTN_W / 2;
-  let mainY = y;
+  // 绘制主按钮
+  drawMainButton(mainX, mainY);
 
-  // main button
-  stroke(0, 255, 255);
-  strokeWeight(2);
-  noFill();
-  rect(mainX, mainY, BTN_W, BTN_H, RADIUS);
-
-  noStroke();
-  fill(0, 255, 255);
-  textAlign(CENTER, CENTER);
-  text(selectedCountry, mainX + BTN_W / 2, mainY + BTN_H / 2);
-
-  // Open/close menu
+  // 处理下拉列表
   if (menuOpen) {
-    const visibleCountries = countries.filter(c => c !== selectedCountry || c === "All country");
+    for (let i = 0; i < listButtons.length; i++) {
+      let btn = listButtons[i];
+      // 只有在打开时才更新位置动画
+      btn.update();
+      btn.display();
+    }
 
-    for (let i = 0; i < visibleCountries.length; i++) {
-      let bx = mainX;
-      let by = mainY + BTN_H + GAP + i * (BTN_H + GAP);
-
-      stroke(0, 255, 255);
-      strokeWeight(2);
-      noFill();
-      rect(bx, by, BTN_W, BTN_H, RADIUS);
-
-      noStroke();
-      fill(0, 255, 255);
-      textAlign(CENTER, CENTER);
-      text(visibleCountries[i], bx + BTN_W / 2, by + BTN_H / 2);
-
-      // hover highlight
-      if (mouseX >= bx && mouseX <= bx + BTN_W && mouseY >= by && mouseY <= by + BTN_H) {
-        fill(0);
-        rect(bx, by, BTN_W, BTN_H, RADIUS);
-        fill(0);
-        text(visibleCountries[i], bx + BTN_W / 2, by + BTN_H / 2);
-      }
+    // 自动检测离开区域关闭菜单 (Polimi风格的交互细节)
+    if (!isMouseInMenuArea(mainX, mainY)) {
+      menuOpen = false;
+    }
+  } else {
+    // 菜单关闭时，重置所有按钮位置到主按钮处，方便下次弹出动画
+    for (let btn of listButtons) {
+      btn.visibleY = mainY;
+      btn.x = mainX;
     }
   }
 }
 
 function isMouseInMenuArea(mainX, mainY) {
-  let left = mainX - PADDING_AREA;
-  let right = mainX + BTN_W + PADDING_AREA;
+  let columnGap = 10;
+  let totalW = BTN_W * 2 + columnGap;
+  
+  // 左边界：中轴线往左半个总宽
+  let left = mainX + (BTN_W / 2) - (totalW / 2) - PADDING_AREA;
+  let right = left + totalW + PADDING_AREA * 2;
   let top = mainY - PADDING_AREA;
-  let bottom = mainY + BTN_H + PADDING_AREA + (countries.length) * (BTN_H + GAP);
+  let bottom = mainY + BTN_H + PADDING_AREA + 4 * (BTN_H + GAP);
 
   return (
     mouseX >= left && mouseX <= right &&
     mouseY >= top && mouseY <= bottom
   );
 }
-
-
-
-
 // ===============================
 // LISTENER MENU → CAMBIO PAGINA
 // ===============================
@@ -1668,9 +1684,84 @@ window.addEventListener("changePage", (e) => {
 });
 
 function getVisibleCountries() {
-  return countries.filter(c => c !== selectedCountry || c === "All country");
+  return countries.filter(c => c !== selectedCountry || c === "ALL COUNTRIES");
 }
 
 function normalizeCountry(c) {
   return c.trim().toUpperCase();
+}
+
+function drawMainButton(x, y) {
+  // 1. 先画左边的 "by" 单词
+  fill(0, 255, 255); // 蓝色
+  noStroke();
+  textFont(myFont2);
+  textSize(20);
+  textAlign(RIGHT, CENTER); // 右对齐，方便紧贴按钮左侧
+  
+  // x 是按钮左边缘，减去一个间距（比如 12px）
+  text("by", x - 15, y + BTN_H / 2 - 4);
+  let isHover = mouseX >= x && mouseX <= x + BTN_W && mouseY >= y && mouseY <= y + BTN_H;
+  
+  stroke(0, 255, 255);
+  strokeWeight(2);
+  if (isHover || menuOpen) fill(0, 255, 255);
+  else noFill();
+  
+  rect(x, y, BTN_W, BTN_H, RADIUS);
+
+  noStroke();
+  fill(isHover || menuOpen ? 20 : color(0, 255, 255));
+  textAlign(CENTER, CENTER);
+  textFont(myFont2);
+  textSize(14);
+  text(selectedCountry, x + BTN_W / 2, y + BTN_H / 2 - 1);
+}
+
+class MenuButton {
+  constructor(targetX, y, label, targetY) {
+    this.initialX = width / 2 - BTN_W / 2 + 30; // 主按钮的 X
+    this.targetX = targetX;
+    this.x = this.initialX; // 当前动态 X
+    this.visibleY = y;
+    this.targetY = targetY;
+    this.w = BTN_W;
+    this.h = BTN_H;
+    this.label = label;
+  }
+
+  update() {
+    let easing = 0.2;
+    // 同时平移 X 和 Y
+    this.x += (this.targetX - this.x) * easing;
+    this.visibleY += (this.targetY - this.visibleY) * easing;
+  }
+
+  display() {
+    let hovered = this.isHovered();
+    stroke(0, 255, 255);
+    strokeWeight(2);
+    if (hovered) fill(0, 255, 255);
+    else fill(20, 220);
+
+    rect(this.x, this.visibleY, this.w, this.h, RADIUS); // 使用动态 this.x
+
+    noStroke();
+    fill(hovered ? 20 : color(0, 255, 255));
+    textAlign(CENTER, CENTER);
+    text(this.label, this.x + this.w / 2, this.visibleY + this.h / 2 - 1);
+  }
+
+  isHovered() {
+    return (
+      mouseX >= this.x && mouseX <= this.x + this.w &&
+      mouseY >= this.visibleY && mouseY <= this.visibleY + this.h
+    );
+  }
+}
+
+// 统一处理国家名匹配逻辑
+function getDatasetCountryName(label) {
+  if (label === "PAKISTAN") return "PAKIST";
+  return label;
 }
