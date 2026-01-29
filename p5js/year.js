@@ -29,6 +29,7 @@ let highlightColor;
 let countryTotalCounts = {};
 let margin = 80;
 
+let selectedCountry = null;
 
 
 function preload() {
@@ -43,19 +44,22 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   highlightColor = color(0, 255, 255);
   processData();
+
   const urlParams = new URLSearchParams(window.location.search);
+
   const yearParam = urlParams.get("year");
-  console.log(yearParam);
   if (yearParam) {
     const parsedYear = parseInt(yearParam);
     const index = years.indexOf(parsedYear);
-    if (index !== -1) {
-      currentYearIndex = index;
-    }
+    if (index !== -1) currentYearIndex = index;
   }
 
-  
+  const countryParam = urlParams.get("country");
+  if (countryParam && countries.includes(countryParam)) {
+    selectedCountry = countryParam;
+  }
 }
+
 
 function draw() {
   background(20);
@@ -120,8 +124,14 @@ function draw() {
   const fixedSpacing = 150; 
   const lineY = height / 2 + 50;
 
-  countries.forEach((country, idx) => {
-    let x = width / 2 + (idx - (countries.length - 1) / 2) * fixedSpacing;
+  const visibleCountries = selectedCountry
+  ? countries.filter(c => c === selectedCountry)
+  : countries;
+
+visibleCountries.forEach((country, idx) => {
+
+let x = width / 2 + (idx - (visibleCountries.length - 1) / 2) * fixedSpacing;
+
     if (mouseX > x - 40 && mouseX < x + 120 && mouseY > lineY - 20 && mouseY < lineY + 20) {
       overCountry = true;
     }
@@ -741,8 +751,11 @@ function mousePressed() {
       mouseY > lineY - areaAltezza &&
       mouseY < lineY + areaAltezza
     ) {
-      window.location.href = `year_country.html?year=${years[currentYearIndex]}&country=${country}`;
-      return;
+ window.location.href =
+  `index.html?year=${years[currentYearIndex]}&resetCountry=true#page2`;
+
+
+return;
     }
 
   });

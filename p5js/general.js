@@ -167,6 +167,7 @@ function preload() {
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  
 
   for (let i = 0; i < table.getRowCount(); i++) {
     let row = table.getRow(i);
