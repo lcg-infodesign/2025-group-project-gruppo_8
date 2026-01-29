@@ -463,7 +463,7 @@ function drawYearNavigation(currentYear) {
   
   textFont(myFont2);
   fill(0, 255, 255);
-  textSize(14);
+  textSize(20);
   text("NUCLEAR TEST EACH YEAR", width / 2, 70);
 
 
@@ -632,10 +632,10 @@ function drawBottomInfo(yearData) {
   textAlign(RIGHT, TOP);
   textSize(20);
   textFont(myFont2);
-  text("TOTAL BOMBS", width - 80, 137);
+  text("Bombs launched", width - 80, 160);
   textSize(60);
   textFont(myFont3);
-  text(total, width - 80, 57);
+  text(total, width - 80, 80);
 }
 
 function drawLegend() {
