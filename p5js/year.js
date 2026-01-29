@@ -388,7 +388,7 @@ function processData() {
         id: id_no,
         year: year,
         country: country,
-        bombName: bName || "N/A", // 存储炸弹名称
+        bombName: bName || "N/A", 
         yield: isNaN(yield_u) || yield_u < 0 ? 0 : yield_u,
         type: type || "ATMOSPH",
         // --- bombData ---
@@ -595,11 +595,11 @@ function drawTestDots(yearData) {
     push();
     translate(x, lineY); 
     if (isNameHovered) {
-      scale(1.1);        // 悬停时放大 1.5 倍
-      fill(0, 255, 255); // 悬停时的“青色” (Cyan)
+      scale(1.1);        
+      fill(0, 255, 255);
     } else {
-      scale(1.0);        // 默认倍数
-      fill(200); // 默认颜色，稍微加点透明度以便区分
+      scale(1.0);       
+      fill(200); 
     }
 
     // country name
@@ -641,11 +641,9 @@ function drawTestDots(yearData) {
     pop();
   });
 
-  // --- 保持完全一致的 Hover 检测 ---
   const isHoverATM = (mouseX >= margin - 8 && mouseX <= margin - 8 + 90 && mouseY >= margin + 282 && mouseY <= margin + 282 + 30);
   const isHoverUND = (mouseX >= margin - 8 && mouseX <= margin - 8 + 100 && mouseY >= height - margin - 165 - 20 && mouseY <= height - margin - 165);
 
-  // --- 保持完全一致的提示框样式 ---
   if (isHoverATM) {
     push();
     const padding = 8;
@@ -654,7 +652,7 @@ function drawTestDots(yearData) {
     let boxW = 180;
     let boxH = padding * 2 + lineHeight * 3.5;
     let boxX = margin - 8;
-    let boxY = 138; // 按照你提供的代码中固定的 Y 轴位置
+    let boxY = 138; 
     rect(boxX, boxY, boxW, boxH, 5);
     textSize(12);
     textAlign(LEFT, TOP);
@@ -797,7 +795,6 @@ function mousePressed() {
     if (mouseX > btnX && mouseX < btnX + btnW &&
         mouseY > btnY && mouseY < btnY + btnH) {
       
-      // 根据年份定义不同的跳转链接
       if (activeYear === 1958) {
         window.location.href = 'insight.html?topic=moratoria58';
       } else if (activeYear === 1963) {
@@ -913,7 +910,7 @@ function drawBombTooltip() {
     if (bombData) {
       const padding = 10;
       const lineHeight = 20;
-      const boxW = 200; 
+      const boxW = 220;
       const boxH = padding * 2 + lineHeight * 2; 
 
       let boxX = mouseX + 15;
@@ -931,19 +928,20 @@ function drawBombTooltip() {
       textSize(12);
       textFont(myFont2);
       
-      // left labels
+      // --- left (Labels) ---
       textAlign(LEFT, TOP);
       fill(0, 255, 255, 160); 
-      text("Country:", boxX + padding, boxY + padding);
-      text("Bomb Name:", boxX + padding, boxY + padding + lineHeight);
+      text("Bomb Name:", boxX + padding, boxY + padding);
+      text("Yield (kt):", boxX + padding, boxY + padding + lineHeight);
 
-      // right values
+      // --- right (Values) ---
       textAlign(RIGHT, TOP);
       fill(0, 255, 255); 
       const valueX = boxX + boxW - padding;
-      text(bombData.country, valueX, boxY + padding);
-      //if bomb name is too long, truncate it
-      text(bombData.bombName, valueX, boxY + padding + lineHeight);
+      
+      text(bombData.bombName, valueX, boxY + padding);
+      text(bombData.yield, valueX, boxY + padding + lineHeight);
+      
       pop();
     }
   }
