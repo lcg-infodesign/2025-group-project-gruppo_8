@@ -28,7 +28,6 @@ In 1997 there were no nuclear launches because the international context was rel
 let highlightColor;
 let countryTotalCounts = {};
 let margin = 80;
-
 let selectedCountry = null;
 
 
@@ -137,7 +136,24 @@ let x = width / 2 + (idx - (visibleCountries.length - 1) / 2) * fixedSpacing;
     }
   });
 
-  cursor(overArrow || overDot || overCountry ? HAND : ARROW);
+  // hover year
+  let overTimelineYear = false;
+  let ty = height - 50;   
+  let spacing = 80;     
+  let centerX = width / 2;
+
+  if (mouseY > ty - 40 && mouseY < ty + 40) {
+    for (let i = 0; i < years.length; i++) {
+      let x = centerX + (i - currentYearIndex) * spacing;
+      if (abs(mouseX - x) < 30) { 
+        overTimelineYear = true;
+        break;
+      }
+    }
+  }
+
+
+  cursor(overArrow || overDot || overCountry || overTimelineYear ? HAND : ARROW);
 
   drawColumnCTA(); // Disegna il messaggio "Click a column to see more"
 
@@ -158,18 +174,18 @@ let x = width / 2 + (idx - (visibleCountries.length - 1) / 2) * fixedSpacing;
 
     if (isHoverBack) {
       fill(20, 20, 20, 200);
-      stroke(255, 122, 34, 200);
+      stroke(0, 255, 255, 200);
       cursor(HAND);
     } else {
       fill(20, 20, 20, 200);
-      stroke(255, 122, 34, 120);
+      stroke(0, 255, 255, 120);
     }
 
     strokeWeight(1);
-    rect(btnX, btnY, btnW, btnH);
+    rect(btnX, btnY, btnW, btnH, 8);
 
     noStroke();
-    fill(isHoverBack ? 255 : 255, 122, 34);
+    fill(0, 255, 255, isHoverBack ? 255 : 180);
     textAlign(CENTER, CENTER);
     textFont(myFont3);
     textSize(14);
@@ -186,7 +202,7 @@ let x = width / 2 + (idx - (visibleCountries.length - 1) / 2) * fixedSpacing;
     push();
     translate(triX, triY);
     noStroke();
-    fill(isHoverBack ? 255 : 255, 122, 34);
+    fill(0, 255, 255, isHoverBack ? 255 : 180);
     // Draw the triangle
     triangle(-triSize, -triSize, -triSize, triSize, triSize, 0);
     pop();
@@ -204,8 +220,8 @@ function drawTimeline() {
     let centerX = width / 2; 
     
     // disegna gli anni 
-    const historicYears = [1958, 1963, 1996];
-    const orangeColor = [255, 122, 34]; //  orangeRGB
+    const historicYears = [1947, 1950, 1958, 1959, 1963, 1996, 1997];
+    const insightColor = [0, 255, 255]; //  orangeRGB
     const cyanColor = [255, 255, 255];    // 
     
     push();
@@ -219,7 +235,7 @@ function drawTimeline() {
         opacity = constrain(opacity, 70, 255); 
 
         let isHistoric = historicYears.includes(Number(years[i]));
-        let rgb = isHistoric ? orangeColor : cyanColor;
+        let rgb = isHistoric ? insightColor : cyanColor;
 
         if (i === currentYearIndex) {
           stroke(rgb[0], rgb[1], rgb[2], 255);
@@ -346,6 +362,7 @@ function processData() {
     let id_no = table.getString(i, "id_no");
     let year = parseInt(table.getString(i, "year"));
     let country = table.getString(i, "country");
+    let bName = table.getString(i, "name");
     
     // --- cambiare PAKIST ---
     if (country) {
@@ -365,13 +382,13 @@ function processData() {
 
     if (!isNaN(year) && year > 0 && country) {
       country = country.trim();
-      
       countryTotalCounts[country] = (countryTotalCounts[country] || 0) + 1;
 
       allTests.push({
         id: id_no,
         year: year,
         country: country,
+        bombName: bName || "N/A", // 存储炸弹名称
         yield: isNaN(yield_u) || yield_u < 0 ? 0 : yield_u,
         type: type || "ATMOSPH",
         // --- bombData ---
@@ -401,9 +418,8 @@ function processData() {
       id: test.id,
       yield: test.yield,
       type: test.type,
-      region: test.region,
-      latitude: test.latitude,
-      longitude: test.longitude
+      bombName: test.bombName
+
     });
   });
 
@@ -522,14 +538,14 @@ function drawTestDots(yearData) {
   let fixedSpacing = 150;
 
   textFont(myFont2);
-  fill(200);
+  fill(0, 255, 255);
   textAlign(LEFT, TOP);
   textSize(14);
   noStroke();
   let margin = 80;
-  text("ATMOSPHERIC", margin - 8, margin + 280);
+  text("Atmospheric", margin - 8, margin + 282);
   textAlign(LEFT, BOTTOM);
-  text("UNDERGROUND", margin - 8, height - margin - 165);
+  text("Underground", margin - 8, height - margin - 165);
 
   countries.forEach((country, idx) => {
     let tests = yearData[country] || [];
@@ -546,6 +562,7 @@ function drawTestDots(yearData) {
       mouseY > lineY - 15 && 
       mouseY < lineY + 15
     );
+
 
     // --- (drawGroup) ---
     const undergroundTypes = ["UG", "SHAFT", "TUNNEL", "GALLERY", "MINE", "SHAFT/GR", "SHAFT/LG"];
@@ -577,19 +594,19 @@ function drawTestDots(yearData) {
     //  country name and total
     push();
     translate(x, lineY); 
-    // if (isNameHovered) {
-    //   scale(1.08);  
-    // }
+    if (isNameHovered) {
+      scale(1.1);        // 悬停时放大 1.5 倍
+      fill(0, 255, 255); // 悬停时的“青色” (Cyan)
+    } else {
+      scale(1.0);        // 默认倍数
+      fill(200); // 默认颜色，稍微加点透明度以便区分
+    }
 
     // country name
     textAlign(CENTER, CENTER);
     textFont(myFont2);
     textSize(14);
-    // if (isNameHovered) {
-    //   fill(255);
-    // } else {
-      fill(0, 255, 255);
-      noStroke();
+  
     // }
     text(country, 0, 0);
 
@@ -623,6 +640,49 @@ function drawTestDots(yearData) {
     //   }
     pop();
   });
+
+  // --- 保持完全一致的 Hover 检测 ---
+  const isHoverATM = (mouseX >= margin - 8 && mouseX <= margin - 8 + 90 && mouseY >= margin + 282 && mouseY <= margin + 282 + 30);
+  const isHoverUND = (mouseX >= margin - 8 && mouseX <= margin - 8 + 100 && mouseY >= height - margin - 165 - 20 && mouseY <= height - margin - 165);
+
+  // --- 保持完全一致的提示框样式 ---
+  if (isHoverATM) {
+    push();
+    const padding = 8;
+    const lineHeight = 16;
+    fill(0, 0, 0, 200);
+    let boxW = 180;
+    let boxH = padding * 2 + lineHeight * 3.5;
+    let boxX = margin - 8;
+    let boxY = 138; // 按照你提供的代码中固定的 Y 轴位置
+    rect(boxX, boxY, boxW, boxH, 5);
+    textSize(12);
+    textAlign(LEFT, TOP);
+    fill(0, 255, 255);
+    text("ATMOSPHERIC", boxX + padding, boxY + padding);
+    text("Nuclear detonations", boxX + padding, boxY + 2 * padding + lineHeight);
+    text("with atmospheric dispersion.", boxX + padding, boxY + 2 * padding + lineHeight * 2);
+    pop();
+  }
+
+  if (isHoverUND) {
+    push();
+    const padding = 8;
+    const lineHeight = 16;
+    fill(0, 0, 0, 200);
+    let boxW = 180;
+    let boxH = padding * 2 + lineHeight * 3.5;
+    let boxX = margin - 8;
+    let boxY = 138; 
+    rect(boxX, boxY, boxW, boxH, 5);
+    textSize(12);
+    textAlign(LEFT, TOP);
+    fill(0, 255, 255);
+    text("UNDERGROUND", boxX + padding, boxY + padding);
+    text("Nuclear detonations", boxX + padding, boxY + 2 * padding + lineHeight);
+    text("under the ground level.", boxX + padding, boxY + 2 * padding + lineHeight * 2);
+    pop();
+  }
 }
 
 function drawBottomInfo(yearData) {
@@ -658,7 +718,7 @@ function drawLegend() {
   ];
 
   textFont(myFont2);
-  textSize(12);
+  textSize(14);
   let circleSize = 10;
   let lineSpacing = 20;
 
@@ -673,20 +733,43 @@ function drawLegend() {
   });
 }
 
+
+// === mouse wheel per cambiare anno ===
+let lastScrollTime = 0;
+let scrollVelocity = 0;
+
 function mouseWheel(event) {
-  if (event.delta < 0) {
-    if (currentYearIndex < years.length - 1) {
-      currentYearIndex++;
-    }
-  } 
-  else if (event.delta > 0) {
-    if (currentYearIndex > 0) {
-      currentYearIndex--;
+  // timeline
+  if (mouseY < height - 100) return;
+
+  let now = millis();
+  let currentDelta = abs(event.deltaX) > abs(event.deltaY) ? event.deltaX : event.deltaY;
+  
+  if (now - lastScrollTime > 500) { 
+    if (abs(currentDelta) > 5) { 
+      
+      if (currentDelta > 0) {
+        if (currentYearIndex < years.length - 1) currentYearIndex++;
+      } else {
+        if (currentYearIndex > 0) currentYearIndex--;
+      }
+      
+      lastScrollTime = now;
     }
   }
-  
+
+  event.preventDefault(); 
   return false;
 }
+
+// blocca lo scroll per un certo tempo
+function lockScroll(time) {
+  isScrollingLocked = true;
+  setTimeout(() => {
+    isScrollingLocked = false;
+  }, time);
+}
+
 function mousePressed() {
   let ty = height - 50;   
   let spacing = 80;       
@@ -702,21 +785,30 @@ function mousePressed() {
     }
   }
 
-  // index button
+  // index button 1958， 1963， 1996 
   let activeYear = Number(years[currentYearIndex]);
   
   if (activeYear === 1958 || activeYear === 1963 || activeYear === 1996) {
     let btnW = 240;
     let btnH = 40;
     let btnX = width / 2 - btnW / 2;
-    let btnY = height - margin - 45;
+    let btnY = height - margin - 65; // 确保 Y 坐标与 draw() 中绘制的位置一致
 
     if (mouseX > btnX && mouseX < btnX + btnW &&
         mouseY > btnY && mouseY < btnY + btnH) {
-      window.location.href = 'insight.html';
+      
+      // 根据年份定义不同的跳转链接
+      if (activeYear === 1958) {
+        window.location.href = 'insight.html?topic=moratoria58';
+      } else if (activeYear === 1963) {
+        window.location.href = 'insight.html?topic=trattato63';
+      } else if (activeYear === 1996) {
+        window.location.href = 'insight.html?topic=trattato96';
+      }
       return;
-   }
+    }
   }
+
   if (mouseX > width / 2 - 150 && mouseX < width / 2 - 90 && mouseY > 120 && mouseY < 170) {
     if (currentYearIndex > 0) {
       currentYearIndex--;
@@ -739,7 +831,7 @@ function mousePressed() {
   const fixedSpacing = 150; // 
   const lineY = height / 2 + 50;
 
-// 在详情页的 mousePressed 函数中修改跳转逻辑
+//  Seleziona solo i paesi visibili se un paese è selezionato
 countries.forEach((country, idx) => {
     let x = width / 2 + (idx - (countries.length - 1) / 2) * fixedSpacing;
     let areaSinistra = 40;  
@@ -752,8 +844,7 @@ countries.forEach((country, idx) => {
       mouseY > lineY - areaAltezza &&
       mouseY < lineY + areaAltezza
     ) {
-      // 修改这里：传递 country 参数给主页 index.html
-      // 同时保留 #page2 锚点以直接定位到图表页
+
       window.location.href = `index.html?country=${country}#page2`;
       return;
     }
@@ -811,7 +902,6 @@ function drawBombTooltip() {
     let yearData = testsByYear[currentYear];
     let bombData = null; 
 
-    // Trova i dati della bomba corrispondente
     for (let country in yearData) {
       bombData = yearData[country].find(t => t.id === hoveredDot.id);
       if (bombData) {
@@ -821,10 +911,10 @@ function drawBombTooltip() {
     }
 
     if (bombData) {
-      const padding = 8;
-      const lineHeight = 16;
-      const boxW = 180;
-      const boxH = padding * 2 + lineHeight * 5;
+      const padding = 10;
+      const lineHeight = 20;
+      const boxW = 200; 
+      const boxH = padding * 2 + lineHeight * 2; 
 
       let boxX = mouseX + 15;
       let boxY = mouseY - boxH / 2;
@@ -834,30 +924,47 @@ function drawBombTooltip() {
       }
 
       push();
-      fill(0, 0, 0, 200);
-      rect(boxX, boxY, boxW, boxH, 5);
+      fill(0, 0, 0, 220);
+      rect(boxX, boxY, boxW, boxH, 4);
 
+      noStroke();
       textSize(12);
-      textAlign(LEFT, TOP);
       textFont(myFont2);
-      fill(0, 255, 255);
+      
+      // left labels
+      textAlign(LEFT, TOP);
+      fill(0, 255, 255, 160); 
       text("Country:", boxX + padding, boxY + padding);
-      text("Region:", boxX + padding, boxY + padding + lineHeight * 1);
-      text("Latitude:", boxX + padding, boxY + padding + lineHeight * 2);
-      text("Longitude:", boxX + padding, boxY + padding + lineHeight * 3);
-      text("Yield(kt):", boxX + padding, boxY + padding + lineHeight * 4);
-      textAlign(RIGHT, TOP);
-      const valueX = boxX + boxW - padding;
+      text("Bomb Name:", boxX + padding, boxY + padding + lineHeight);
 
-      fill(0, 255, 255);
+      // right values
+      textAlign(RIGHT, TOP);
+      fill(0, 255, 255); 
+      const valueX = boxX + boxW - padding;
       text(bombData.country, valueX, boxY + padding);
-      text(bombData.region, valueX, boxY + padding + lineHeight * 1);
-      text(nf(bombData.latitude, 0, 4), valueX, boxY + padding + lineHeight * 2);
-      text(nf(bombData.longitude, 0, 4), valueX, boxY + padding + lineHeight * 3);
-      text(bombData.yield, valueX, boxY + padding + lineHeight * 4);
+      //if bomb name is too long, truncate it
+      text(bombData.bombName, valueX, boxY + padding + lineHeight);
       pop();
     }
   }
+}
+
+// atmospheric text hover detection
+function hoverOnAtmospheric(offsetX, margin) {
+  const x = offsetX;
+  const y = margin + 282;
+  const w = 100;   
+  const h = 20;    
+  return (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h);
+}
+
+// underground text hover detection
+function hoverOnUnderground(offsetX, canvasHeightMinusMargin) {
+  const x = offsetX;
+  const y = canvasHeightMinusMargin - 185; 
+  const w = 110;
+  const h = 25;
+  return (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h);
 }
 
 window.addEventListener("load", () => {
@@ -865,8 +972,7 @@ window.addEventListener("load", () => {
     window.location.href = "index.html#page2";
   }
 });
-// 下一页的点击逻辑示例
+
 function onCountryClick(countryName) {
-    // 跳转回主地图页，并带上国家参数
     window.location.href = `index.html?country=${countryName}#page2`;
 }
