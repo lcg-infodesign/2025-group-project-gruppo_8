@@ -44,6 +44,14 @@ function setup() {
 
   for (let i = 0; i < table.getRowCount(); i++) {
     let row = table.getRow(i);
+    //correzione PAKISTAN
+    let cName = row.getString("country").trim().toUpperCase();
+    if (cName === "PAKIST") cName = "PAKISTAN"; 
+    data.push({
+      // altri country 
+      country: cName
+    });
+
     data.push({
       id: i,
       year: row.getNum("year"),

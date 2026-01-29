@@ -30,6 +30,7 @@ let countryTotalCounts = {};
 let margin = 80;
 
 
+
 function preload() {
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
   myFont2 = loadFont("fonts/LibreFranklin-Regular.otf");
@@ -62,7 +63,7 @@ function draw() {
   // Fungo atomico come sfondo
   if (mushroomImg) {
     push();
-    tint(80);
+    tint(40);
     imageMode(CENTER);
     // Adatta l'immagine in altezza mantenendo le proporzioni
     let imgH = 0.9 * height;
@@ -95,7 +96,9 @@ function draw() {
   // Visualizza l'anno e le frecce di navigazione
   drawYearNavigation(currentYear); 
   // Visualizza il totale delle bombe
-  drawBottomInfo(yearData);        
+  drawBottomInfo(yearData);   
+  
+  drawTimeline();
 
   // === Gestione anni senza test nucleari ===
   if (noTestYears.includes(currentYear)) {
@@ -136,7 +139,7 @@ function draw() {
     // centro orizzontalmente
     let btnX = width / 2 - btnW / 2; 
     // Y posizione in basso
-    let btnY = height - margin - 45;
+    let btnY = height - margin - 65;
 
     push();
     let isHoverBack = mouseX > btnX && mouseX < btnX + btnW &&
@@ -183,10 +186,59 @@ function draw() {
       drawBombTooltip(); 
 
       drawColumnCTA();
-  
-
 }
 
+function drawTimeline() {
+    let ty = height - 50;   
+    let spacing = 80;       
+    let centerX = width / 2; 
+    
+    // disegna gli anni 
+    const historicYears = [1958, 1963, 1996];
+    const orangeColor = [255, 122, 34]; //  orangeRGB
+    const cyanColor = [255, 255, 255];    // 
+    
+    push();
+    for (let i = 0; i < years.length; i++) {
+      let x = centerX + (i - currentYearIndex) * spacing;
+
+      if (x > -spacing && x < width + spacing) {
+        let d = abs(centerX - x);
+        
+        let opacity = map(d, 0, width / 2, 255, 70);
+        opacity = constrain(opacity, 70, 255); 
+
+        let isHistoric = historicYears.includes(Number(years[i]));
+        let rgb = isHistoric ? orangeColor : cyanColor;
+
+        if (i === currentYearIndex) {
+          stroke(rgb[0], rgb[1], rgb[2], 255);
+          strokeWeight(2);
+          line(x, ty - 15, x, ty + 5);
+          
+          noStroke();
+          fill(rgb[0], rgb[1], rgb[2], 255);
+          textFont(myFont3);
+          textSize(14);
+          textAlign(CENTER, BOTTOM);
+          text(years[i], x, ty - 20);
+        } else {
+          // --- altri year color ---
+          stroke(rgb[0], rgb[1], rgb[2], opacity * 0.8); 
+          strokeWeight(1);
+          line(x, ty - 8, x, ty); 
+          
+          noStroke();
+          fill(rgb[0], rgb[1], rgb[2], opacity * 0.7); 
+          textFont(myFont2);
+          textSize(10);
+          textAlign(CENTER, TOP);
+          text(years[i], x, ty + 10);
+        }
+      }
+    }
+    pop();
+}
 
 
 // === text box per anni senza test ===
@@ -284,6 +336,16 @@ function processData() {
     let id_no = table.getString(i, "id_no");
     let year = parseInt(table.getString(i, "year"));
     let country = table.getString(i, "country");
+    
+    // --- cambiare PAKIST ---
+    if (country) {
+      country = country.trim();
+      if (country.toUpperCase() === "PAKIST") {
+        country = "PAKISTAN";
+      }
+    }
+    // -----------------------
+
     let yield_u = parseFloat(table.getString(i, "yield_u"));
     let type = table.getString(i, "type");
     
@@ -293,7 +355,6 @@ function processData() {
 
     if (!isNaN(year) && year > 0 && country) {
       country = country.trim();
-      if (country === "PAKIST") country = "PAKISTAN";
       
       countryTotalCounts[country] = (countryTotalCounts[country] || 0) + 1;
 
@@ -409,14 +470,13 @@ function drawYearNavigation(currentYear) {
   noFill();
 
   // ====================
-  // FRECCIA SINISTRA (左箭头)
+  // FRECCIA SINISTRA
   // ====================
   let isFirstYear = (currentYearIndex === 0);
   let hoverLeft = !isFirstYear && 
                   mouseX > width / 2 - 150 && mouseX < width / 2 - 90 && 
                   mouseY > 120 && mouseY < 170;
 
-  // 如果是第一个年份，设为置灰透明度，且不触发 hover 高亮
   stroke(0, 255, 255, isFirstYear ? disabledAlpha : (hoverLeft ? 255 : activeAlpha));
 
   const cxL = width / 2 - 120;
@@ -425,14 +485,13 @@ function drawYearNavigation(currentYear) {
   line(cxL + halfW, cyL + h, cxL, cyL);
 
   // ====================
-  // FRECCIA DESTRA (右箭头)
+  // FRECCIA DESTRA 
   // ====================
   let isLastYear = (currentYearIndex === years.length - 1);
   let hoverRight = !isLastYear && 
                    mouseX > width / 2 + 90 && mouseX < width / 2 + 150 && 
                    mouseY > 120 && mouseY < 170;
 
-  // 如果是最后一个年份，设为置灰透明度
   stroke(0, 255, 255, isLastYear ? disabledAlpha : (hoverRight ? 255 : activeAlpha));
 
   const cxR = width / 2 + 120;
@@ -619,6 +678,19 @@ function mouseWheel(event) {
   return false;
 }
 function mousePressed() {
+  let ty = height - 50;   
+  let spacing = 80;       
+  let centerX = width / 2;
+
+  if (mouseY > ty - 40 && mouseY < ty + 40) {
+    for (let i = 0; i < years.length; i++) {
+      let x = centerX + (i - currentYearIndex) * spacing;
+      if (abs(mouseX - x) < spacing / 2) {
+        currentYearIndex = i; 
+        return; 
+      }
+    }
+  }
 
   // index button
   let activeYear = Number(years[currentYearIndex]);
@@ -674,6 +746,9 @@ function mousePressed() {
     }
 
   });
+
+
+
 
 }
 
