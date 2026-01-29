@@ -42,7 +42,7 @@ canvas {
 .back-btn {
   position: fixed;
   left: 24px;
-  top: 50%;
+  top: calc(50% + 50px);
   transform: translateY(-50%);
   z-index: 2000;
 
