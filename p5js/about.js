@@ -1,290 +1,207 @@
 let myFont1, myFont2, myFont3;
-let projectText, datasetText, aboutUsText;
-let projectHintText, datasetHintText;
-
-let fadeIn = 0;
-let floatOffset = 20;
-
-let scrollX = 0;
-let targetScrollX = 0;
-let contentWidth = 0;
+let sections = [];
+let currentSection = 0;
+let textOpacity = 255;
+let targetOpacity = 255;
 
 let mushroomImg;
-
-// Colors
 const CYAN = [0, 255, 255];
-
 const LINKS = {
   project: "https://github.com/lcg-infodesign/2025-group-project-gruppo_8",
   dataset: "https://github.com/data-is-plural/nuclear-explosions"
 };
 
-let arrowHitProject = null;
-let arrowHitDataset = null;
-
-// Touchpad variables
-let slider;
-let handle;
-let draggingSlider = false;
-const sliderWidth = 300;
-const sliderHeight = 12;
-const handleWidth = 20;
-const handleHeight = 20;
+let navButtons = [];
+let arrowHit = null;
 
 function preload() {
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
   myFont2 = loadFont("fonts/LibreFranklin-Regular.otf");
   myFont3 = loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
-
   mushroomImg = loadImage("images/mushroom.png");
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
 
-  projectText =
-    "The dataset provides structured details for each nuclear test, including the responsible country, location, date, test type, explosive yield, and declared purpose. Test types have been grouped into atmospheric/surface and underground categories, making it easier to visualize trends and patterns across more than fifty years of nuclear testing. This information supports historical research, academic studies, and public education, offering a clear picture of the global history of nuclear tests. To ensure the data is reliable and easy to use, it has been carefully cleaned and organized. Missing or inconsistent information has been filled in or standardized, and test types have been grouped clearly into the two main categories. These improvements make it easier for users to explore and understand the evolution, distribution, and impact of nuclear tests around the world.";
+  sections = [
+    {
+      title: "ABOUT THE PROJECT",
+      body: "The dataset provides structured details for each nuclear test, including the responsible country, location, date, test type, explosive yield, and declared purpose. Test types have been grouped into atmospheric/surface and underground categories.",
+      hint: "View the project repository",
+      link: LINKS.project
+    },
+    {
+      title: "ABOUT THE DATASET",
+      body: "The SIPRI–FOA dataset documents all known nuclear explosions from 1945 up to 1998, the year when India and Pakistan conducted their last declared nuclear tests. After the adoption of the CTBT, states relied on simulations.",
+      hint: "Explore the dataset source",
+      link: LINKS.dataset
+    },
+    {
+      title: "ABOUT US",
+      body: "We are a group of seven students from Politecnico di Milano. Through this project, we explore how data visualization and interaction design can help understand complex historical datasets.",
+      hint: null,
+      link: null
+    }
+  ];
 
-  datasetText =
-    "The SIPRI–FOA dataset documents all known nuclear explosions from 1945 up to 1998, the year when India and Pakistan conducted their last declared nuclear tests. After the adoption of the Comprehensive Nuclear-Test-Ban Treaty (CTBT), nuclear-armed states continued to develop and maintain arsenals, but relied on simulations and non-explosive testing methods that cannot be tracked or verified in the same way. Therefore, 1998 marks the last year for which complete and verifiable data on nuclear tests are available. The dataset is based on the “Nuclear Explosions 1945–1998” collection and compiles information from multiple authoritative sources, including the Stockholm International Peace Research Institute (SIPRI), the Oklahoma Geological Survey, and the Natural Resources Defense Council. Originally scattered across military archives, seismic records, and official reports, the data have been cross-checked and organized into an open, accessible format.";
+ // --- Inside setup() ---
+const navContainer = createDiv();
+navContainer.style("position", "fixed");
+navContainer.style("top", "16%"); // Lowered from 10%
+navContainer.style("width", "100%");
+navContainer.style("display", "flex");
+navContainer.style("justify-content", "center");
+navContainer.style("gap", "60px");
+navContainer.style("z-index", "2000");
 
-  aboutUsText =
-    "We are a group of seven students from Politecnico di Milano. Through this project, we explore how data visualization and interaction design can help understand complex historical datasets, focusing on nuclear tests conducted worldwide from 1945 to 1998. Our goal is to provide users with a comprehensive and interactive view of nuclear testing history, making it easier to analyze trends, patterns, and historical context.";
+sections.forEach((s, i) => {
+  let label = (i === 2) ? "ABOUT US" : s.title.split(" ").pop();
+  let btn = createButton(label);
+  btn.parent(navContainer);
+  
+  btn.style("background", "none");
+  btn.style("border", "none");
+  btn.style("color", "cyan"); 
+  
+  // Apply myFont1 (Lexend Zetta)
+  btn.style("font-family", "'Lexend Zetta', sans-serif"); 
+  btn.style("font-size", "16px"); // Adjusted size for the new font
+  btn.style("letter-spacing", "5px");
+  btn.style("cursor", "pointer");
+  btn.style("transition", "0.3s");
 
-  projectHintText = "View the project repository";
-  datasetHintText = "Explore the dataset source";
-
-  // --- CREATE TOUCHPAD AT BOTTOM ---
-  slider = createDiv();
-  slider.position((width - sliderWidth) / 2, height - 50);
-  slider.size(sliderWidth, sliderHeight);
-  slider.style("background", "#ddd");
-  slider.style("border-radius", sliderHeight / 2 + "px");
-  slider.style("position", "fixed");
-  slider.style("z-index", "10");
-  slider.style("cursor", "pointer");
-
-  handle = createDiv();
-  handle.size(handleWidth, handleHeight);
-  handle.style("background", "#333");
-  handle.style("border-radius", "50%");
-  handle.position(0, -4);
-  handle.style("position", "absolute");
-  slider.child(handle);
-
-  handle.mousePressed(() => draggingSlider = true);
-  handle.touchStarted(() => draggingSlider = true);
+  btn.mousePressed(() => {
+    if (currentSection !== i) {
+      targetOpacity = 0;
+      setTimeout(() => {
+        currentSection = i;
+        targetOpacity = 255;
+      }, 300);
+    }
+  });
+  navButtons.push(btn);
+});
 }
 
 function draw() {
-  background(20);
+  background(10);
 
-  // Mushroom background
   if (mushroomImg) {
     push();
-    tint(0, 255, 255, 150);
+    tint(0, 255, 255, 50);
     imageMode(CENTER);
-    let imgH = 0.9 * height;
-    let imgW = 1.2 * height * (mushroomImg.width / mushroomImg.height);
-    image(mushroomImg, width / 2 - scrollX * 0.1, height / 2, imgW, imgH);
+    image(mushroomImg, width / 2, height / 2, height * 0.9 * (mushroomImg.width / mushroomImg.height), height * 0.9);
     pop();
   }
-
-  fadeIn = min(fadeIn + 3, 255);
-  floatOffset = max(floatOffset - 0.6, 0);
-
-  cursor(ARROW);
-  arrowHitProject = null;
-  arrowHitDataset = null;
-
-  scrollX = lerp(scrollX, targetScrollX, 0.12);
-
-  // Top progress line
-  let progress = map(scrollX, 0, max(0, contentWidth - width), 0, width);
-  stroke(...CYAN);
-  strokeWeight(2);
-  line(0, 0, progress, 0);
-
-  // ----- FIXED TITLE -----
-  textFont(myFont1);
-  noStroke();
-  fill(200);
-  textSize(20);
-  textAlign(CENTER, TOP);
-  text("ABOUT", width / 2, 30); // stays fixed at top
-
-  // Scrollable content horizontally
-  push();
-  translate(-scrollX, 0); // only scrolls boxes, NOT the title
-  drawAboutContentHorizontal();
-  pop();
-
+   // Draw the main "ABOUT" title at top center
+   textFont(myFont1);
+   noStroke();
+   fill(200);
+   textSize(20);
+   textAlign(CENTER, TOP);
+   text("ABOUT", width / 2 + scrollX, 30); // stays at top
+  
+   
+  textOpacity = lerp(textOpacity, targetOpacity, 0.15);
+  updateNavStyles();
+  drawFixedBox();
   drawFooter();
-
-  // Handle drag
-  if (draggingSlider) {
-    let mousePos = constrain(mouseX - (width - sliderWidth) / 2 - handleWidth / 2, 0, sliderWidth - handleWidth);
-    handle.position(mousePos, -4);
-    targetScrollX = map(mousePos, 0, sliderWidth - handleWidth, 0, max(0, contentWidth - width));
-  }
 }
 
+function updateNavStyles() {
+  navButtons.forEach((btn, i) => {
+    btn.style("color", "cyan"); // Keep them all cyan
+    if (i === currentSection) {
+      btn.style("text-shadow", "0 0 15px cyan");
+      btn.style("opacity", "1.0");
+    } else {
+      btn.style("text-shadow", "none");
+      btn.style("opacity", "0.6"); // Lower opacity for inactive, but still cyan
+    }
+  });
+}
 
-// ------------------- HORIZONTAL CONTENT -------------------
-function drawAboutContentHorizontal() {
-  const titleSize = 16;
-  const bodySize = 13;
-  const hintSize = 11;
-  const titleH = 24;
-  const titleBodyGap = 10;
-  const spacing = 80;
+function drawFixedBox() {
+  const boxWidth = min(width * 0.6, 700);
+  const startY = height * 0.35;
+  const item = sections[currentSection];
 
-  const boxWidth = width * 0.6;
-  const boxHeight = height * 0.5; // lower the boxes
-  const startY = 180 + floatOffset; // lower the starting position
+  push();
+  // Cyan Box with Thick Outline
+  fill(0, 255, 255, 30); // Transparent cyan fill
+  stroke(CYAN);
+  strokeWeight(3);
+  rectMode(CENTER);
+  rect(width / 2, height / 2 + 20, boxWidth + 80, 400, 2);
 
-  // Draw the main "ABOUT" title at top center
-  textFont(myFont1);
+  // Content
   noStroke();
-  fill(200);
-  textSize(20);
-  textAlign(CENTER, TOP);
-  text("ABOUT", width / 2 + scrollX, 30); // stays at top
-
-  const texts = [
-    { title: "ABOUT THE PROJECT", body: projectText, hint: projectHintText, link: LINKS.project },
-    { title: "ABOUT THE DATASET", body: datasetText, hint: datasetHintText, link: LINKS.dataset },
-    { title: "ABOUT US", body: aboutUsText, hint: null, link: null }
-  ];
-
-  let x = 100;
-  contentWidth = 0;
-
-  for (let t of texts) {
-    noStroke();
-    fill(20, 180);
-    rect(x - 20, startY - 20, boxWidth + 40, boxHeight + 60); // boxes lower
-
-    textFont(myFont1);
-    fill(255, fadeIn);
-    textSize(titleSize);
-    textAlign(LEFT, TOP);
-    text(t.title, x, startY);
-
-    textFont(myFont2);
-    textSize(bodySize);
-    textLeading(bodySize * 1.45);
-    let wrapped = wrapLines(t.body, boxWidth);
-    for (let i = 0; i < wrapped.lines.length; i++) {
-      text(wrapped.lines[i], x, startY + titleH + titleBodyGap + i * bodySize * 1.45);
-    }
-
-    if (t.hint && t.link) {
-      drawHintWithArrow(
-        t.hint,
-        x,
-        startY + titleH + titleBodyGap + wrapped.h + 10,
-        hintSize,
-        hintSize * 1.45,
-        t.link,
-        hit => (t.title === "ABOUT THE PROJECT" ? arrowHitProject = hit : arrowHitDataset = hit)
-      );
-    }
-
-    x += boxWidth + spacing;
-    contentWidth = x;
-  }
-}
-
-// ------------------- WRAP LINES -------------------
-function wrapLines(txt, maxW) {
-  const words = txt.split(/\s+/);
-  let lines = [];
-  let line = "";
-  for (let w of words) {
-    const test = line ? line + " " + w : w;
-    if (textWidth(test) <= maxW) line = test;
-    else {
-      if (line) lines.push(line);
-      line = w;
-    }
-  }
-  if (line) lines.push(line);
-  return { lines, h: lines.length * textLeading() };
-}
-
-// ------------------- DRAW HINT -------------------
-function drawHintWithArrow(label, x, y, hintSize, hintLeading, url, setHit) {
-  textFont(myFont1);
-  textSize(hintSize);
-  textLeading(hintLeading);
   textAlign(LEFT, TOP);
+  let contentX = width / 2 - boxWidth / 2;
 
-  const textW = textWidth(label);
-  const arrowX = x + textW + 10;
-  const arrowY = y + hintSize * 0.55;
+  fill(255, textOpacity);
+  textFont(myFont1);
+  textSize(18);
+  text(item.title, contentX, startY);
 
-  const hit = { x: arrowX - 6, y: y - 2, w: 26, h: hintLeading + 4, url };
-
-  const hovering =
-    mouseX + scrollX >= hit.x &&
-    mouseX + scrollX <= hit.x + hit.w &&
-    mouseY >= hit.y &&
-    mouseY <= hit.y + hit.h;
-
-  if (hovering) {
-    fill(...CYAN, fadeIn);
-    stroke(...CYAN);
-    cursor(HAND);
-    setHit(hit);
-  } else {
-    fill(255, fadeIn);
-    stroke(255);
+  fill(220, textOpacity);
+  textFont(myFont2);
+  textSize(15);
+  textLeading(26);
+  let wrapped = wrapLines(item.body, boxWidth);
+  for (let j = 0; j < wrapped.lines.length; j++) {
+    text(wrapped.lines[j], contentX, startY + 60 + (j * 26));
   }
+  
+  // Logic for the link arrow...
+  if (item.link) {
+     drawHintWithArrow(item.hint, contentX, startY + 80 + wrapped.h, 11, item.link);
+  }
+  pop();
+}
 
+function wrapLines(txt, maxW) {
+  let words = txt.split(" ");
+  let lines = [];
+  let currentLine = "";
+  for (let w of words) {
+    let test = currentLine + w + " ";
+    if (textWidth(test) < maxW) currentLine = test;
+    else { lines.push(currentLine); currentLine = w + " "; }
+  }
+  lines.push(currentLine);
+  return { lines, h: lines.length * 26 };
+}
+
+function drawHintWithArrow(label, x, y, size, url) {
+  textFont(myFont1);
+  textSize(size);
+  let tw = textWidth(label);
+  let isHover = (mouseX > x && mouseX < x + tw + 40 && mouseY > y && mouseY < y + 25);
+  
+  arrowHit = isHover ? url : arrowHit;
+  fill(isHover ? CYAN : [255, textOpacity * 0.6]);
   noStroke();
   text(label, x, y);
-  strokeWeight(1.4);
-  line(arrowX, arrowY, arrowX + 14, arrowY);
-  noStroke();
-  triangle(arrowX + 14, arrowY, arrowX + 9, arrowY - 4, arrowX + 9, arrowY + 4);
+  
+  stroke(isHover ? CYAN : [255, textOpacity * 0.6]);
+  line(x + tw + 10, y + size/2, x + tw + 30, y + size/2);
 }
 
-// ------------------- FOOTER -------------------
 function drawFooter() {
-  fill(20);
+  fill(100);
   noStroke();
-  rect(0, height - 40, width, 40);
-
-  fill(110);
   textFont(myFont3);
   textSize(10);
-  textAlign(CENTER, CENTER);
-  text(
-    "Politecnico di Milano · Information Design · Group 8 · A.A. 2025–2026",
-    width / 2,
-    height - 20
-  );
-}
-
-// ------------------- EVENTS -------------------
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  slider.position((width - sliderWidth) / 2, height - 50);
+  textAlign(CENTER);
+  text("POLITECNICO DI MILANO · GROUP 8", width / 2, height - 40);
 }
 
 function mouseReleased() {
-  draggingSlider = false;
-  if (arrowHitProject) window.open(arrowHitProject.url, "_blank");
-  if (arrowHitDataset) window.open(arrowHitDataset.url, "_blank");
+  if (arrowHit) window.open(arrowHit, "_blank");
 }
 
-function touchEnded() {
-  draggingSlider = false;
-}
-
-function mouseWheel(event) {
-  targetScrollX += event.delta;
-  targetScrollX = constrain(targetScrollX, 0, max(0, contentWidth - width));
-  return false;
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
