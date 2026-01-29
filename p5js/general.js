@@ -1,9 +1,53 @@
 // ===============================
-// Variabili globali lll
+// Variabili globali
 // ===============================
+// ===============================
+// Country filter
+// ===============================
+let selectedCountry = "All country";
+const countries = [
+  "All country",
+  "INDIA",
+  "PAKIST",
+  "CHINA",
+  "FRANCE",
+  "UK",
+  "USA",
+  "USSR"
+];
+
+// Menu UI
+let menuOpen = false;
+let animatedOnce = false;
+const BTN_W = 200;
+const BTN_H = 36;
+const GAP = 10;
+const RADIUS = 12;
+const PADDING_AREA = 14;
+
+let menuButtons = [];
+
+
 let page = 1;
 let data = [];
-let menuOpen = false;
+let enteredPage2ByScroll = false; 
+
+let introTimelinePlaying = false;
+
+
+// Page2 top-right text carousel (4 steps)
+let infoStep = 0; // 0..3
+const infoTexts = [
+  "The first nuclear explosions mark a historical turning point. \nAfter the end of World War II, \nthe atomic bomb becomes a tool of power and deterrence. Testing is limited, \nbut a new form of global threat begins.",
+  "Competition between superpowers \nleads to a rapid increase in nuclear tests.\nExplosions become more frequent \nand more powerful, often atmospheric.\nNuclear testing is used as a political \nand military demonstration.",
+  "After the first international restrictions,\n many tests move underground.\nThe number of explosions decreases, \nbut technological development continues.\nDeterrence remains central \nthroughout the Cold War.",
+  "With the end of the Cold War, \nnuclear explosions decrease significantly.\nIn 1996, the Comprehensive \nNuclear Test Ban Treaty is adopted, \naiming to ban all nuclear test explosions.\n1998 marks the last officially\n certified nuclear tests.",
+];
+
+// Hover state (page2: years/columns)
+let hoveredYear = null;
+let isHoveringInteractive = false;
+
 // Automatic circle expansion control
 let autoExpandStarted = false;
 let expandStartFrame = 0;
@@ -21,6 +65,18 @@ let centerCircleSize = 10;
 let scrollOffset = 0; // Global scroll offset
 let maxScroll;
 
+// Intro step navigation (page 1)
+let introIndex = -1;
+let introTargets = [];
+let snapping = false;
+let snapTarget = 0;
+
+// tweakables
+const INTRO_START_OFFSET = 120;
+const INTRO_STEP_FACTOR = 0.6;
+const SNAP_LERP = 0.16;
+
+
 let myFont1, myFont2;
 let img1, img2, img3, img4;
 
@@ -31,8 +87,19 @@ let UGBombsPerYear = {};
 let particles2 = [];
 let startYear = 1945;
 let endYear = 1998;
-let margin = 100;
+// Use the same lateral spacing across pages (matches Insight style)
+let margin = 80;
 let yAxis;
+
+// UI alignment (must match p5js/menu.js button position/size)
+const MENU_BTN_X = 25;
+const MENU_BTN_Y = 25;
+const MENU_BTN_SIZE = 60;
+const UI_GAP = 20;
+//pp
+// Shared layout spacing
+const SIDE_MARGIN = 80;
+const MAX_TEXT_W = 420;
 
 let scrollProgress;
 let lastStepTime = 0;
@@ -50,37 +117,47 @@ let UGTypes = [
   "SHAFT/LG",
 ];
 
-// ===============================
 // NUOVA FUNZIONE — vai alla overview
 // ===============================
 function goToOverview() {
+  enteredPage2ByScroll = false;
+  // Vai alla pagina 2 (grafico)
   page = 2;
 
-  // Inizializza animazione particelle
-  scrollProgress = startYear - 1;
+  // Porta subito la timeline alla fine: grafico "attivo"
+  scrollProgress = endYear;
 
-  // Aziona animazione graduale
-  let interval = setInterval(() => {
-    scrollProgress += 1;
-    if (scrollProgress >= endYear) {
-      scrollProgress = endYear;
-      clearInterval(interval);
-    }
+  // Attiva tutte le particelle (bombe) in page 2
+  if (particles2 && particles2.length > 0) {
     for (let p of particles2) {
-      p.active = p.year <= scrollProgress;
+      p.active = true;
     }
-  }, 20);
-}
+  }
 
-// ===============================
-// Caricamento
-// ===============================
+  // Nascondi il bottone "CLICK TO CONTINUE", se esiste
+  const skipBtn = document.getElementById("skipIntroBtn");
+  if (skipBtn && skipBtn.parentElement) {
+    skipBtn.parentElement.style.display = "none";
+  }
+}
+ 
+//    // goToOverview DA USARE PER APPARIRE LE BOMBE GRADUALI SE CLICCHI SKIP //
+//function goToOverview() {
+  //enteredPage2ByScroll = true;
+  //page = 2;
+  //scrollProgress = startYear - 1;
+  //scrollDirection = 1;
+  //const skipBtn = document.getElementById("skipIntroBtn");
+  //if (skipBtn && skipBtn.parentElement) {
+  //  skipBtn.parentElement.style.display = "none";
+  //}
+//}
+
 function preload() {
   // pagina1
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
   myFont2 = loadFont("fonts/LibreFranklin-Regular.otf");
   myFont3 = loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
-  img1 = loadImage("images/bleauuu.png");
 
   // pagina2
   table = loadTable("dataset/dataset.csv", "csv", "header");
@@ -92,14 +169,15 @@ function setup() {
   for (let i = 0; i < table.getRowCount(); i++) {
     let row = table.getRow(i);
     data.push({
-      id: i, 
+      id: i, // Definisci l'ID in base al numero della riga
       year: row.getNum("year"),
       type: row.getString("type"),
       yield: row.getNum("yield_u"),
+      country: row.getString("country")
     });
   }
 
-  // -------- Inizializza particelle pagina 1 --------
+  // -------- Inizializza le particelle della pagina 1 --------
   for (let r = 0; r < radii.length; r++) {
     for (let i = 0; i < numParticles1; i++) {
       let angle = random(TWO_PI);
@@ -114,9 +192,10 @@ function setup() {
       );
     }
   }
-  maxScroll = height * 4;
+  computeIntroTargets();
 
-  // -------- pagina 2 --------
+
+  // -------- Inizializza le particelle della pagina 2 --------
   yAxis = height / 2 + 70;
   scrollProgress = startYear - 1;
 
@@ -135,22 +214,89 @@ function setup() {
   }
 
   creaParticlesDaTabella();
+  checkHashNavigation();
+}
 
-  checkHashNavigation();  // <<< IMPORTANTE
+function computeIntroTargets() {
+  const introStartY = height + INTRO_START_OFFSET;
+  const introStepY = height * INTRO_STEP_FACTOR;
+
+  introTargets = [0, 1, 2, 3].map((i) =>
+    max(0, introStartY + introStepY * i - height / 2)
+  );
+
+  // maxScroll = quando vuoi far partire l'espansione (subito dopo str4)
+  maxScroll = max(introTargets[3] + 40, introTargets[3]); 
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  computeIntroTargets();
+}
+
+
+
+function syncIntroIndex() {
+  // trova l'ultimo target "superato"
+  let idx = 0;
+  for (let i = 0; i < introTargets.length; i++) {
+    if (scrollOffset >= introTargets[i] - 10) idx = i;
+  }
+  introIndex = idx;
+}
+
+function snapTo(val) {
+  snapTarget = constrain(val, 0, maxScroll);
+  snapping = true;
+}
+
+function introNext() {
+  syncIntroIndex();
+  if (introIndex < 3) {
+    introIndex++;
+    snapTo(introTargets[introIndex]);
+  } else {
+    // oltre l'ultimo testo → avvia espansione
+    snapTo(maxScroll);
+    if (!autoExpandStarted) autoExpandStarted = true;
+  }
+}
+
+function introPrev() {
+  syncIntroIndex();
+  if (introIndex > 0) {
+    introIndex--;
+    snapTo(introTargets[introIndex]);
+  } else {
+    introTop();
+  }
+}
+
+function introTop() {
+  introIndex = 0;
+  autoExpandStarted = false;
+  centerCircleSize = 10;
+  snapTo(0);
 }
 
 // ===============================
 // Se URL contiene #page2 → apri ovverview SUBITO
 // ===============================
+
 function checkHashNavigation() {
   if (window.location.hash === "#page2") {
     page = 2;
 
-    // Avvia subito le particelle attive
-    scrollProgress = endYear; // imposta tutte le particelle come “attive”
-    for (let p of particles2) {
-      p.active = true;
-    }
+    // IMPORTANT: abilita la logica "colonna per colonna"
+    // così lo scroll indietro è VISIBILE e può tornare fino a page1
+    enteredPage2ByScroll = true;
+
+    // Parti dalla fine (tutto visibile)
+    scrollProgress = endYear;
+    scrollDirection = 0;
+
+    // Non serve forzare p.active=true perché lo setti già nel draw
+    // (ma se vuoi lasciarlo non rompe)
   }
 }
 
@@ -168,57 +314,142 @@ function draw() {
 // ===============================
 function drawPage1() {
   background(20);
-  imageMode(CENTER);
-  tint(255, 180);
-  image(img1, width / 2, height / 2, 1200, 900);
+  // drawGrid();
+  //imageMode(CENTER);
+  //tint(255, 180);
+  //image(img1, width / 2, height / 2, 1200, 900);
 
-  textFont(myFont2);
-  fill(150);
-  textSize(16);
-  textAlign(CENTER, BOTTOM);
-  text("SCROLL DOWN FOR MORE", width / 2, height - 40);
+  //textFont(myFont2);
+  //fill(150);
+  //textSize(16);
+  //textAlign(CENTER, BOTTOM);
+  //text("SCROLL DOWN FOR MORE", width / 2, height - 40);
 
+
+  if (snapping) {
+  scrollOffset = lerp(scrollOffset, snapTarget, SNAP_LERP);
+  if (abs(scrollOffset - snapTarget) < 0.6) {
+    scrollOffset = snapTarget;
+    snapping = false;
+    }
+  }
+
+
+
+  // Title: vertically aligned with menu button, horizontally centered
   textFont(myFont1);
   noStroke();
-  fill(110, 133, 219);
+  fill(200);
   textSize(20);
-  textAlign(CENTER, TOP);
-  text("NUCLEAR EXPLOSIONS ARCHIVE", width / 2, 20 - scrollOffset);
+  textLeading(31);
+  const titleX = width / 2;
+  const titleY = MENU_BTN_Y + MENU_BTN_SIZE / 2;
+
+  textAlign(CENTER, CENTER);
+  text("NUCLEAR EXPLOSIONS ARCHIVE", titleX, titleY);
 
   textFont(myFont2);
-  textSize(16);
   fill(200, 200, 200);
 
-  textAlign(LEFT, BOTTOM);
-  let str1 =
-    "Between 1945 and 1998, over two thousand nuclear explosions \nleft a lasting mark on the planet.";
-  let str2 =
-    "This archive turns those events into a dynamic map \nof the atomic era.";
-  let str3 =
-    "The atom breaks: each particle is a real test. \nHistory unfolds before your eyes.";
-  let str4 = "Datas from the SIPRI-FOA Report";
+  // Intro texts — same spacing logic as Insight (consistent margins + max width)
+  const str1 =
+  "Between 1945 and 1998, \n nuclear testing reshaped geopolitics,\n science, and the environment.";
+    
+  const str3 =
+  "Over two thousand explosions\nleft a lasting mark on the planet.\nEach particle is a real test.";
+  const str2 =
+    "This website is a digital archive \n that presents nuclear testing \n as an interactive timeline.";
+  const str4 = "Data from the SIPRI-FOA Report";
 
-  text(str1, 50, height + 100 - scrollOffset, 500);
-  text(str2, width - 550, height * 2 - scrollOffset, 500);
-  text(str3, 50, height * 3 - scrollOffset, 500);
-  text(str4, width - 550, height * 4 - scrollOffset, 500);
+  // Bring the two columns closer to the center
+  const GUTTER = 200; // space between left/right columns (smaller = closer to center)
+  const leftX = width / 2 - GUTTER / 2 - MAX_TEXT_W;
+  const rightX = width / 2 + GUTTER / 2;
+
+  // Make blocks closer vertically
+  const introStartY = height + 120; // where the first text appears
+  const introStepY = height * 0.6; // distance between blocks (smaller = closer)
+
+  textAlign(LEFT, TOP);
+  drawIntroBlock(
+    str1,
+    leftX,
+    introStartY + introStepY * 0 - scrollOffset,
+    MAX_TEXT_W
+  );
+  
+  drawIntroBlock(
+    str2, 
+    leftX, 
+    introStartY + introStepY * 1 - scrollOffset, 
+    MAX_TEXT_W);
+
+  drawIntroBlock(
+    str3,
+    leftX,
+    introStartY + introStepY * 2 - scrollOffset,
+    MAX_TEXT_W
+  );
+  drawIntroBlockData(
+    str4,
+    rightX,
+    introStartY + introStepY * 3 - scrollOffset,
+    MAX_TEXT_W
+  );
+
+
+  // Scroll hint arrow (bottom center) — hidden once the user scrolls a bit
+  drawScrollHintArrow();
+
+  // cursor pointer on hover (page 1)
+  if (isOverDownHint(mouseX, mouseY) || isOverUpHint(mouseX, mouseY)) {
+    cursor(HAND);
+  } else {
+    cursor(ARROW);
+  }
+
+  //--------------------------------------------- PULSANTE BACK INATTIVO--------------------------------------------------
+ // drawUpHintArrow();
+
 
   // particelle centrale
   push();
   let scaledSize = centerCircleSize;
-
+  //Scala lentamente solo se la sfera non è stata ancora ingrandita
   if (centerCircleSize <= 10) {
     let scaleFactor = 2 + 2 * sin(frameCount * 0.01);
     scaledSize *= scaleFactor;
   }
 
-  if (autoExpandStarted) {
+  // --- Automatic circle expansion after full scroll ---
+  /*if (autoExpandStarted) {
     centerCircleSize = lerp(centerCircleSize, max(width, height) * 2, 0.03);
 
+    // When fully expanded, go to next page
     if (centerCircleSize > max(width, height)) {
       goNextPage();
     }
+  }*/
+
+    // --- Automatic circle expansion after full scroll ---
+  if (autoExpandStarted) {
+
+    // Se non sei più al fondo (stai tornando su), STOP all'espansione
+    // (soglia piccola per evitare micro-jitter sul bordo)
+    if (scrollOffset < maxScroll - 2) {
+      autoExpandStarted = false;
+      centerCircleSize = 10;
+    } else {
+      centerCircleSize = lerp(centerCircleSize, max(width, height) * 2, 0.03);
+
+      // When fully expanded, go to next page
+      if (centerCircleSize > max(width, height)) {
+        goNextPage();
+      }
+    }
   }
+
+
   fill(20);
   stroke(0, 255, 255);
   strokeWeight(1.5);
@@ -232,34 +463,255 @@ function drawPage1() {
   pop();
 
   spreadSpeed = lerp(spreadSpeed, 0, 0.1);
+
 }
+
+function drawIntroBlock(str, x, y, w) {
+  // y is the top of the text block; fade should depend on its position in the viewport.
+  // 0% alpha at top (0) and bottom (height), 100% alpha at center (height/2).
+  const centerY = height / 2;
+  const d = abs(y - centerY); // distanza dal centro
+  const a = map(d, 0, centerY, 255, 0, true); // 255 al centro, 0 agli estremi
+
+  textFont(myFont2);
+  textSize(21);
+  noStroke();
+  fill(255, a);
+textLeading(31)
+  text(str, x, y, w);
+}
+
+function drawIntroBlockData(str, x, y, w) {
+  // y is the top of the text block; fade should depend on its position in the viewport.
+  // 0% alpha at top (0) and bottom (height), 100% alpha at center (height/2).
+  const centerY = height / 2;
+  const d = abs(y - centerY); // distanza dal centro
+  const a = map(d, 0, centerY, 255, 0, true); // 255 al centro, 0 agli estremi
+
+  textFont(myFont2);
+  textSize(14);
+  noStroke();
+  fill(255, a);
+  textLeading(31)
+  text(str, x, y, w);
+}
+
+function drawScrollHintArrow() {
+  // Only show at the very start
+  const visible = scrollOffset < 80;
+  if (!visible) return;
+
+  const alpha = map(scrollOffset, 0, 80, 255, 0, true);
+  const bob = sin(frameCount * 0.08) * 4;
+
+  const cx = width / 2;
+  const cy = height - 44 + bob;
+  const labelY = cy - 14;     // baseline label
+
+  const halfW = 10; // half width of the chevron (smaller = less wide)
+  const h = 8; // height of the chevron (smaller = less tall)
+
+  push();
+  stroke(0, 255, 255, alpha);
+  strokeWeight(2);
+  noFill();
+
+  /*
+  // chevron only (no vertical stem)
+  line(cx - halfW, cy - h, cx, cy);
+  line(cx + halfW, cy - h, cx, cy);
+
+  // label above arrow
+  noStroke();
+  fill(200, alpha);
+  textFont(myFont2);
+  textSize(12);
+  textAlign(CENTER, BOTTOM);
+  text("SCROLL DOWN FOR MORE", cx, labelY);
+
+  */
+
+  // label + side chevrons
+const label = "SCROLL DOWN FOR MORE";
+
+textFont(myFont2);
+textSize(12);
+textAlign(CENTER, BOTTOM);
+
+// calcolo larghezza testo per posizionare i chevron ai lati
+  const tw = textWidth(label);
+  const gap = 350;                 // distanza tra testo e chevron
+  const chevronY = labelY - 6;     // centratura visiva rispetto alla baseline
+
+  const leftX  = cx - tw / 2 - gap;
+  const rightX = cx + tw / 2 + gap;
+
+  // chevrons (identici) ai lati
+  push();
+  stroke(200, alpha);
+  strokeWeight(2);
+  noFill();
+
+  line(leftX - halfW,  chevronY - h, leftX,  chevronY);
+  line(leftX + halfW,  chevronY - h, leftX,  chevronY);
+
+  line(rightX - halfW, chevronY - h, rightX, chevronY);
+  line(rightX + halfW, chevronY - h, rightX, chevronY);
+  pop();
+
+  // testo in mezzo
+  noStroke();
+  fill(200, alpha);
+  text(label, cx, labelY);
+
+
+  if (scrollOffset >= introTargets[3] - 10) return;
+
+  pop();
+
+
+}
+
+
+
+
+
+
+function isOverDownHint(mx, my) {
+  // hitbox generosa (include anche la label)
+  const cx = width / 2;
+  const baseCy = height - 44;
+  const hitW = 220;
+  const hitH = 80;
+
+  return (
+    mx >= cx - hitW / 2 &&
+    mx <= cx + hitW / 2 &&
+    my >= baseCy - hitH &&
+    my <= baseCy + 20
+  );
+}
+
+function snapTo(val) {
+  snapTarget = constrain(val, 0, maxScroll);
+  snapping = true;
+}
+
+function introNext() {
+  // primo click: porta str1 al centro
+  if (introIndex < 3) {
+    introIndex++;
+    snapTo(introTargets[introIndex]);
+  } else {
+    // oltre str4: avvia espansione (se la vuoi subito dopo l'ultimo step)
+    snapTo(maxScroll);
+    if (!autoExpandStarted) autoExpandStarted = true;
+  }
+}
+
+function introPrev() {
+  if (introIndex > 0) {
+    introIndex--;
+    snapTo(introTargets[introIndex]);
+  } else {
+    // torna all'inizio (prima di str1)
+    introIndex = -1;
+    autoExpandStarted = false;
+    centerCircleSize = 10;
+    snapTo(0);
+  }
+}
+
+
+// --------------------------------------------------DA CAPIRE DOVE POSIZIONARLO!!!!-------------------------------------------
+function drawUpHintArrow() {
+  if (scrollOffset <= 0) return;
+
+  const cx = width / 2;
+  const cy = 44;   // in alto
+
+  push();
+  stroke(200);
+  strokeWeight(2);
+  noFill();
+
+  // simple up arrow
+  line(cx, cy + 12, cx, cy - 12);
+  line(cx, cy - 12, cx - 8, cy - 4);
+  line(cx, cy - 12, cx + 8, cy - 4);
+
+  noStroke();
+  fill(200);
+  textFont(myFont2);
+  textSize(12);
+  textAlign(CENTER, TOP);
+  text("BACK", cx, cy + 16);
+  pop();
+}
+
+function isOverUpHint(mx, my) {
+  const cx = width / 2;
+  const cy = 44;
+  const w = 140;
+  const h = 70;
+  return mx >= cx - w/2 && mx <= cx + w/2 && my >= cy - 20 && my <= cy + h;
+}
+
+
 
 // ===============================
 // pagina2draw
 // ===============================
 function drawPage2() {
   background(20);
+drawCountryMenu();
+
+  // Hover detection for years/columns + cursor
+  updateHoverPage2();
 
   // -----------------------------
   // LEGENDA POTENZA
   // -----------------------------
+
+  // Coordinate legenda: a sinistra (pulita e coerente)
+  let offsetX = margin - 8; // usa lo stesso margin del grafico
+  let offsetY = height - margin - 80; // base, poi la sistemiamo con lineSpacing
+
+  //textFont(myFont1);  OLD TYTLE
+  //noStroke();
+  //fill(200);
+  //textSize(20);
+  //textAlign(CENTER, TOP);
+  //text("TOTAL AMOUNT OF BOMBS", width / 2, 35);
+
+  textFont(myFont2);  
+  noStroke();
+  fill(0,255,255);
+  textSize(20);
+  textAlign(CENTER, TOP);
+  text("Bombs Launched", width / 2, 137);
+
   noStroke();
   fill(0, 255, 255);
-  textFont(myFont3);
+  textFont(myFont2);
   textSize(14);
   textAlign(LEFT, TOP);
-  text("YIELD", 80, 70);
+  text("YIELD (kt)", offsetX, offsetY - 40);
   textAlign(RIGHT, TOP);
-  text("SOME INFORMATION??", width - 80, 70);
 
+  textSize(14);
   textAlign(CENTER, TOP);
-  text("TOTAL AMOUNT OF BOMBS", width / 2, 70);
+  //text("TOTAL AMOUNT OF BOMBS", width / 2, 80);
   let activeParticles = particles2.filter((p) => p.active).length;
+  textFont(myFont3);
   textSize(60);
-  fill(0, 255, 255);
-  text(activeParticles, width / 2, 90);
+  fill(0,255,255);
+  text(activeParticles, width / 2, 57);
 
-  fill(200, 200, 200);
+  // Top-right text carousel (line + text + arrows)
+  drawTopRightInfoCarousel();
+
+  /*fill(200, 200, 200);
   textSize(14);
   textFont(myFont2);
   textAlign(RIGHT, TOP);
@@ -267,24 +719,94 @@ function drawPage2() {
     "Lorum Ipsum Dolor Sit\nAmet Consectetur Adipiscing Elit\nSed Do Eiusmod Tempor?",
     width - 80,
     105
-  );
+  );*/
 
   let legend = [
-    { range: "0-19 kt", y: 10 },
-    { range: "20 kt", y: 20 },
-    { range: "21-150 kt", y: 100 },
-    { range: "151-4999 kt", y: 1000 },
-    { range: "5000+ kt", y: 5000 },
+    { range: "0-19", y: 10 },
+    { range: "20", y: 20 },
+    { range: "21-150", y: 100 },
+    { range: "151-4999", y: 1000 },
+    { range: "5000+", y: 5000 },
   ];
+
   textFont(myFont2);
   textSize(12);
   let circleSize = 10;
   let lineSpacing = 20;
 
+  // Etichette ATM / SOTT allineate alla legenda
+  noStroke();
+  fill(0, 255, 255);
+  textFont(myFont2);
+  textSize(14);
+  textAlign(LEFT, TOP);
+
+  // in alto a sinistra, stesso x della legenda
+  text("Atmospheric", offsetX, margin + 282);
+
+  // sopra la legenda
+  textAlign(LEFT, BOTTOM);
+  text("Underground", offsetX, offsetY - 85);
+
+// hover sopra Atmospheric
+const isHoverATM = hoverOnAtmospheric(offsetX, margin);
+
+if (isHoverATM) {
+  push();
+  const padding = 8;
+  const lineHeight = 16;
+
+  fill(0, 0, 0, 200);
+
+  let boxW = 180;
+  let boxH = padding * 2 + lineHeight * 3.5;
+
+  let boxX = offsetX;
+  let boxY = 138;
+
+  rect(boxX, boxY, boxW, boxH, 5);
+
+  textSize(12);
+  textAlign(LEFT, TOP);
+  fill(0, 255, 255);
+  text("ATMOSPHERIC", boxX + padding, boxY + padding);
+  text("Nuclear detonations", boxX + padding, boxY + 2*padding + lineHeight);
+  text("with atmospheric dispersion.", boxX + padding, boxY + 2*padding + lineHeight * 2);
+  pop();
+}
+
+// hover sopra underground
+const isHoverUND = hoverOnUnderground(offsetX, offsetY);
+
+if (isHoverUND) {
+  push();
+  const padding = 8;
+  const lineHeight = 16;
+
+  fill(0, 0, 0, 200);
+
+  let boxW = 180;
+  let boxH = padding * 2 + lineHeight * 3.5;
+
+  let boxX = offsetX;
+  let boxY = 138;
+
+  rect(boxX, boxY, boxW, boxH, 5);
+
+  textSize(12);
+  textAlign(LEFT, TOP);
+  fill(0, 255, 255);
+  text("UNDERGROUND", boxX + padding, boxY + padding);
+  text("Nuclear detonations", boxX + padding, boxY + 2*padding + lineHeight);
+  text("under the ground level.", boxX + padding, boxY + 2*padding + lineHeight * 2);
+  pop();
+}
+
+
   legend.forEach((item, i) => {
     fill(getYieldColor(item.y));
-    let cx = 80 + circleSize / 2;
-    let cy = 80 + 25 + i * lineSpacing;
+    let cx = offsetX + circleSize / 2;
+    let cy = offsetY + i * lineSpacing;
     circle(cx, cy, circleSize);
 
     fill(200, 200, 200);
@@ -297,11 +819,12 @@ function drawPage2() {
     let x = map(y, startYear, endYear, margin, width - margin);
 
     if (scrollProgress >= y) {
+      // Visualizza solo al raggiungimento di quell’anno
       stroke(0, 255, 255);
       strokeWeight(1);
       noFill();
 
-      if (y === 1950) {
+      /*if (y === 1950) {
         line(x, yAxis + 30, x, yAxis + 90);
         rect(x - 75, yAxis + 90, 150, 100);
       } else if (y === 1963) {
@@ -311,7 +834,7 @@ function drawPage2() {
       } else if (y === 1990) {
         line(x, yAxis - 30, x, yAxis - 120);
         rect(x - 75, yAxis - 220, 150, 100);
-      }
+      }*/
     }
   });
 
@@ -320,85 +843,445 @@ function drawPage2() {
     scrollProgress = constrain(scrollProgress, startYear - 1, endYear);
     lastStepTime = millis();
   }
+
+//stop automatico SOLO a fine animazione (non per click)
+if (introTimelinePlaying && scrollProgress >= endYear) {
+  scrollDirection = 0;
+  introTimelinePlaying = false;
+}
+
+
   textFont(myFont2);
   disegnaAsseEAnni();
 
   for (let p of particles2) {
-    p.active = p.year - random(0, 0.9) <= scrollProgress;
+   if (enteredPage2ByScroll) {
+  // attivazione colonna per colonna
+  p.active = p.year <= floor(scrollProgress);
+} else {
+  // comportamento attuale (tutte insieme)
+  p.active = true;
+}
+
     p.update();
     p.draw();
   }
+
+  // CTA bottom-right (glow/pulse)
+  drawColumnCTA();
 }
 
-// ===============================
-// mouse & scroll
-// ===============================
-function mouseWheel(event) {
-  if (page === 1) {
+ function hoverOnAtmospheric(offsetX, margin) {
+  const x = offsetX;
+  const y = margin + 282;
+
+  const w = 90;   // larghezza area hover
+  const h = 30;    // ALTEZZA verticale 
+
+  return (
+    mouseX >= x &&
+    mouseX <= x + w &&
+    mouseY >= y &&
+    mouseY <= y + h
+  );
+}
+
+function hoverOnUnderground(offsetX, offsetY) {
+  const x = offsetX;
+  const y = offsetY - 95;
+
+  const w = 100;   // larghezza area hover
+  const h = 20;    // ALTEZZA verticale 
+
+  return (
+    mouseX >= x &&
+    mouseX <= x + w &&
+    mouseY >= y &&
+    mouseY <= y + h
+  );
+}
+
+function drawColumnCTA() {
+  const msg = "Click a column to see more";
+
+  const x = width - margin;
+  const y = height - margin;
+
+  // pulsazione automatica
+  const pulse = (sin(frameCount * 0.08) + 1) / 2; // 0..1
+  const a = 80 + pulse * 175; // alpha
+
+  textFont(myFont2);
+  textSize(14);
+  textAlign(RIGHT, BOTTOM);
+
+  // luminanza: 2 passate morbide + 1 netta
+  noStroke();
+  fill(0, 255, 255, a * 0.25);
+  text(msg, x + 1, y + 1);
+  text(msg, x - 1, y - 1);
+
+  fill(0, 255, 255, a);
+  text(msg, x, y);
+}
+
+function updateHoverPage2() {
+  hoveredYear = null;
+  isHoveringInteractive = false;
+
+  // --- PRIORITY: top-right carousel arrows hover => HAND (must run BEFORE exclusions) ---
+  const lineX = width / 2 + 260;
+  const boxX = lineX + 18;
+  const titleY = 70;
+  const boxY = titleY;
+
+  const boxW = 340;
+  const boxH = 120;
+
+
+  const arrowsY = boxY + boxH + 18;
+  const hitW = 34,
+    hitH = 34;
+
+  const rightCx = boxX + boxW - 4;
+  const leftCx = boxX + 4;
+
+  const overRight =
+    infoStep < 3 &&
+    mouseX >= rightCx - hitW / 2 &&
+    mouseX <= rightCx + hitW / 2 &&
+    mouseY >= arrowsY - hitH / 2 &&
+    mouseY <= arrowsY + hitH / 2;
+
+  const overLeft =
+    infoStep > 0 &&
+    mouseX >= leftCx - hitW / 2 &&
+    mouseX <= leftCx + hitW / 2 &&
+    mouseY >= arrowsY - hitH / 2 &&
+    mouseY <= arrowsY + hitH / 2;
+
+  if (overRight || overLeft) {
+    cursor(HAND);
+    return;
+  }
+
+
+  
+  // spazio orizzontale tra anni (colonne)
+  const yearStep = (width - 2 * margin) / (endYear - startYear);
+  const hitX = yearStep * 0.45; // quanto "larga" è l'area hover della colonna
+
+  // aree sensibili (anni e colonna)
+  const labelTop = yAxis - 40;
+  const labelBottom = yAxis + 40;
+  // area del grafico (colonne) — NON include bottom UI (legenda/CTA)
+  const columnTop = 80; // sopra l'asse (puoi ritoccare)
+  const columnBottom = yAxis + 200;
+
+  // EXCLUDE bottom-left legend area
+  const legendLeft = margin - 10;
+  const legendRight = margin + 220; // allarga se la legenda è più larga
+  const legendTop = height - margin - 150; // alza/abbassa in base alla tua legenda
+  const legendBottom = height;
+
+  // EXCLUDE bottom-right CTA area
+  const ctaLeft = width - margin - 320;
+  const ctaRight = width;
+  const ctaTop = height - margin - 60;
+  const ctaBottom = height;
+
+  // EXCLUDE top-center total bombs UI (title + number)
+  const topLeft = width / 2 - 220; // larghezza box (tweak se serve)
+  const topRight = width / 2 + 900;
+  const topTop = 0;
+  const topBottom = 350; // altezza box (tweak se serve)
+
+  // se sei sopra legenda o CTA, niente hover e niente hand cursor
+  const overLegend =
+    mouseX >= legendLeft &&
+    mouseX <= legendRight &&
+    mouseY >= legendTop &&
+    mouseY <= legendBottom;
+
+  const overCTA =
+    mouseX >= ctaLeft &&
+    mouseX <= ctaRight &&
+    mouseY >= ctaTop &&
+    mouseY <= ctaBottom;
+
+  const overTopUI =
+    mouseX >= topLeft &&
+    mouseX <= topRight &&
+    mouseY >= topTop &&
+    mouseY <= topBottom;
+
+  if (overLegend || overCTA || overTopUI) {
+    cursor(ARROW);
+    return;
+  }
+
+  for (let year = startYear; year <= endYear; year++) {
+    const x = map(year, startYear, endYear, margin, width - margin) + 3;
+
+    const overX = abs(mouseX - x) <= hitX;
+    const overLabelY = mouseY >= labelTop && mouseY <= labelBottom;
+    const overColumnY = mouseY >= columnTop && mouseY <= columnBottom;
+
+    if (overX && (overLabelY || overColumnY)) {
+      hoveredYear = year;
+      isHoveringInteractive = true;
+      break;
+    }
+  }
+
+  // Cursor
+  if (isHoveringInteractive) cursor(HAND);
+  else cursor(ARROW);
+}
+
+function drawTopRightInfoCarousel() {
+  // Layout (tweak safe)
+  const lineX = width - 400 - margin; // “a destra” del blocco centrale
+  const topY = 0;
+
+  const boxX = lineX + 18;
+  const titleY = 75;   // stessa y del "TOTAL AMOUNT OF BOMBS"
+  const boxY = titleY ; // allineamento top testo
+
+  const boxW = 400;
+  const boxH = 210;   
+
+  // Vertical cyan line from top
+  push();
+  stroke(0, 255, 255, 160);
+  strokeWeight(2);
+  line(lineX, topY, lineX, boxY + boxH+38);
+  pop();
+
+  // Text block
+  push();
+  noStroke();
+  textFont(myFont2);
+  textSize(20);
+  textLeading(31);
+  fill(200, 200, 200);
+  textAlign(LEFT, TOP);
+  text(infoTexts[infoStep], boxX, boxY, boxW, boxH);
+  pop();
+
+  // Arrows under the text block
+  const arrowsY = boxY + boxH + 28;
+  const chevronW = 10;
+  const chevronH = 8;
+
+  // right arrow under-right
+  if (infoStep < 3) {
+    drawGlowingChevronRight(boxX + boxW - 4, arrowsY, chevronW, chevronH);
+  }
+  // left arrow under-left
+  if (infoStep > 0) {
+    drawGlowingChevronLeft(boxX + 4, arrowsY, chevronW, chevronH);
+  }
+}
+
+function drawGlowingChevronRight(cx, cy, halfW, h) {
+  const pulse = (sin(frameCount * 0.08) + 1) / 2; // 0..1
+  const a = 90 + pulse * 165;
+
+  // luminanza (2 passate) + netta
+  push();
+  strokeWeight(2);
+  noFill();
+
+  stroke(0, 255, 255, a * 0.25);
+  line(cx - halfW, cy - h, cx, cy);
+  line(cx - halfW, cy + h, cx, cy);
+
+  stroke(0, 255, 255, a);
+  line(cx - halfW, cy - h, cx, cy);
+  line(cx - halfW, cy + h, cx, cy);
+  pop();
+}
+
+function drawGlowingChevronLeft(cx, cy, halfW, h) {
+  const pulse = (sin(frameCount * 0.08) + 1) / 2;
+  const a = 90 + pulse * 165;
+
+  push();
+  strokeWeight(2);
+  noFill();
+
+  stroke(0, 255, 255, a * 0.25);
+  line(cx + halfW, cy - h, cx, cy);
+  line(cx + halfW, cy + h, cx, cy);
+
+  stroke(0, 255, 255, a);
+  line(cx + halfW, cy - h, cx, cy);
+  line(cx + halfW, cy + h, cx, cy);
+  pop();
+}
+
+function handleIntroScroll(delta) {
+  spreadSpeed += delta * 0.05;
+
+  // scroll bidirezionale
+  scrollOffset += delta * 0.5;
+  scrollOffset = constrain(scrollOffset, 0, maxScroll);
+
+  // se scrolli su: spegni espansione
+  if (delta < 0) {
+    autoExpandStarted = false;
+    centerCircleSize = 10;
+  }
+
+  // espansione solo se sei al fondo e spingi giù
+  if (scrollOffset >= maxScroll && delta > 0 && !autoExpandStarted) {
+    autoExpandStarted = true;
+    expandStartFrame = frameCount;
+  }
+}
+
+
+function mouseWheel(event) { 
+  /*if (page === 1) {
     spreadSpeed += event.delta * 0.05;
 
     if (scrollOffset < maxScroll) {
       scrollOffset += event.delta * 0.5;
       scrollOffset = constrain(scrollOffset, 0, maxScroll);
     } else {
+      // Start automatic animation once max scroll reached
       if (!autoExpandStarted) {
         autoExpandStarted = true;
         expandStartFrame = frameCount;
       }
     }
-  } else if (page === 2) {
-    if (event.delta > 0) scrollDirection = 1;
-    else if (event.delta < 0) scrollDirection = -1;
+  } */
+  if (page === 1) {
+    spreadSpeed += event.delta * 0.05;
+
+    // 1) scroll SEMPRE bidirezionale (anche quando sei già a maxScroll)
+    scrollOffset += event.delta * 0.5;
+    scrollOffset = constrain(scrollOffset, 0, maxScroll);
+
+    // 2) se stai scrollando SU, l'espansione deve essere disattivata subito
+    if (event.delta < 0) {
+      autoExpandStarted = false;
+      centerCircleSize = 10; // reset se era già partito qualcosa
+    }
+
+    // 3) l'espansione parte SOLO se sei in fondo E stai spingendo GIÙ
+    if (scrollOffset >= maxScroll && event.delta > 0 && !autoExpandStarted) {
+      autoExpandStarted = true;
+      expandStartFrame = frameCount;
+    }
+
+      {
+    handleIntroScroll(event.delta);
+    return false;
   }
+} else if (page === 2) {
+
+    if (event.delta > 0) {
+    scrollDirection = 1;
+    return false;
+  }
+
+    // scroll up -> indietro nella timeline
+    if (event.delta < 0) {
+
+      // Se sei già all'inizio e continui a scrollare su: torna alla intro (page 1)
+      const EPS = 0.02; // tolleranza per float
+      if (scrollProgress <= (startYear - 1) + EPS) {
+        goBackToIntroBottom(event.delta);  // funzione sotto
+        return false;
+      }
+
+      scrollDirection = -1;
+      return false;
+    }
+
+    return false;
+
+  }
+
+ // fallback
   return false;
 }
 
 function mousePressed() {
-  let d = dist(mouseX, mouseY, 50, 50);
-  if (d < 15) {
-    menuOpen = !menuOpen;
-    return;
-  }
 
-  if (menuOpen) {
-    if (mouseX > 20 && mouseX < 300 && mouseY > 75 && mouseY < 95) {
-      window.location.href = "index.html";
-      menuOpen = false;
+  // ------------ page 1 ------------
+  
+  if (page === 1) {
+    if (isOverDownHint(mouseX, mouseY)) {
+      introNext();  // comportamento a step (sotto)
       return;
     }
-
-    if (mouseX > 20 && mouseX < 300 && mouseY > 105 && mouseY < 125) {
-      goNextPage();
-      menuOpen = false;
-      return;
-    }
-
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 155) {
-      window.location.href = "year.html?id=1";
-      menuOpen = false;
-      return;
-    }
-
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 185) {
-      window.location.href = "single.html";
-      menuOpen = false;
-      return;
-    }
-
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 215) {
-      window.location.href = "insight.html";
-      menuOpen = false;
-      return;
-    }
-
-    if (mouseX > 20 && mouseX < 300 && mouseY > 135 && mouseY < 245) {
-      window.location.href = "about.html";
-      menuOpen = false;
+    if (isOverUpHint(mouseX, mouseY)) {
+      introPrev();  // torna indietro a step
       return;
     }
   }
 
+  
+  
+  /*if (page === 1) {
+    if (isOverScrollHint(mouseX, mouseY)) {
+      introNext();   // te la faccio creare al punto 5
+      return;
+    }
+
+    if (isOverBackToTop(mouseX, mouseY)) {
+      introTop();
+      return;
+    }
+  }*/
+
+  // ------------ page 2 ------------
   if (page === 2) {
+    // --- click on top-right carousel arrows ---
+    const lineX = width - 400 - margin;
+    const boxX = lineX + 18;
+    const titleY = 75;
+    const boxY = titleY;
+
+    const boxW = 400;
+    const boxH = 210;
+
+    const arrowsY = boxY + boxH + 18;
+
+    const hitW = 34,
+      hitH = 34;
+
+    // freccia destra sotto-dx del box
+    const rightCx = boxX + boxW - 4;
+    // freccia sinistra sotto-sx del box
+    const leftCx = boxX + 4;
+
+    const overRight =
+      infoStep < 3 &&
+      mouseX >= rightCx - hitW / 2 &&
+      mouseX <= rightCx + hitW / 2 &&
+      mouseY >= arrowsY - hitH / 2 &&
+      mouseY <= arrowsY + hitH / 2;
+
+    const overLeft =
+      infoStep > 0 &&
+      mouseX >= leftCx - hitW / 2 &&
+      mouseX <= leftCx + hitW / 2 &&
+      mouseY >= arrowsY - hitH / 2 &&
+      mouseY <= arrowsY + hitH / 2;
+
+    if (overRight) {
+      infoStep++;
+      return;
+    }
+    if (overLeft) {
+      infoStep--;
+      return;
+    }
+
     for (let p of particles2) {
       let d = dist(mouseX, mouseY, p.x, p.y);
       if (d < p.r) {
@@ -411,7 +1294,7 @@ function mousePressed() {
       let x = map(year, startYear, endYear, margin, width - margin) + 3;
       let y = yAxis;
       let tw = textWidth(year);
-      let th = 12;
+      let th = 12; // textSize
 
       let dx = mouseX - x;
       let dy = mouseY - y;
@@ -423,12 +1306,73 @@ function mousePressed() {
         break;
       }
     }
+if (page === 2) {
+  const mainX = width / 2 - BTN_W / 2;
+  const mainY = 190;
+
+  // click main button
+  if (mouseX >= mainX && mouseX <= mainX + BTN_W &&
+      mouseY >= mainY && mouseY <= mainY + BTN_H) {
+    menuOpen = !menuOpen;
+    return;
+  }
+
+  if (menuOpen) {
+    const visibleCountries = countries.filter(c => c !== selectedCountry || c === "All country");
+
+    for (let i = 0; i < visibleCountries.length; i++) {
+      let bx = mainX;
+      let by = mainY + BTN_H + GAP + i * (BTN_H + GAP);
+
+      if (mouseX >= bx && mouseX <= bx + BTN_W &&
+          mouseY >= by && mouseY <= by + BTN_H) {
+        selectedCountry = visibleCountries[i];
+        menuOpen = false;
+        return;
+      }
+    }
   }
 }
 
-function mouseReleased() {
-  if (page === 2) scrollDirection = 0;
+
+
+  }
+
+
 }
+
+
+function keyPressed() {
+
+  // PAGE 1 controls
+  if (page === 1) {
+    if (keyCode === DOWN_ARROW) { // 32 = SPACE
+      introNext();
+      return;
+    }
+    if (keyCode === UP_ARROW) {
+      introPrev();
+      return;
+    }
+    if (keyCode === HOME) {
+      introTop();
+      return;
+    }
+  }
+
+
+    // Only on page2 and when menu is not open
+    if (page !== 2 || menuOpen) return;
+
+    if (keyCode === RIGHT_ARROW && infoStep < 3) {
+      infoStep++;
+    } else if (keyCode === LEFT_ARROW && infoStep > 0) {
+      infoStep--;
+    }
+}
+
+
+
 
 // ===============================
 // particles in page1
@@ -467,24 +1411,14 @@ class Particle1 {
 }
 
 // ===============================
-// grid
-// ===============================
-function drawGrid() {
-  let spacing = 20;
-  stroke(110, 133, 219, 100);
-  strokeWeight(0.5);
-  for (let x = 0; x <= width; x += spacing) line(x, 0, x, height);
-  for (let y = 0; y <= height; y += spacing) line(0, y, width, y);
-}
-
-// ===============================
 // particles in page2
 // ===============================
 class Particle2 {
-  constructor(year, isUG, yieldVal, targetX, targetY) {
+  constructor(year, isUG, yieldVal, targetX, targetY, country) {
     this.year = year;
     this.isUG = isUG;
     this.yieldVal = yieldVal;
+    this.country = country;
     this.tx = targetX;
     this.ty = targetY;
     this.x = random(width);
@@ -501,14 +1435,26 @@ class Particle2 {
   }
   draw() {
     if (!this.active) return;
+let visible =
+  selectedCountry === "All country" ||
+  normalizeCountry(this.country) === normalizeCountry(selectedCountry);
+
+    const isHover = hoveredYear === this.year;
+    const rr = isHover ? this.r * 1.25 : this.r;
+
     noStroke();
-    fill(this.col);
-    circle(this.x, this.y, this.r);
+    if (visible) {
+      fill(this.col);
+    } else {
+      fill(255, 255, 255, 25); // dimmed
+    }
+    circle(this.x, this.y, rr);
   }
 }
 
+
 // ===============================
-// Funzioni supporto pagina2
+// Funzioni di supporto per la pagina2
 // ===============================
 function getYieldColor(y) {
   if (y >= 0 && y <= 19) return "#fcddbfff";
@@ -539,28 +1485,32 @@ function creaParticlesDaTabella() {
       let rowYear = data[i].year;
       let type = data[i].type;
       if (rowYear === year && !UGTypes.includes(type)) {
-        nonUGBombs.push({ yieldVal: data[i].yield });
+       nonUGBombs.push({ yieldVal: data[i].yield, country: data[i].country });
+
       }
     }
     nonUGBombs.sort(
       (a, b) => getColorLevel(a.yieldVal) - getColorLevel(b.yieldVal)
     );
-    for (let i = 0; i < nonUGBombs.length; i++) {
-      let row = floor(i / cols),
-        col = i % cols;
-      let cx = x - colWidth / 2 + col * (cellSize + gap);
-      let cy = yAxis - (row + 6) * (cellSize + gap);
-      particles2.push(
-        new Particle2(year, false, nonUGBombs[i].yieldVal, cx, cy)
-      );
-    }
+  
+
+for (let i = 0; i < nonUGBombs.length; i++) {
+  let row = floor(i / cols),
+      col = i % cols;
+  let cx = x - colWidth / 2 + col * (cellSize + gap);
+  let cy = yAxis - (row + 6) * (cellSize + gap);
+
+  particles2.push(
+    new Particle2(year, false, nonUGBombs[i].yieldVal, cx, cy, nonUGBombs[i].country)
+  );
+}
 
     let ugBombs = [];
     for (let i = 0; i < data.length; i++) {
       let rowYear = data[i].year;
       let type = data[i].type;
       if (rowYear === year && UGTypes.includes(type)) {
-        ugBombs.push({ yieldVal: data[i].yield });
+        ugBombs.push({ yieldVal: data[i].yield, country: data[i].country });
       }
     }
     ugBombs.sort(
@@ -571,52 +1521,165 @@ function creaParticlesDaTabella() {
         col = i % cols;
       let cx = x - colWidth / 2 + col * (cellSize + gap);
       let cy = yAxis + (row + 6) * (cellSize + gap);
-      particles2.push(new Particle2(year, true, ugBombs[i].yieldVal, cx, cy));
+     particles2.push(
+  new Particle2(year, true, ugBombs[i].yieldVal, cx, cy, ugBombs[i].country)
+);
     }
   }
 }
 
 function disegnaAsseEAnni() {
   textAlign(CENTER, TOP);
-  textSize(12);
-  fill(0, 255, 255);
   noStroke();
 
   for (let year = startYear; year <= endYear; year++) {
     let x = map(year, startYear, endYear, margin, width - margin) + 3;
     let y = yAxis;
 
+    const isHover = hoveredYear === year;
+
     push();
     translate(x + 3, y);
     rotate(HALF_PI);
+
+    if (isHover) {
+      fill(0,255,255);
+      textSize(14);
+      scale(1.06); // ingrandimento leggero
+    } else {
+      fill(220);
+      textSize(12);
+    }
+
     text(year, 0, 0);
     pop();
   }
 }
 
+function goBackToIntroBottom() {
+  page = 1;
+  // pulisci l'hash così lo stato URL corrisponde alla pagina reale
+  history.replaceState(null, "", window.location.pathname);
+
+  scrollDirection = 0;
+
+  // blocca qualsiasi espansione/transition rimasta appesa
+  autoExpandStarted = false;
+  centerCircleSize = 10;
+
+  // IMPORTANTE per evitare rientro immediato in page2:
+  // ti posiziona poco prima del fondo, così l’utente può scrollare su (smooth)
+  // e per rientrare in page2 deve fare uno scroll down reale.
+  scrollOffset = maxScroll - 30;   // <- regola (20-80) a gusto
+  scrollOffset = constrain(scrollOffset, 0, maxScroll);
+
+  // se avevi snapping o stati simili, qui li "spengi"
+  snapping = false;
+
+  // UI opzionale: gestisci bottoni
+  const backBtn = document.getElementById("backToTopBtn");
+  if (backBtn) backBtn.style.display = "none";
+
+  const skipBtn = document.getElementById("skipIntroBtn");
+  if (skipBtn && skipBtn.parentElement) skipBtn.parentElement.style.display = "block";
+}
+
 function goNextPage() {
   page = 2;
 
-  // Graduale animazione particelle
+  enteredPage2ByScroll = true;
   scrollProgress = startYear - 1;
-  let interval = setInterval(() => {
-    scrollProgress += 1;
-    if (scrollProgress >= endYear) {
-      scrollProgress = endYear;
-      clearInterval(interval);
-    }
-    for (let p of particles2) p.active = p.year <= scrollProgress;
-  }, 20);
+
+  scrollDirection = 1;
+  introTimelinePlaying = true; // <<< BLOCCA L’ANIMAZIONE
+
+  lastStepTime = millis();
+
+  const skipBtn = document.getElementById("skipIntroBtn");
+  if (skipBtn && skipBtn.parentElement) {
+    skipBtn.parentElement.style.display = "none";
+  }
 }
+
+
+function drawCountryMenu() {
+  const x = width / 2;
+  const y = 190;
+
+  let mainX = x - BTN_W / 2;
+  let mainY = y;
+
+  // main button
+  stroke(0, 255, 255);
+  strokeWeight(2);
+  noFill();
+  rect(mainX, mainY, BTN_W, BTN_H, RADIUS);
+
+  noStroke();
+  fill(0, 255, 255);
+  textAlign(CENTER, CENTER);
+  text(selectedCountry, mainX + BTN_W / 2, mainY + BTN_H / 2);
+
+  // Open/close menu
+  if (menuOpen) {
+    const visibleCountries = countries.filter(c => c !== selectedCountry || c === "All country");
+
+    for (let i = 0; i < visibleCountries.length; i++) {
+      let bx = mainX;
+      let by = mainY + BTN_H + GAP + i * (BTN_H + GAP);
+
+      stroke(0, 255, 255);
+      strokeWeight(2);
+      noFill();
+      rect(bx, by, BTN_W, BTN_H, RADIUS);
+
+      noStroke();
+      fill(0, 255, 255);
+      textAlign(CENTER, CENTER);
+      text(visibleCountries[i], bx + BTN_W / 2, by + BTN_H / 2);
+
+      // hover highlight
+      if (mouseX >= bx && mouseX <= bx + BTN_W && mouseY >= by && mouseY <= by + BTN_H) {
+        fill(0);
+        rect(bx, by, BTN_W, BTN_H, RADIUS);
+        fill(0);
+        text(visibleCountries[i], bx + BTN_W / 2, by + BTN_H / 2);
+      }
+    }
+  }
+}
+
+function isMouseInMenuArea(mainX, mainY) {
+  let left = mainX - PADDING_AREA;
+  let right = mainX + BTN_W + PADDING_AREA;
+  let top = mainY - PADDING_AREA;
+  let bottom = mainY + BTN_H + PADDING_AREA + (countries.length) * (BTN_H + GAP);
+
+  return (
+    mouseX >= left && mouseX <= right &&
+    mouseY >= top && mouseY <= bottom
+  );
+}
+
+
 
 
 // ===============================
 // LISTENER MENU → CAMBIO PAGINA
 // ===============================
-window.addEventListener("changePage", (e) => {   // <<< AGGIORNATO
+window.addEventListener("changePage", (e) => {
+  // <<< AGGIORNATO
   if (e.detail.page === 2) {
     goToOverview();
   } else {
     page = e.detail.page;
   }
 });
+ 
+function getVisibleCountries() {
+  return countries.filter(c => c !== selectedCountry || c === "All country");
+}
+
+function normalizeCountry(c) {
+  return c.trim().toUpperCase();
+}
