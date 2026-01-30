@@ -106,6 +106,7 @@ let insightSketch = function(p) {
   let scrollY = 0;
   let targetScrollY = 0;
   let canvasHeight;
+  
 
   let topMargin = 40;
   let sideMargin = 80;
@@ -124,11 +125,12 @@ let insightSketch = function(p) {
   let thumbSize = 120;
   let thumbGap = 30;
 
-  let myFont1, myFont2, myFont3;
+  let myFont1, myFont2;
 
-  let titleAlpha;
   let fadeIn = 0;
   let floatOffset = 20;
+  let hoverClickable = false; // true quando sei sopra elementi cliccabili (thumbs / arrows)
+
 
   p.preload = function() {
     myFont1 = p.loadFont("fonts/LexendZetta-Regular.ttf");
@@ -179,6 +181,8 @@ let insightSketch = function(p) {
   p.draw = function() {
     p.background(20);
     p.fill(255);
+    hoverClickable = false; // reset ogni frame
+
 
     scrollY += (targetScrollY - scrollY) * 0.12;
     thumbOffset += (targetThumbOffset - thumbOffset) * 0.18;
@@ -186,13 +190,11 @@ let insightSketch = function(p) {
     fadeIn = p.min(fadeIn + 3, 255);
     floatOffset = p.max(floatOffset - 0.6, 0);
 
-    titleAlpha = p.map(scrollY, 0, 200, 255, 0, true); 
-    p.fill(200, titleAlpha);
-    p.textAlign(p.CENTER, p.TOP);
-    p.textFont(myFont1);
-    p.noStroke();
-    p.textSize(20);
-    p.text(pageTitle, p.width / 2, 30);
+    // TITLE "Insight" REMOVED:
+    // la navbar HTML/CSS sopra al canvas sostituisce questo titolo.
+    // (teniamo comunque pageTitle per i calcoli di layout/canvasHeight)
+    titleAlpha = p.map(scrollY, 0, 200, 255, 0, true);
+
 
     let topTextW = p.width - topTextSideMargin * 2;
     let topTextH = estimateTextHeight(pageTitle, topTextW);
@@ -271,6 +273,14 @@ let insightSketch = function(p) {
     if (showPreview && previewImg && currentTopic === "hiroshima") {
       drawPreviewOverlay();
     }
+
+    // Nasconde navbar/back quando la preview è aperta (solo su Hiroshima)
+    document.body.classList.toggle("photo-open", showPreview && currentTopic === "hiroshima");
+
+
+      // Cursor globale per elementi cliccabili (thumbs + arrows)
+    p.cursor(hoverClickable ? p.HAND : p.ARROW);
+
   };
 
   function drawTextWithFloat(txt, x, y, maxW, alpha, o1, o2) {
@@ -368,6 +378,11 @@ let insightSketch = function(p) {
   }
 
   function drawThumbnails(y) {
+
+    // Se la preview è aperta, i thumbnails dietro NON devono influenzare hover/cursor
+    // (restano visivamente lì sotto, ma non “interagiscono”)
+    if (showPreview) return;
+  
     if (currentTopic !== "hiroshima") return;
     
     if (y < -100) return;
@@ -381,6 +396,10 @@ let insightSketch = function(p) {
     let arrowW = 40, arrowH = thumbSize;
     let arrowY = y;
 
+    let hoverLeftStripArrow = false;
+    let hoverRightStripArrow = false;
+
+
     const visibleEnd = p.width - sideMargin;
     const initialStripStart = (p.width - totalW) / 2;
     const maxScrollNegative = visibleEnd - (initialStripStart + totalW);
@@ -388,7 +407,12 @@ let insightSketch = function(p) {
 
     if (thumbOffset < -5) {
       let x = sideMargin - arrowW;
-      if (p.mouseX > x && p.mouseX < x + arrowW && p.mouseY > arrowY && p.mouseY < arrowY + arrowH) {
+
+      hoverLeftStripArrow =
+        p.mouseX > x && p.mouseX < x + arrowW &&
+        p.mouseY > arrowY && p.mouseY < arrowY + arrowH;
+      
+      if (hoverLeftStripArrow) {
         p.fill(110, 133, 219, 150);
         p.rect(x, arrowY, arrowW, arrowH, 0);
         p.fill(255);
@@ -400,7 +424,12 @@ let insightSketch = function(p) {
 
     if (thumbOffset > maxScroll + 5) {
       let x = p.width - sideMargin;
-      if (p.mouseX > x - arrowW && p.mouseX < x && p.mouseY > arrowY && p.mouseY < arrowY + arrowH) {
+
+      hoverRightStripArrow =
+        p.mouseX > x - arrowW && p.mouseX < x &&
+        p.mouseY > arrowY && p.mouseY < arrowY + arrowH;
+
+      if (hoverRightStripArrow) {
         p.fill(110, 133, 219, 150);
         p.rect(x - arrowW, arrowY, arrowW, arrowH, 0);
         p.fill(255);
@@ -421,6 +450,7 @@ let insightSketch = function(p) {
         }
       }
     }
+
 
     for (let i = 0; i < thumbs.length; i++) {
       let x = startX + i * (thumbSize + thumbGap);
@@ -460,6 +490,10 @@ let insightSketch = function(p) {
         }
       }
     }
+    
+if (hoveredIndex !== -1 || hoverLeftStripArrow || hoverRightStripArrow) {
+          hoverClickable = true;
+        }
 
     p.noStroke();
   }
@@ -495,6 +529,11 @@ let insightSketch = function(p) {
     let rx = p.width - 100 - previewArrowSize;
     let rightHover = p.mouseX > rx && p.mouseX < rx + previewArrowSize &&
                    p.mouseY > midY - previewArrowSize && p.mouseY < midY + previewArrowSize;
+
+    if (leftHover || rightHover) {
+      hoverClickable = true;
+    }
+               
     p.fill(rightHover ? p.color(255, 255, 255) : p.color(255, 150));
     p.triangle(
       rx + previewArrowSize, midY,

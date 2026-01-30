@@ -845,7 +845,7 @@ if (hiroshimaTextBounds) {
     mouseY >= b.y &&
     mouseY <= b.y + b.h
   ) {
-    window.location.href = "insight.html";
+    window.location.href = "insight.html?topic=hiroshima";
     return;
   }
 }

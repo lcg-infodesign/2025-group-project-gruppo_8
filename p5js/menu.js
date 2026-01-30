@@ -23,7 +23,7 @@ let menuSketch = function (p) {
     "home": "index.html",
     "overview": "index.html#page2",
     "bombs per year": "year.html",
-    "insight": "insight.html",
+    "insight": "insight.html?topic=hiroshima",
     "about": "about.html"
   };
 
@@ -46,6 +46,10 @@ let menuSketch = function (p) {
   };
 
   let insightY = null;
+
+  // true solo quando sei nella pagina insight
+  const ON_INSIGHT_PAGE = window.location.pathname.includes("insight.html");
+
 
   p.preload = function () {
     font = p.loadFont("fonts/LibreFranklin-Regular.otf");
@@ -99,10 +103,11 @@ let menuSketch = function (p) {
       p.mouseY <= 280; // rileva solo l’area del menu
 
     // Verifica se il mouse è nell’area del sottomenu insight
+    // (ma SOLO se NON sei già nella pagina insight)
     let insideSubMenu = false;
-    if (insightY !== null) {
-      let subX = menuX + 38 + 55;
-      let subY = insightY;
+    if (!ON_INSIGHT_PAGE && insightY !== null) {
+    let subX = menuX + 38 + 55;
+    let subY = insightY;
       insideSubMenu =
         p.mouseX >= subX &&
         p.mouseX <= subX + 250 &&
@@ -183,7 +188,7 @@ let menuSketch = function (p) {
       currentY += menuStepY;
     }
 
-    if (insightY !== null) {
+    if (!ON_INSIGHT_PAGE && insightY !== null) {
       let subX = menuX + 38 + 55;
       let baseY = insightY;
 
@@ -249,10 +254,13 @@ let menuSketch = function (p) {
           return;
         }
 
-        // Se è la voce insight, non naviga: mostra il sottomenu
-        if (label === "insight") {
-          return;
-        }
+       // Click su "insight" = vai al primo insight
+      // (il sottomenu resta comunque disponibile via hover, e cliccando le voci)
+      if (label === "insight") {
+        window.location.href = menuLinks[label];
+        return;
+      }
+
 
         window.location.href = menuLinks[label];
         return;
@@ -262,7 +270,7 @@ let menuSketch = function (p) {
     }
 
     // Click sul sottomenu
-    if (insightY !== null) {
+    if (!ON_INSIGHT_PAGE && insightY !== null) {
       let subX = menuX + 38 + 55;
       let baseY = insightY;
 

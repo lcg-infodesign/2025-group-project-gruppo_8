@@ -69,3 +69,103 @@ canvas {
 .map-open .back-btn {
   display: none;
 }
+
+
+/* =========================
+   INSIGHT NAVBAR (HTML/CSS)
+   stile: stroke cyan, strokeWeight 2, radius 6, fill cyan hover/active
+   centered like GENERAL title
+   ========================= */
+
+
+.insight-tabs-wrap{
+  position: fixed;
+
+  /* allineamento verticale al bottone menu:
+     btnY=25, btnSize=60 (menu.js) => centro = 55
+     BTN_H=30 => top = 55 - 15 = 40 */
+  top: 40px;
+
+  left: 0;
+  width: 100%;
+  z-index:  10050;
+  pointer-events: auto;
+
+  /* centra orizzontalmente la navbar */
+  display: flex;
+  justify-content: center;
+}
+
+.insight-tabs{
+  --insight-tabs-scale: 1;
+
+  display: inline-flex;
+  gap: 10px;
+
+  /* niente translateX: ora è centrata dal flex wrapper */
+  transform-origin: center center;
+  transform: scale(var(--insight-tabs-scale));
+
+  pointer-events: auto;
+}
+
+
+.insight-tab{
+  pointer-events: auto;
+  height: 30px;                       /* BTN_H = 30 */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 15px;                    /* circa textWidth + 30 del p5 */
+  border: 2px solid rgb(0, 255, 255); /* stroke(cyan) + strokeWeight(2) */
+  border-radius: 6px;                 /* RADIUS = 6 */
+
+  background: rgba(20, 20, 20, 0.86); /* darkFill (20, 220) ~ “scuro trasparente” */
+  color: rgb(0, 255, 255);
+
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  text-decoration: none;
+  line-height: 1;
+  user-select: none;
+
+  transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.insight-tab:hover,
+.insight-tab.is-active{
+  background: rgb(0, 255, 255);
+  color: rgb(20, 20, 20); /* testo scuro quando attivo/hover */
+}
+
+.insight-tab:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0,255,255,0.35);
+}
+
+/* Fade overlay: attenua i contenuti quando passano sotto la navbar */
+.insight-top-fade{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 150px;                 /* regola se vuoi più/meno “fade” */
+  z-index: 9000;                /* sotto navbar (10050), sopra canvas (1) */
+  pointer-events: none;
+
+  /* background uguale al tuo bg (#161616 / 20) */
+  background: linear-gradient(
+    to bottom,
+    rgba(22, 22, 22, 1) 0%,
+    rgba(22, 22, 22, 0.92) 35%,
+    rgba(22, 22, 22, 0) 100%
+  );
+}
+
+/* Quando la preview foto è aperta, nascondi navbar + back */
+body.photo-open .insight-tabs-wrap,
+body.photo-open .back-btn{
+  opacity: 0;
+  pointer-events: none;
+}
