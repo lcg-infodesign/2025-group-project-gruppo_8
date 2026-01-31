@@ -368,3 +368,67 @@ body.photo-open .back-btn{
   position: relative;
   top: -50px;          /* 上移 50px */
 }
+
+/* ABOUT FOOTER */
+
+.about-footer {
+  width: 100vw;
+  background-color: #111;
+  color: #ffffff;
+  padding: 60px 40px 40px 40px;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.footer-top {
+  display: flex;
+  gap: 60px;
+}
+
+.footer-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.footer-block p {
+  margin: 0;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.footer-small {
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.footer-logo {
+  margin-top: 16px;
+  max-width: 160px;
+  height: auto;
+}
+
+.footer-logos {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.footer-bottom {
+  margin-top: 60px;
+  max-width: 900px;
+}
+
+.footer-bottom p {
+  font-size: 12px;
+  line-height: 1.6;
+  opacity: 0.7;
+}
+
+.footer-bottom a {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
