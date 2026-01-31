@@ -7,7 +7,7 @@
   const content = {
     dataset: {
       //title: "About the Dataset",
-      text: "The SIPRI–FOA dataset documents all known nuclear explosions from 1945 up to 1998, the year when India and Pakistan conducted their last declared nuclear tests. After the adoption of the CTBT, states relied on simulations.",
+      text: "The data is sourced from SIPRI, the Oklahoma Geological Survey, and the Natural Resources Defense Council, and later consolidated into an open format via the Data Is Plural repository. \nThe original datasets were created as part of public and academic research initiatives, supported by national and international public funding. \nEach nuclear test is recorded with parameters such as location, date, country, test type, and yield.",
       ctas: [
         {
           label: "OPEN DATASET REPOSITORY",

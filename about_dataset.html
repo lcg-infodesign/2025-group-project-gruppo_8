@@ -15,44 +15,60 @@
   </head>
 
   <body class="about-page">
-  <script src="p5js/menu.js"></script>
+    <script src="p5js/menu.js"></script>
 
-  <button class="back-btn" onclick="history.back()">Back</button>
+    <button class="back-btn" onclick="history.back()">Back</button>
 
-  <!-- ABOUT NAVBAR (pills) -->
-  <div class="about-tabs-wrap">
-    <nav class="about-tabs" aria-label="About navigation">
-      <a class="about-tab is-active" href="about.html">ABOUT THE DATASET</a>
-      <a class="about-tab" href="about_project.html">ABOUT THE PROJECT</a>
-      <a class="about-tab" href="about_us.html">ABOUT US</a>
-    </nav>
-  </div>
+    <!-- ABOUT NAVBAR (pills) -->
+    <div class="about-tabs-wrap">
+      <nav class="about-tabs" aria-label="About navigation">
+        <a class="about-tab is-active" href="about.html">ABOUT THE DATASET</a>
+        <a class="about-tab" href="about_project.html">ABOUT THE PROJECT</a>
+        <a class="about-tab" href="about_us.html">ABOUT US</a>
+      </nav>
+    </div>
 
-  <!-- CONTENT -->
-  <main class="about-content">
-    <h1 class="about-title">About the Dataset</h1>
+    <!-- CONTENT -->
+    <main class="about-content">
+      <h1 class="about-title">About the Dataset</h1>
 
-    <p class="about-text">
-      The SIPRI–FOA dataset documents all known nuclear explosions from 1945 up to 1998, the year when India and Pakistan conducted their last declared nuclear tests. After the adoption of the CTBT, states relied on simulations.
-    </p>
+      <p class="about-text">
+        The data is sourced from SIPRI, the Oklahoma Geological Survey, and the Natural Resources Defense Council, and later consolidated into an open format via the Data Is Plural repository. The original datasets were created as part of public and academic research initiatives, supported by national and international public funding. Each nuclear test is recorded with parameters such as location, date, country, test type, and yield.
+      </p>
 
-    <!-- CTA ROW (2 bottoni) -->
-    <div class="about-cta-row">
-      <a class="cta-btn"
-         href="https://github.com/data-is-plural/nuclear-explosions"
-         target="_blank" rel="noopener">
-        OPEN DATASET REPOSITORY
-        <span class="cta-arrow" aria-hidden="true">▶</span>
-      </a>
+      <!-- CTA ROW (2 bottoni) -->
+      <div class="about-cta-row">
+        <a class="cta-btn"
+           href="https://github.com/data-is-plural/nuclear-explosions"
+           target="_blank" rel="noopener">
+          OPEN DATASET REPOSITORY
+          <span class="cta-arrow" aria-hidden="true">▶</span>
+        </a>
 
-      <a class="cta-btn"
-         href="docs/sipri-report-original.pdf"
-         target="_blank" rel="noopener">
-        OPEN OFFICIAL REPORT (PDF)
-         <span class="cta-arrow" aria-hidden="true">▶</span>
+        <a class="cta-btn"
+           href="docs/sipri-report-original.pdf"
+           target="_blank" rel="noopener">
+          OPEN OFFICIAL REPORT (PDF)
+          <span class="cta-arrow" aria-hidden="true">▶</span>
         </a>
       </div>
+
+      <!-- NUOVO TESTO (SOTTO I BOTTONI) -->
+      <p class="about-text">
+        During our review of the original dataset, we identified several inconsistencies and errors. These issues were corrected to ensure the accuracy of the data.
+        In addition, certain adjustments were made to improve its usability and visualization.
+      </p>
+
+      <!-- NUOVO BOTTONE (SOTTO IL NUOVO TESTO) -->
+      <div class="about-cta-row">
+        <a class="cta-btn"
+           href="https://github.com/GiovanniPalladino/nuclear-explosions-modified"
+           target="_blank" rel="noopener">
+          OPEN MODIFIED DATASET
+          <span class="cta-arrow" aria-hidden="true">▶</span>
+        </a>
+      </div>
+
     </main>
   </body>
-
 </html>
