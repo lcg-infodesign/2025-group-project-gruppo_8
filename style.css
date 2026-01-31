@@ -169,3 +169,130 @@ body.photo-open .back-btn{
   opacity: 0;
   pointer-events: none;
 }
+
+/* =========================
+   ABOUT — top navbar (pills)
+   ========================= */
+
+:root{
+  /* se serve micro-tuning, cambi solo questo */
+  --about-nav-y: 50%;
+}
+
+.about-tabs-wrap{
+  position: fixed;
+  left: 50%;
+  top: var(--about-nav-y);
+  transform: translate(-50%, -50%);
+  z-index: 1800;
+  pointer-events: auto;
+}
+
+.about-tabs{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-tab{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 30px;
+  padding: 0 16px;
+
+  border: 2px solid rgba(0,255,255,1);
+  border-radius: 6px;
+
+  background: rgba(20,20,20,0.85);
+  color: rgba(0,255,255,1);
+
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.about-tab:hover{
+  background: rgba(0,255,255,1);
+  color: rgba(20,20,20,1);
+}
+
+.about-tab.is-active{
+  background: rgba(0,255,255,1);
+  color: rgba(20,20,20,1);
+}
+
+/* =========================
+   ABOUT — content layout
+   ========================= */
+
+.about-content{
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 160px 24px 80px; /* spazio sopra per non finire sotto la navbar */
+}
+
+.about-title{
+  margin: 0 0 16px;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 28px;
+  letter-spacing: 0.02em;
+}
+
+.about-text{
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(220,220,220,1);
+}
+
+/* =========================
+   CTA — stile “year button”
+   ========================= */
+
+.about-cta-row{
+  margin-top: 28px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.cta-btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 14px;
+  border-radius: 8px;
+
+  border: 1px solid rgba(0,255,255,0.55);
+  background: rgba(20,20,20,0.60);
+
+  color: rgba(0,255,255,0.85);
+  text-decoration: none;
+
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+
+  transition: border-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.cta-btn:hover{
+  border-color: rgba(0,255,255,0.9);
+  color: rgba(0,255,255,1);
+  transform: translateX(2px);
+}
+
+.cta-arrow{
+  font-size: 11px;
+  line-height: 1;
+}
