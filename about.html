@@ -1,44 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About</title>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About</title>
 
-    <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href="style.css">
 
-    <script src="libraries/p5.min.js"></script>
-    <script src="libraries/p5.sound.min.js"></script>
+  <script src="libraries/p5.min.js"></script>
+  <script src="libraries/p5.sound.min.js"></script>
+</head>
 
-    <!-- Lucide GLOBAL -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-  </head>
+<body class="about-page">
 
-    <body class="about-page">
-    <!-- menu laterale -->
-    <script src="p5js/menu.js"></script>
+  <script src="p5js/menu.js"></script>
 
-    <!-- back -->
-    <button class="back-btn" onclick="history.back()">Back</button>
+  <button class="back-btn" onclick="history.back()">Back</button>
 
-    <!-- ABOUT NAVBAR (pills) -->
-    <div class="about-tabs-wrap">
-        <nav class="about-tabs" aria-label="About navigation">
-        <a class="about-tab" data-topic="dataset" href="about.html?topic=dataset">ABOUT THE DATASET</a>
-        <a class="about-tab" data-topic="us" href="about.html?topic=us">ABOUT US</a>
-        </nav>
-    </div>
+  <div class="about-tabs-wrap">
+    <nav class="about-tabs">
+      <a class="about-tab" data-topic="dataset" href="about.html?topic=dataset">
+        ABOUT THE DATASET
+      </a>
+      <a class="about-tab" data-topic="us" href="about.html?topic=us">
+        ABOUT US
+      </a>
+    </nav>
+  </div>
 
-    <!-- CONTENT (riempito da JS) -->
-    <main class="about-content">
-        <h1 class="about-title">About</h1>
-        <p class="about-text"></p>
+  <main class="about-content">
+    <h1 class="about-title"></h1>
 
-        <div class="about-cta-row"></div>
-    </main>
+    <div class="about-text-wrap"></div>
 
-    <!-- JS: gestisce topic/active state/CTA -->
-    <script src="p5js/aboutTabsNav.js"></script>
-    </body>
+    <div class="about-cta-row primary-cta"></div>
 
+    <!-- SPAZIO + SECONDO TESTO -->
+    <div class="about-text-wrap review-text"></div>
+
+    <div class="about-cta-row secondary-cta"></div>
+
+    <!-- CANVAS -->
+    <div id="about-us-canvas"></div>
+  </main>
+
+  <!-- SOLO QUI: JS -->
+  <script src="p5js/aboutTabsNav.js"></script>
+</body>
 </html>
