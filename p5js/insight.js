@@ -13,7 +13,7 @@ let insightSketch = function(p) {
 
   const contentConfig = {
     "hiroshima": {
-      title: "Hiroshima & Nagasaki",
+      //title: "Hiroshima & Nagasaki",
       texts: [
         "The use of nuclear weapons in armed conflict has occurred only twice: when the United States detonated two atomic bombs over the Japanese cities of Hiroshima and Nagasaki, during World War II. On 6 th and 9 th of August 1945, these aerial attacks claimed the lives of 150,000 to 246,000 people, most of whom were civilians.",
         "The atomic bomb dropped on Hiroshima was named Little Boy, it was a uranium gun-type fission weapon developed by the Manhattan Project. It was dropped by the B-29 Enola Gay on Hiroshima on August 6, 1945, marking it the first use of a nuclear weapon in warfare. It exploded with an energy equivalent to approximately 15 kilotons of TNT, causing widespread devastation with an explosion radius of about 1.3 kilometers (0.81 mi).",
@@ -37,7 +37,7 @@ let insightSketch = function(p) {
       hasThreeSections: true
     },
     "moratoria58": {
-      title: "Moratorium 1958",
+      //title: "Moratorium 1958",
       texts: [
         "The 1958 nuclear test moratorium was a unilateral suspension of nuclear weapons testing announced by the Soviet Union on March 31, 1958, and followed by the United States and United Kingdom.",
         "This moratorium lasted from November 1958 to September 1961, representing the first significant pause in nuclear testing since the beginning of the atomic age.",
@@ -53,7 +53,7 @@ let insightSketch = function(p) {
       hasThreeSections: false
     },
     "trattato63": {
-      title: "Test Ban Treaty 1963",
+      //title: "Test Ban Treaty 1963",
       texts: [
         "The Partial Test Ban Treaty (PTBT), also known as the Limited Test Ban Treaty, was signed on August 5, 1963, by the United States, United Kingdom, and Soviet Union.",
         "The treaty prohibited all test detonations of nuclear weapons except for those conducted underground, effectively banning nuclear weapons tests in the atmosphere, underwater, and in outer space.",
@@ -69,7 +69,7 @@ let insightSketch = function(p) {
       hasThreeSections: false
     },
     "trattato96": {
-      title: "Test Ban Treaty 1996",
+      //title: "Test Ban Treaty 1996",
       texts: [
         "The Comprehensive Nuclear-Test-Ban Treaty (CTBT) is a multilateral treaty that bans all nuclear explosions, for both civilian and military purposes, in all environments.",
         "Adopted by the United Nations General Assembly on September 10, 1996, the treaty has been signed by 185 nations and ratified by 170, but has not entered into force due to the non-ratification by eight specific nuclear technology holder countries.",
@@ -85,7 +85,7 @@ let insightSketch = function(p) {
       hasThreeSections: false
     },
     "tsarbomba": {
-      title: "Tsar Bomba - 50 MT",
+      //title: "Tsar Bomba - 50 MT",
       texts: [
         "The Tsar Bomba was the most powerful nuclear weapon ever detonated, with a yield of 50 megatons of TNT, developed by the Soviet Union and tested on October 30, 1961.",
         "The bomb was originally designed for a 100-megaton yield, but was scaled down to reduce radioactive fallout. Even at half its potential yield, it was 3,800 times more powerful than the Hiroshima bomb.",
@@ -479,7 +479,7 @@ let insightSketch = function(p) {
 
         if (i === hoveredIndex) {
           p.noFill();
-          p.stroke(110, 133, 219);
+          p.stroke(0, 255, 255);
           p.strokeWeight(3);
           p.rect(x, y, thumbSize, thumbSize, 0);
         } else {

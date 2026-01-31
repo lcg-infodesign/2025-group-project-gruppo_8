@@ -6,7 +6,7 @@
 
   const content = {
     dataset: {
-      title: "About the Dataset",
+      //title: "About the Dataset",
       text: "The SIPRI–FOA dataset documents all known nuclear explosions from 1945 up to 1998, the year when India and Pakistan conducted their last declared nuclear tests. After the adoption of the CTBT, states relied on simulations.",
       ctas: [
         {
@@ -21,7 +21,7 @@
     },
 
     project: {
-      title: "About the Project",
+      //title: "About the Project",
       text: "The dataset provides structured details for each nuclear test, including the responsible country, location, date, test type, explosive yield, and declared purpose. Test types have been grouped into atmospheric/surface and underground categories.",
       ctas: [
         {
@@ -32,7 +32,7 @@
     },
 
     us: {
-      title: "About Us",
+      //title: "About Us",
       text: "The SIPRI–FOA dataset documents all known nuclear explosions from 1945 up to 1998, the year when India and Pakistan conducted their last declared nuclear tests. After the adoption of the CTBT, states relied on simulations.",
       ctas: []
     }
@@ -78,3 +78,4 @@
     });
   }
 })();
+

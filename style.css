@@ -304,6 +304,8 @@ body.photo-open .back-btn{
    ========================= */
 
 .about-cta-row{
+  position: relative;
+  z-index: 20000; /* sopra a tutto (menu canvas incluso) */
   margin-top: 28px;
   display: flex;
   gap: 14px;
@@ -330,6 +332,16 @@ body.photo-open .back-btn{
   text-transform: uppercase;
 
   transition: border-color 160ms ease, color 160ms ease, transform 160ms ease;
+
+  cursor: pointer;
+  user-select: none;
+
+  /* evita “zone morte” dovute a line-height/inline layout */
+  line-height: 1;
+  white-space: nowrap;
+
+  /* se vuoi, tieni questa o eliminala: */
+  width: max-content;
 }
 
 .cta-btn:hover{
@@ -341,4 +353,9 @@ body.photo-open .back-btn{
 .cta-arrow{
   font-size: 11px;
   line-height: 1;
+  pointer-events: none;
+  line-height: 1;
+  display: inline-block;
 }
+
+
