@@ -162,7 +162,7 @@ function preload() {
   myFont3 = loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
 
   // pagina2
-  table = loadTable("dataset/dataset.csv", "csv", "header");
+  table = loadTable("dataset/dataset-singleb.csv", "csv", "header");
 }
 
 function setup() {
