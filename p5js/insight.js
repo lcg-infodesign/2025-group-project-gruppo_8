@@ -13,7 +13,7 @@ let insightSketch = function(p) {
 
   const contentConfig = {
     "hiroshima": {
-      title: "Hiroshima & Nagasaki",
+      //title: "Hiroshima & Nagasaki",
       texts: [
         "The use of nuclear weapons in armed conflict has occurred only twice: when the United States detonated two atomic bombs over the Japanese cities of Hiroshima and Nagasaki, during World War II. On 6 th and 9 th of August 1945, these aerial attacks claimed the lives of 150,000 to 246,000 people, most of whom were civilians.",
         "The atomic bomb dropped on Hiroshima was named Little Boy, it was a uranium gun-type fission weapon developed by the Manhattan Project. It was dropped by the B-29 Enola Gay on Hiroshima on August 6, 1945, marking it the first use of a nuclear weapon in warfare. It exploded with an energy equivalent to approximately 15 kilotons of TNT, causing widespread devastation with an explosion radius of about 1.3 kilometers (0.81 mi).",
@@ -37,7 +37,7 @@ let insightSketch = function(p) {
       hasThreeSections: true
     },
     "moratoria58": {
-      title: "Moratorium 1958",
+      //title: "Moratorium 1958",
       texts: [
         "The 1958 nuclear test moratorium was a unilateral suspension of nuclear weapons testing announced by the Soviet Union on March 31, 1958, and followed by the United States and United Kingdom.",
         "This moratorium lasted from November 1958 to September 1961, representing the first significant pause in nuclear testing since the beginning of the atomic age.",
@@ -53,7 +53,7 @@ let insightSketch = function(p) {
       hasThreeSections: false
     },
     "trattato63": {
-      title: "Test Ban Treaty 1963",
+      //title: "Test Ban Treaty 1963",
       texts: [
         "The Partial Test Ban Treaty (PTBT), also known as the Limited Test Ban Treaty, was signed on August 5, 1963, by the United States, United Kingdom, and Soviet Union.",
         "The treaty prohibited all test detonations of nuclear weapons except for those conducted underground, effectively banning nuclear weapons tests in the atmosphere, underwater, and in outer space.",
@@ -69,7 +69,7 @@ let insightSketch = function(p) {
       hasThreeSections: false
     },
     "trattato96": {
-      title: "Test Ban Treaty 1996",
+      //title: "Test Ban Treaty 1996",
       texts: [
         "The Comprehensive Nuclear-Test-Ban Treaty (CTBT) is a multilateral treaty that bans all nuclear explosions, for both civilian and military purposes, in all environments.",
         "Adopted by the United Nations General Assembly on September 10, 1996, the treaty has been signed by 185 nations and ratified by 170, but has not entered into force due to the non-ratification by eight specific nuclear technology holder countries.",
@@ -85,7 +85,7 @@ let insightSketch = function(p) {
       hasThreeSections: false
     },
     "tsarbomba": {
-      title: "Tsar Bomba - 50 MT",
+      //title: "Tsar Bomba - 50 MT",
       texts: [
         "The Tsar Bomba was the most powerful nuclear weapon ever detonated, with a yield of 50 megatons of TNT, developed by the Soviet Union and tested on October 30, 1961.",
         "The bomb was originally designed for a 100-megaton yield, but was scaled down to reduce radioactive fallout. Even at half its potential yield, it was 3,800 times more powerful than the Hiroshima bomb.",
@@ -106,6 +106,7 @@ let insightSketch = function(p) {
   let scrollY = 0;
   let targetScrollY = 0;
   let canvasHeight;
+  
 
   let topMargin = 40;
   let sideMargin = 80;
@@ -124,11 +125,12 @@ let insightSketch = function(p) {
   let thumbSize = 120;
   let thumbGap = 30;
 
-  let myFont1, myFont2, myFont3;
+  let myFont1, myFont2;
 
-  let titleAlpha;
   let fadeIn = 0;
   let floatOffset = 20;
+  let hoverClickable = false; // true quando sei sopra elementi cliccabili (thumbs / arrows)
+
 
   p.preload = function() {
     myFont1 = p.loadFont("fonts/LexendZetta-Regular.ttf");
@@ -179,6 +181,8 @@ let insightSketch = function(p) {
   p.draw = function() {
     p.background(20);
     p.fill(255);
+    hoverClickable = false; // reset ogni frame
+
 
     scrollY += (targetScrollY - scrollY) * 0.12;
     thumbOffset += (targetThumbOffset - thumbOffset) * 0.18;
@@ -186,13 +190,11 @@ let insightSketch = function(p) {
     fadeIn = p.min(fadeIn + 3, 255);
     floatOffset = p.max(floatOffset - 0.6, 0);
 
-    titleAlpha = p.map(scrollY, 0, 200, 255, 0, true); 
-    p.fill(200, titleAlpha);
-    p.textAlign(p.CENTER, p.TOP);
-    p.textFont(myFont1);
-    p.noStroke();
-    p.textSize(20);
-    p.text(pageTitle, p.width / 2, 30);
+    // TITLE "Insight" REMOVED:
+    // la navbar HTML/CSS sopra al canvas sostituisce questo titolo.
+    // (teniamo comunque pageTitle per i calcoli di layout/canvasHeight)
+    titleAlpha = p.map(scrollY, 0, 200, 255, 0, true);
+
 
     let topTextW = p.width - topTextSideMargin * 2;
     let topTextH = estimateTextHeight(pageTitle, topTextW);
@@ -271,6 +273,14 @@ let insightSketch = function(p) {
     if (showPreview && previewImg && currentTopic === "hiroshima") {
       drawPreviewOverlay();
     }
+
+    // Nasconde navbar/back quando la preview è aperta (solo su Hiroshima)
+    document.body.classList.toggle("photo-open", showPreview && currentTopic === "hiroshima");
+
+
+      // Cursor globale per elementi cliccabili (thumbs + arrows)
+    p.cursor(hoverClickable ? p.HAND : p.ARROW);
+
   };
 
   function drawTextWithFloat(txt, x, y, maxW, alpha, o1, o2) {
@@ -368,6 +378,11 @@ let insightSketch = function(p) {
   }
 
   function drawThumbnails(y) {
+
+    // Se la preview è aperta, i thumbnails dietro NON devono influenzare hover/cursor
+    // (restano visivamente lì sotto, ma non “interagiscono”)
+    if (showPreview) return;
+  
     if (currentTopic !== "hiroshima") return;
     
     if (y < -100) return;
@@ -381,6 +396,10 @@ let insightSketch = function(p) {
     let arrowW = 40, arrowH = thumbSize;
     let arrowY = y;
 
+    let hoverLeftStripArrow = false;
+    let hoverRightStripArrow = false;
+
+
     const visibleEnd = p.width - sideMargin;
     const initialStripStart = (p.width - totalW) / 2;
     const maxScrollNegative = visibleEnd - (initialStripStart + totalW);
@@ -388,7 +407,12 @@ let insightSketch = function(p) {
 
     if (thumbOffset < -5) {
       let x = sideMargin - arrowW;
-      if (p.mouseX > x && p.mouseX < x + arrowW && p.mouseY > arrowY && p.mouseY < arrowY + arrowH) {
+
+      hoverLeftStripArrow =
+        p.mouseX > x && p.mouseX < x + arrowW &&
+        p.mouseY > arrowY && p.mouseY < arrowY + arrowH;
+      
+      if (hoverLeftStripArrow) {
         p.fill(110, 133, 219, 150);
         p.rect(x, arrowY, arrowW, arrowH, 0);
         p.fill(255);
@@ -400,7 +424,12 @@ let insightSketch = function(p) {
 
     if (thumbOffset > maxScroll + 5) {
       let x = p.width - sideMargin;
-      if (p.mouseX > x - arrowW && p.mouseX < x && p.mouseY > arrowY && p.mouseY < arrowY + arrowH) {
+
+      hoverRightStripArrow =
+        p.mouseX > x - arrowW && p.mouseX < x &&
+        p.mouseY > arrowY && p.mouseY < arrowY + arrowH;
+
+      if (hoverRightStripArrow) {
         p.fill(110, 133, 219, 150);
         p.rect(x - arrowW, arrowY, arrowW, arrowH, 0);
         p.fill(255);
@@ -421,6 +450,7 @@ let insightSketch = function(p) {
         }
       }
     }
+
 
     for (let i = 0; i < thumbs.length; i++) {
       let x = startX + i * (thumbSize + thumbGap);
@@ -449,7 +479,7 @@ let insightSketch = function(p) {
 
         if (i === hoveredIndex) {
           p.noFill();
-          p.stroke(110, 133, 219);
+          p.stroke(0, 255, 255);
           p.strokeWeight(3);
           p.rect(x, y, thumbSize, thumbSize, 0);
         } else {
@@ -460,6 +490,10 @@ let insightSketch = function(p) {
         }
       }
     }
+    
+if (hoveredIndex !== -1 || hoverLeftStripArrow || hoverRightStripArrow) {
+          hoverClickable = true;
+        }
 
     p.noStroke();
   }
@@ -495,6 +529,11 @@ let insightSketch = function(p) {
     let rx = p.width - 100 - previewArrowSize;
     let rightHover = p.mouseX > rx && p.mouseX < rx + previewArrowSize &&
                    p.mouseY > midY - previewArrowSize && p.mouseY < midY + previewArrowSize;
+
+    if (leftHover || rightHover) {
+      hoverClickable = true;
+    }
+               
     p.fill(rightHover ? p.color(255, 255, 255) : p.color(255, 150));
     p.triangle(
       rx + previewArrowSize, midY,

@@ -9,11 +9,29 @@
   </head>
 
   <body>
+
+  <!-- INSIGHT NAVBAR (HTML/CSS) -->
+    <div class="insight-tabs-wrap" aria-label="Insight navigation">
+      <nav class="insight-tabs" id="insightTabs">
+        <a class="insight-tab" data-topic="hiroshima"   href="insight.html?topic=hiroshima">HIROSHIMA &amp; NAGASAKI</a>
+        <a class="insight-tab" data-topic="moratoria58" href="insight.html?topic=moratoria58">MORATORIUM 1958</a>
+        <a class="insight-tab" data-topic="trattato63"  href="insight.html?topic=trattato63">TEST BAN TREATY 1963</a>
+        <a class="insight-tab" data-topic="trattato96"  href="insight.html?topic=trattato96">TEST BAN TREATY 1996</a>
+        <a class="insight-tab" data-topic="tsarbomba"   href="insight.html?topic=tsarbomba">TSAR BOMBA</a>
+      </nav>
+    </div>
+    <div class="insight-top-fade" aria-hidden="true"></div>
+
+
+
     <!-- 加载菜单 -->
-    <script src="p5js/menu.js"></script>
-    
+    <script src="p5js/menu.js"></script> 
+
+    <button class="back-btn" onclick="history.back()">Back</button>
+
     <!-- 加载insight内容 -->
     <script src="p5js/insight.js"></script>
+    <script src="p5js/insightTabsNav.js"></script>
 
   </body>
 </html>

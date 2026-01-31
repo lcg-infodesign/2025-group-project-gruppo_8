@@ -22,7 +22,7 @@ function preload() {
   myFont2 = loadFont("fonts/LibreFranklin-Regular.otf");
   myFont3 = loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
 
-  table = loadTable("dataset/dataset.csv", "csv", "header");
+  table = loadTable("dataset/dataset-singleb.csv", "csv", "header");
 }
 
 // ===============================

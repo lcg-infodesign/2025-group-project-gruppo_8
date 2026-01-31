@@ -5,6 +5,38 @@ html, body {
   color: #ffffff;             /* opzionale, così il testo di default è bianco */
 }
 
+@font-face{
+  font-family: "LexendZetta";
+  src: url("fonts/LexendZetta-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "LibreFranklin";
+  src: url("fonts/LibreFranklin-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "LoRes9PlusOTWide";
+  src: url("fonts/LoRes9PlusOTWide-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* variabili globali, così non ripeti font-family ovunque */
+:root{
+  --font-1: "LexendZetta", system-ui, -apple-system, sans-serif;
+  --font-2: "LibreFranklin", system-ui, -apple-system, sans-serif;
+  --font-3: "LoRes9PlusOTWide", monospace;
+}
+
+
 canvas {
   display: block;
 }
@@ -15,7 +47,6 @@ canvas {
   bottom: 68px; /* allineato alla label "SCROLL DOWN FOR MORE" */
   z-index: 1000;
 }
-
 
 
 .skip-intro button {
@@ -69,3 +100,262 @@ canvas {
 .map-open .back-btn {
   display: none;
 }
+
+
+/* =========================
+   INSIGHT NAVBAR (HTML/CSS)
+   stile: stroke cyan, strokeWeight 2, radius 6, fill cyan hover/active
+   centered like GENERAL title
+   ========================= */
+
+
+.insight-tabs-wrap{
+  position: fixed;
+
+  /* allineamento verticale al bottone menu:
+     btnY=25, btnSize=60 (menu.js) => centro = 55
+     BTN_H=30 => top = 55 - 15 = 40 */
+  top: 40px;
+
+  left: 0;
+  width: 100%;
+  z-index:  10050;
+  pointer-events: auto;
+
+  /* centra orizzontalmente la navbar */
+  display: flex;
+  justify-content: center;
+}
+
+.insight-tabs{
+  --insight-tabs-scale: 1;
+
+  display: inline-flex;
+  gap: 10px;
+
+  /* niente translateX: ora è centrata dal flex wrapper */
+  transform-origin: center center;
+  transform: scale(var(--insight-tabs-scale));
+
+  pointer-events: auto;
+}
+
+
+.insight-tab{
+  pointer-events: auto;
+  height: 30px;                       /* BTN_H = 30 */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 15px;                    /* circa textWidth + 30 del p5 */
+  border: 2px solid rgb(0, 255, 255); /* stroke(cyan) + strokeWeight(2) */
+  border-radius: 6px;                 /* RADIUS = 6 */
+
+  background: rgba(20, 20, 20, 0.86); /* darkFill (20, 220) ~ “scuro trasparente” */
+  color: rgb(0, 255, 255);
+
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  text-decoration: none;
+  line-height: 1;
+  user-select: none;
+
+  transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.insight-tab:hover,
+.insight-tab.is-active{
+  background: rgb(0, 255, 255);
+  color: rgb(20, 20, 20); /* testo scuro quando attivo/hover */
+}
+
+.insight-tab:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0,255,255,0.35);
+}
+
+/* Fade overlay: attenua i contenuti quando passano sotto la navbar */
+.insight-top-fade{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 150px;                 /* regola se vuoi più/meno “fade” */
+  z-index: 9000;                /* sotto navbar (10050), sopra canvas (1) */
+  pointer-events: none;
+
+  /* background uguale al tuo bg (#161616 / 20) */
+  background: linear-gradient(
+    to bottom,
+    rgba(22, 22, 22, 1) 0%,
+    rgba(22, 22, 22, 0.92) 35%,
+    rgba(22, 22, 22, 0) 100%
+  );
+}
+
+/* Quando la preview foto è aperta, nascondi navbar + back */
+body.photo-open .insight-tabs-wrap,
+body.photo-open .back-btn{
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* =========================
+   ABOUT — top navbar (pills)
+   ========================= */
+
+:root{
+  /* se serve micro-tuning, cambi solo questo */
+  --about-nav-y: 50%;
+}
+
+.about-tabs-wrap{
+  position: fixed;
+
+  /* allineamento verticale al bottone menu:
+     btnY=25, btnSize=60 (menu.js) => centro = 55
+     BTN_H=30 => top = 55 - 15 = 40 */
+  top: 40px;
+
+  left: 0;
+  width: 100%;
+  z-index:  10050;
+  pointer-events: auto;
+
+  /* centra orizzontalmente la navbar */
+  display: flex;
+  justify-content: center;
+}
+
+.about-tabs{
+   --about-tabs-scale: 1;
+
+  display: inline-flex;
+  gap: 10px;
+
+  /* niente translateX: ora è centrata dal flex wrapper */
+  transform-origin: center center;
+  transform: scale(var(--about-tabs-scale));
+
+  pointer-events: auto;
+}
+
+.about-tab{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 30px;
+  padding: 0 16px;
+
+  border: 2px solid rgba(0,255,255,1);
+  border-radius: 6px;
+
+  background: rgba(20,20,20,0.85);
+  color: rgba(0,255,255,1);
+
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.about-tab:hover{
+  background: rgba(0,255,255,1);
+  color: rgba(20,20,20,1);
+}
+
+.about-tab.is-active{
+  background: rgba(0,255,255,1);
+  color: rgba(20,20,20,1);
+}
+
+/* =========================
+   ABOUT — content layout
+   ========================= */
+
+.about-content{
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 160px 24px 80px; /* spazio sopra per non finire sotto la navbar */
+}
+
+.about-title{
+  margin: 0 0 16px;
+  font-family: var(--font-1); /* oppure --font-1 */
+  font-size: 21px;
+  letter-spacing: 0.02em;
+}
+
+.about-text{
+  margin: 0;
+  font-family: var(--font-2); /* oppure --font-1 */
+  font-size: 21px;
+  line-height: 1.6;
+  color: rgba(220,220,220,1);
+}
+
+/* =========================
+   CTA — stile “year button”
+   ========================= */
+
+.about-cta-row{
+  position: relative;
+  z-index: 20000; /* sopra a tutto (menu canvas incluso) */
+  margin-top: 28px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.cta-btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 14px;
+  border-radius: 8px;
+
+  border: 1px solid rgba(0,255,255,0.55);
+  background: rgba(20,20,20,0.60);
+
+  color: rgba(0,255,255,0.85);
+  text-decoration: none;
+
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+
+  transition: border-color 160ms ease, color 160ms ease, transform 160ms ease;
+
+  cursor: pointer;
+  user-select: none;
+
+  /* evita “zone morte” dovute a line-height/inline layout */
+  line-height: 1;
+  white-space: nowrap;
+
+  /* se vuoi, tieni questa o eliminala: */
+  width: max-content;
+}
+
+.cta-btn:hover{
+  border-color: rgba(0,255,255,0.9);
+  color: rgba(0,255,255,1);
+  transform: translateX(2px);
+}
+
+.cta-arrow{
+  font-size: 11px;
+  line-height: 1;
+  pointer-events: none;
+  line-height: 1;
+  display: inline-block;
+}
+
+
