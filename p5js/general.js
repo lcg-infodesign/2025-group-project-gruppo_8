@@ -724,21 +724,25 @@ function drawPage2() {
   textAlign(LEFT, TOP);
   text("YIELD (kt)", offsetX, offsetY - 40);
   textAlign(RIGHT, TOP);
+  // Yield (textAlign LEFT, TOP in quella zona)
+  const yLabel = "YIELD (kt)";
+  text(yLabel, offsetX, offsetY - 40);
+  drawInfoIcon(offsetX + textWidth(yLabel) + 14, (offsetY - 40) + 9);
 
   textSize(14);
   textAlign(CENTER, TOP);
   //text("TOTAL AMOUNT OF BOMBS", width / 2, 80);
-let activeParticles;
-// 找到这部分代码进行修改
-if (selectedCountry === "ALL COUNTRIES") {
-    activeParticles = particles2.filter((p) => p.active).length;
-} else {
-    // 使用转换函数处理 selectedCountry
-    let target = getDatasetCountryName(selectedCountry); 
-    activeParticles = particles2.filter((p) => 
-      p.active && normalizeCountry(p.country) === normalizeCountry(target)
-    ).length;
-}
+  let activeParticles;
+  // 找到这部分代码进行修改
+  if (selectedCountry === "ALL COUNTRIES") {
+      activeParticles = particles2.filter((p) => p.active).length;
+  } else {
+      // 使用转换函数处理 selectedCountry
+      let target = getDatasetCountryName(selectedCountry); 
+      activeParticles = particles2.filter((p) => 
+        p.active && normalizeCountry(p.country) === normalizeCountry(target)
+      ).length;
+  }
   textFont(myFont3);
   textSize(60);
   fill(0, 255, 255);
@@ -779,10 +783,18 @@ if (selectedCountry === "ALL COUNTRIES") {
 
   // in alto a sinistra, stesso x della legenda
   text("Atmospheric", offsetX, margin + 282);
+  // Atmospheric (textAlign LEFT, TOP)
+  const atmLabel = "Atmospheric";
+  text(atmLabel, offsetX, margin + 282);
+  drawInfoIcon(offsetX + textWidth(atmLabel) + 14, (margin + 282) + 9);
 
   // sopra la legenda
   textAlign(LEFT, BOTTOM);
   text("Underground", offsetX, offsetY - 85);
+  // Underground (qui hai textAlign LEFT, BOTTOM)
+  const undLabel = "Underground";
+  text(undLabel, offsetX, offsetY - 85);
+  drawInfoIcon(offsetX + textWidth(undLabel) + 14, (offsetY - 85) - 7);
 
   // hover sopra Atmospheric
   const isHoverATM = hoverOnAtmospheric(offsetX, margin);
@@ -837,6 +849,38 @@ if (selectedCountry === "ALL COUNTRIES") {
     text("under the ground level.", boxX + padding, boxY + 2 * padding + lineHeight * 2);
     pop();
   }
+
+
+  const isHoverYIELD = hoverOnYield(offsetX, offsetY);
+
+  if (isHoverYIELD) {
+    push();
+    const padding = 8;
+    const lineHeight = 16;
+
+    fill(0, 0, 0, 200);
+
+    let boxW = 180;
+    let boxH = padding * 4 + lineHeight * 3.5;
+
+    let boxX = offsetX;
+    let boxY = 138;
+
+    rect(boxX, boxY, boxW, boxH, 5);
+
+    textSize(12);
+    textAlign(LEFT, TOP);
+    fill(0, 255, 255);
+
+    // testo richiesto (spezzato in righe per stare nel box)
+    text("YIELD (kt):", boxX + padding, boxY + padding);
+    text("explosive energy measured", boxX + padding, boxY + 2 * padding + lineHeight);
+    text("in kilotons;", boxX + padding, boxY + 2 * padding + lineHeight * 2);
+    text("1 kt = 1,000 tons of TNT.", boxX + padding, boxY + 2 * padding + lineHeight * 3);
+
+    pop();
+  }
+
 
 
   legend.forEach((item, i) => {
@@ -937,6 +981,37 @@ function hoverOnUnderground(offsetX, offsetY) {
   );
 }
 
+function hoverOnYield(offsetX, offsetY) {
+  const x = offsetX;
+  const y = offsetY - 50;   // leggermente sopra il testo (tweak se serve)
+
+  const w = 130;  // includi label + icon
+  const h = 30;
+
+  return (
+    mouseX >= x && mouseX <= x + w &&
+    mouseY >= y && mouseY <= y + h
+  );
+}
+
+
+function drawInfoIcon(cx, cy, r = 7) {
+  push();
+  stroke(0, 255, 255, 200);
+  strokeWeight(1.5);
+  fill(20, 220);
+  circle(cx, cy, r * 2);
+
+  noStroke();
+  fill(0, 255, 255);
+  textFont(myFont2);
+  textSize(r * 1.6);
+  textAlign(CENTER, CENTER);
+  text("i", cx, cy + 0.5);
+  pop();
+}
+
+
 function drawColumnCTA() {
   const msg = "Click a column to see more";
 
@@ -961,21 +1036,46 @@ function drawColumnCTA() {
   text(msg, x, y);
 }
 
+function isHoveringCountryMenu() {
+  const mainX = width / 2 - BTN_W / 2 + 20;
+  const mainY = 170;
+
+  const overMain =
+    mouseX >= mainX && mouseX <= mainX + BTN_W &&
+    mouseY >= mainY && mouseY <= mainY + BTN_H;
+
+  if (overMain) return true;
+
+  if (menuOpen) {
+    for (let btn of listButtons) {
+      if (btn.isHovered()) return true;
+    }
+  }
+
+  return false;
+}
+
+
 function updateHoverPage2() {
   hoveredYear = null;
   isHoveringInteractive = false;
 
+  // PRIORITY: country menu hover => HAND
+  if (isHoveringCountryMenu()) {
+    cursor(HAND);
+    return;
+  }
+
   // --- PRIORITY: top-right carousel arrows hover => HAND (must run BEFORE exclusions) ---
-  const lineX = width / 2 + 260;
+  const lineX = width - 400 - margin;
   const boxX = lineX + 18;
-  const titleY = 70;
+  const titleY = 75;
   const boxY = titleY;
+  
+  const boxW = 400;
+  const boxH = 210;
 
-  const boxW = 340;
-  const boxH = 120;
-
-
-  const arrowsY = boxY + boxH + 18;
+  const arrowsY = boxY + boxH + 28;
   const hitW = 34,
     hitH = 34;
 
@@ -995,6 +1095,7 @@ function updateHoverPage2() {
     mouseX <= leftCx + hitW / 2 &&
     mouseY >= arrowsY - hitH / 2 &&
     mouseY <= arrowsY + hitH / 2;
+
 
   if (overRight || overLeft) {
     cursor(HAND);
