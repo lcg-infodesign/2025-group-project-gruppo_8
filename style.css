@@ -210,68 +210,65 @@ body.photo-open .back-btn{
   --about-nav-y: 50%;
 }
 
-.about-tabs-wrap{
+/* =========================
+   ABOUT — top navbar (EXACT MATCH WITH INSIGHT)
+   ========================= */
+/* About Navbar Wrapper — 固定顶部 + 居中 */
+.about-tabs-wrap {
   position: fixed;
-
-  /* allineamento verticale al bottone menu:
-     btnY=25, btnSize=60 (menu.js) => centro = 55
-     BTN_H=30 => top = 55 - 15 = 40 */
-  top: 40px;
-
+  top: 40px;          /* 与 insight 一致 */
   left: 0;
   width: 100%;
-  z-index:  10050;
-  pointer-events: auto;
-
-  /* centra orizzontalmente la navbar */
+  z-index: 10050;
   display: flex;
   justify-content: center;
-}
-
-.about-tabs{
-   --about-tabs-scale: 1;
-
-  display: inline-flex;
-  gap: 10px;
-
-  /* niente translateX: ora è centrata dal flex wrapper */
-  transform-origin: center center;
-  transform: scale(var(--about-tabs-scale));
-
   pointer-events: auto;
 }
 
-.about-tab{
+/* About Tabs 容器 — inline-flex + gap */
+.about-tabs {
+  display: inline-flex;
+  gap: 10px;          /* 与 insight gap 一致 */
+  transform-origin: center center;
+}
+
+/* 每个 Tab 按钮 — 边框 + 圆角 + 背景透明 + 文本蓝色 */
+.about-tab {
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  height: 30px;
-  padding: 0 16px;
+  height: 30px; 
+  padding: 0 15px; 
 
-  border: 2px solid rgba(0,255,255,1);
-  border-radius: 6px;
+  border: 2px solid rgb(0, 255, 255); /* cyan stroke */
+  border-radius: 6px;                  /* radius 6 */
 
-  background: rgba(20,20,20,0.85);
-  color: rgba(0,255,255,1);
+  background: rgba(20, 20, 20, 0.86);  /* 半透明背景，和 insight 一样 */
+  color: rgb(0, 255, 255);
 
   font-family: system-ui, -apple-system, sans-serif;
-  font-size: 13px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 14px;
   text-decoration: none;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  user-select: none;
 
-  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+  transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
 }
 
-.about-tab:hover{
-  background: rgba(0,255,255,1);
-  color: rgba(20,20,20,1);
+/* Hover / Active — 背景 cyan，文字深色 */
+.about-tab:hover,
+.about-tab.is-active {
+  background: rgb(0, 255, 255);
+  color: rgb(20, 20, 20);
 }
 
-.about-tab.is-active{
-  background: rgba(0,255,255,1);
-  color: rgba(20,20,20,1);
+/* 焦点可见状态 — glow */
+.about-tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0,255,255,0.35);
 }
 
 /* =========================

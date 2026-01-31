@@ -7,7 +7,7 @@ let canvas;
 const TEXT_MAIN = `
 <p class="about-text">
 The data is sourced from SIPRI, the Oklahoma Geological Survey, and the Natural Resources Defense Council,
-and later consolidated into an open format via the <em>Data Is Plural</em> repository.
+and later consolidated into an open format via the Data Is Plural repository.
 The original datasets were created as part of public and academic research initiatives,
 supported by national and international public funding.
 Each nuclear test is recorded with parameters such as location, date, country, test type, and yield.
@@ -97,24 +97,23 @@ function buildCTAs(selector, ctas) {
 // ---------- ATOMS (ORIGINAL FULL VERSION) ----------
 
 function initAtoms() {
-  canvas = createCanvas(800, 450);
+  // 增加高度到 600，确保能放下两行文字
+  canvas = createCanvas(900, 600); 
   canvas.parent("about-us-canvas");
-
-  // fondo trasparente
   clear();
-  canvas.style("background", "transparent");
-
   atoms = [];
 
+  // 第一行原子
   for (let i = 0; i < 4; i++) {
-    let x = map(i, 0, 3, 150, width - 150);
-    atoms.push(new AtomicModel(x, 120, i));
+    let x = map(i, 0, 3, 100, width - 100); // 增加左右边距
+    atoms.push(new AtomicModel(x, 150, i));  // 稍微往下移一点
   }
 
+  // 第二行原子
   let secondRowIndices = [4, 5, 6];
   for (let i = 0; i < 3; i++) {
-    let x = map(i, 0, 2, 220, width - 220);
-    atoms.push(new AtomicModel(x, height - 120, secondRowIndices[i]));
+    let x = map(i, 0, 2, 200, width - 200); // 让三个原子居中一点
+    atoms.push(new AtomicModel(x, 420, secondRowIndices[i])); // 给文字留出空间
   }
 }
 
@@ -135,14 +134,14 @@ function drawNameAndRole(atom) {
   push();
 
   textAlign(CENTER);
-  textSize(16);
+  textSize(20);
     fill(200);
 textFont('LibreFranklin');
 
-  text(ATOM_INFO[atom.type].name, atom.pos.x, atom.pos.y + atom.r + 35);
+  text(ATOM_INFO[atom.type].name, atom.pos.x, atom.pos.y + atom.r + 50);
   fill(200);
-  textSize(14);
-  text(ATOM_INFO[atom.type].role, atom.pos.x, atom.pos.y + atom.r + 65);
+  textSize(16);
+  text(ATOM_INFO[atom.type].role, atom.pos.x, atom.pos.y + atom.r + 90);
   pop();
 }
 
