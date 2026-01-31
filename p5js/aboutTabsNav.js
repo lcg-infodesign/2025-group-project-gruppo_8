@@ -20,17 +20,6 @@
       ]
     },
 
-    project: {
-      //title: "About the Project",
-      text: "The dataset provides structured details for each nuclear test, including the responsible country, location, date, test type, explosive yield, and declared purpose. Test types have been grouped into atmospheric/surface and underground categories.",
-      ctas: [
-        {
-          label: "OPEN PROJECT REPOSITORY",
-          href: "https://github.com/lcg-infodesign/2025-group-project-gruppo_8"
-        }
-      ]
-    },
-
     us: {
       //title: "About Us",
       text: "The SIPRI–FOA dataset documents all known nuclear explosions from 1945 up to 1998, the year when India and Pakistan conducted their last declared nuclear tests. After the adoption of the CTBT, states relied on simulations.",
