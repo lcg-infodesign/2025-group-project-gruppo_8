@@ -34,13 +34,13 @@ const CTA_SECONDARY = [
 // ---------- ATOM NAMES + ROLES ----------
 
 const ATOM_INFO = [
-  { name: "Silvia La Mastra", role: "Project Manager\nResearcher\nUX/UI Designer" },
+  { name: "Silvia La Mastra", role: "Project Manager\nUX/UI Designer\nResearcher" },
   { name: "Giovanni Palladino", role: "Front-end Developer\nVisual Designer\nData Eeditor" },
   { name: "Siyu Yang", role: "Front-end Developer\nVisual Designer\nData Eeditor" },
-  { name: "Fang Ding", role: "UX/UI Designer\nFront-end Developer" },
-  { name: "Giulia Felton", role: "Copywriter\nUI Designer" },
+  { name: "Fang Ding", role: "Front-end Developer\nUX/UI Designer" },
+  { name: "Giulia Yoko Felton", role: "UI Designer\nCopywriter" },
   { name: "Giorgia Milani", role: "Copywriter" },
-  { name: "ziying shao", role: "Front-end Developer" }
+  { name: "Ziying Shao", role: "Front-end Developer" }
 ];
 
 // ---------- SETUP ----------
@@ -74,7 +74,7 @@ function buildPage() {
   select("#about-us-canvas").html("");
 
   if (topic === "dataset") {
-    select(".about-title").html("About the Dataset");
+    select(".about-title").html("");
     select(".about-text-wrap").html(TEXT_MAIN);
     buildCTAs(".primary-cta", CTA_PRIMARY);
     select(".review-text").html(TEXT_REVIEW);
@@ -133,14 +133,16 @@ function draw() {
 
 function drawNameAndRole(atom) {
   push();
-  fill(0, 255, 255); // colore ciano
+
   textAlign(CENTER);
+  textSize(16);
+    fill(200);
+textFont('LibreFranklin');
+
+  text(ATOM_INFO[atom.type].name, atom.pos.x, atom.pos.y + atom.r + 35);
+  fill(200);
   textSize(14);
-
-  text(ATOM_INFO[atom.type].name, atom.pos.x, atom.pos.y + atom.r + 25);
-
-  textSize(12);
-  text(ATOM_INFO[atom.type].role, atom.pos.x, atom.pos.y + atom.r + 45);
+  text(ATOM_INFO[atom.type].role, atom.pos.x, atom.pos.y + atom.r + 65);
   pop();
 }
 
@@ -175,24 +177,31 @@ class AtomicModel {
     stroke(this.lineColor);
 
     switch (this.type) {
+
       case 0:
-        this.drawElectron(30, this.angle);
-        this.drawElectron(30, -this.angle * 0.8);
-        for (let s = 0; s < TWO_PI; s += PI / 10) {
-          let j = noise(s, this.angle) * 2;
-          point((30 + j) * cos(s), (30 + j) * sin(s));
+        stroke(0, 255, 255, 200);// 经典圆环 + 点状概率云
+        this.drawElectron(40, this.angle);
+        this.drawElectron(40, -this.angle * 0.8);
+
+        for (let step = 0; step < TWO_PI; step += PI / 10) {
+          let jitter = noise(step, this.angle) * 2;
+          point(
+            (40 + jitter) * cos(step),
+            (40 + jitter) * sin(step)
+          );
         }
         break;
 
-      case 1:
+      case 1: // 同心波纹轨道
         for (let i = 0; i < 3; i++) {
           let r = 30 + i * 20;
+          let speedMult = (i % 2 === 0) ? 1 : -0.6;
           ellipse(0, 0, r, r);
-          this.drawElectron(r / 2, this.angle + i);
+          this.drawElectron(r / 2, this.angle * speedMult + i);
         }
         break;
 
-      case 2:
+      case 2: // 多维陀螺仪系统
         ellipse(0, 0, 80, 80);
         this.drawElectron(40, this.angle);
         for (let i = 0; i < 2; i++) {
@@ -203,51 +212,107 @@ class AtomicModel {
           pop();
         }
         break;
-
       case 3:
-        for (let i = 0; i < 3; i++) {
-          let r = 20 + i * 10 + sin(this.angle) * 5;
-          for (let s = 0; s < TWO_PI; s += PI / 15) {
-            point((r) * cos(s), (r) * sin(s));
+        // ===== 统一圆形外轮廓（固定圆） =====
+        stroke(0, 255, 255, 200);
+        strokeWeight(2);
+        noFill();
+
+        // ===== 光环波动动画（点状圆环） =====
+        let rings = 3;
+        for (let i = 0; i < rings; i++) {
+          // 半径波动，最大时为 40（半径），和固定外轮廓一致
+          let r = 20 + i * 10 + sin(this.angle * (0.5 + i * 0.3)) * 5;
+          stroke(0, 255, 255, 150 - i * 40);
+          for (let step = 0; step < TWO_PI; step += PI / 15) {
+            let jitter = noise(step, this.angle) * 2;
+            point(
+              (r + jitter) * cos(step),
+              (r + jitter) * sin(step)
+            );
           }
         }
+
+        // 核心小球
+        fill(this.baseColor);
+        noStroke();
+        ellipse(0, 0, 10, 10);
         break;
+
 
       case 4:
-        ellipse(0, 0, 80, 80);
+        // ===== 统一圆形外轮廓 =====
+        stroke(0, 255, 255, 80);
+        strokeWeight(1.5);
+        noFill();
+        ellipse(0, 0, 80, 80); // 外轮廓
+
+        // 内部偏移旋转特色
         push();
         rotate(this.angle);
         ellipse(20, 0, 40, 40);
+        fill(this.baseColor);
+        noStroke();
+        ellipse(40, 0, 5, 5);
         pop();
         break;
 
-      case 5:
-        ellipse(0, 0, 80, 80);
-        push();
-        rotate(this.angle);
-        ellipse(20, 0, 40, 40);
-        pop();
-        break;
-
-      case 6:
+      case 5: // 点状虚线星云
+        stroke(0, 255, 255, 200);
         for (let i = 0; i < 3; i++) {
+          let r = 40 + i * 15;
           push();
           rotate(this.angle * (0.5 + i * 0.2));
-          for (let s = 0; s < TWO_PI; s += PI / 8) {
-            point(20 * cos(s), 20 * sin(s));
+          for (let step = 0; step < TWO_PI; step += PI / 8) {
+            point(
+              (r / 2) * cos(step),
+              (r / 2) * sin(step)
+            );
           }
           pop();
         }
         break;
+
+      case 6: // 核心小球 + 四个旋转椭圆
+        // ===== 内部四个旋转椭圆 =====
+        let ellipseCount = 4; // 椭圆数量
+        let rx = 40; // 水平半径
+        let ry = 10; // 垂直半径
+        for (let i = 0; i < ellipseCount; i++) {
+          push();
+          // 初始角度平均分布 + 统一旋转
+          let initialAngle = i * TWO_PI / 8;
+          rotate(this.angle + initialAngle);
+          stroke(0, 255, 255, 150);
+          noFill();
+          ellipse(0, 0, rx * 2, ry * 2);
+          pop();
+        }
+
+        // 核心小球
+        fill(this.baseColor);
+        noStroke();
+        ellipse(0, 0, 10, 10);
+
+        break;
+
     }
+
     pop();
   }
+drawElectron(r, a) {
+  push();
+  fill(this.baseColor); // 实心填充
+  noStroke();           // 不描边
+  ellipse(r * cos(a), r * sin(a), 6, 6);
+  pop();
+}
 
-  drawElectron(r, a) {
-    ellipse(r * cos(a), r * sin(a), 6, 6);
-  }
-
-  drawElectronEllipse(rx, ry, a) {
-    ellipse(rx * cos(a), ry * sin(a), 6, 6);
-  }
+drawElectronEllipse(rx, ry, a) {
+  push();
+  fill(this.baseColor); // 实心填充
+  noStroke();           // 不描边
+  ellipse(rx * cos(a), ry * sin(a), 6, 6);
+  pop();
+}
 }

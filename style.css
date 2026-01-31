@@ -359,3 +359,15 @@ body.photo-open .back-btn{
 }
 
 
+/* 方法 A：移动整个 div */
+#about-us-canvas {
+  position: relative;  /* 或 absolute，根据需要 */
+  top: -50px;          /* 上移 50px */
+}
+
+/* 方法 B：直接移动 canvas */
+#about-us-canvas canvas {
+  display: block;
+  position: relative;
+  top: -50px;          /* 上移 50px */
+}
