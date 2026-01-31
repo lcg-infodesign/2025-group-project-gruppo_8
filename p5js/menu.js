@@ -24,7 +24,8 @@ let menuSketch = function (p) {
     "overview": "index.html#page2",
     "bombs per year": "year.html",
     "insight": "insight.html?topic=hiroshima",
-    "about": "about_dataset.html"
+    "about": "about.html?topic=dataset",
+
   };
 
   const items = ["home", "overview", "bombs per year", "insight", "about"];

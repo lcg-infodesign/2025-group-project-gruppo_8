@@ -1,26 +1,36 @@
-// p5js/about.js
+// p5js/aboutTabsNav.js
 // One-page About: about.html?topic=dataset|project|us
 (() => {
   const params = new URLSearchParams(window.location.search);
   const topic = params.get("topic") || "dataset";
 
-  // === CONTENT ===
   const content = {
     dataset: {
       title: "About the Dataset",
       text: "The SIPRI–FOA dataset documents all known nuclear explosions from 1945 up to 1998, the year when India and Pakistan conducted their last declared nuclear tests. After the adoption of the CTBT, states relied on simulations.",
       ctas: [
-        { label: "OPEN DATASET REPOSITORY", href: "https://github.com/data-is-plural/nuclear-explosions" },
-        { label: "OPEN OFFICIAL REPORT (PDF)", href: "docs/sipri-report-original.pdf" }
+        {
+          label: "OPEN DATASET REPOSITORY",
+          href: "https://github.com/data-is-plural/nuclear-explosions"
+        },
+        {
+          label: "OPEN OFFICIAL REPORT (PDF)",
+          href: "docs/sipri-report-original.pdf"
+        }
       ]
     },
+
     project: {
       title: "About the Project",
       text: "The dataset provides structured details for each nuclear test, including the responsible country, location, date, test type, explosive yield, and declared purpose. Test types have been grouped into atmospheric/surface and underground categories.",
       ctas: [
-        { label: "OPEN PROJECT REPOSITORY", href: "https://github.com/lcg-infodesign/2025-group-project-gruppo_8" }
+        {
+          label: "OPEN PROJECT REPOSITORY",
+          href: "https://github.com/lcg-infodesign/2025-group-project-gruppo_8"
+        }
       ]
     },
+
     us: {
       title: "About Us",
       text: "The SIPRI–FOA dataset documents all known nuclear explosions from 1945 up to 1998, the year when India and Pakistan conducted their last declared nuclear tests. After the adoption of the CTBT, states relied on simulations.",
@@ -30,15 +40,14 @@
 
   const conf = content[topic] || content.dataset;
 
-  // === ACTIVE STATE TABS ===
+  // Active state tabs
   document.querySelectorAll(".about-tab").forEach(a => {
-    const isActive = a.dataset.topic === topic;
-    a.classList.toggle("is-active", isActive);
-    if (isActive) a.setAttribute("aria-current", "page");
+    a.classList.toggle("is-active", a.dataset.topic === topic);
+    if (a.dataset.topic === topic) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
   });
 
-  // === FILL CONTENT ===
+  // Fill content
   const titleEl = document.querySelector(".about-title");
   const textEl = document.querySelector(".about-text");
   const ctaRow = document.querySelector(".about-cta-row");
@@ -46,13 +55,16 @@
   if (titleEl) titleEl.textContent = conf.title;
   if (textEl) textEl.textContent = conf.text;
 
+  // Build CTAs
   if (ctaRow) {
     ctaRow.innerHTML = "";
+
     conf.ctas.forEach(cta => {
       const a = document.createElement("a");
       a.className = "cta-btn";
       a.href = cta.href;
 
+      // apri in nuova tab SOLO se è un link esterno o un pdf
       const isExternal = /^https?:\/\//.test(cta.href);
       const isPdf = /\.pdf(\?|#|$)/i.test(cta.href);
 
@@ -65,19 +77,4 @@
       ctaRow.appendChild(a);
     });
   }
-
-  // === FONT: same as Insights (set from JS, as requested) ===
-  // Best practice: use a CSS variable already used on the site.
-  // If you already have something like --site-font / --ui-font, it will work immediately.
-  const rootStyle = getComputedStyle(document.documentElement);
-  const cssFont =
-    rootStyle.getPropertyValue("--site-font").trim() ||
-    rootStyle.getPropertyValue("--ui-font").trim() ||
-    ""; // fallback below
-
-  const fontFamily = cssFont || "system-ui, -apple-system, sans-serif";
-
-  // apply to about UI
-  const fontTargets = document.querySelectorAll(".about-tab, .about-title, .about-text, .cta-btn");
-  fontTargets.forEach(el => (el.style.fontFamily = fontFamily));
 })();

@@ -5,6 +5,38 @@ html, body {
   color: #ffffff;             /* opzionale, così il testo di default è bianco */
 }
 
+@font-face{
+  font-family: "LexendZetta";
+  src: url("fonts/LexendZetta-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "LibreFranklin";
+  src: url("fonts/LibreFranklin-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "LoRes9PlusOTWide";
+  src: url("fonts/LoRes9PlusOTWide-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* variabili globali, così non ripeti font-family ovunque */
+:root{
+  --font-1: "LexendZetta", system-ui, -apple-system, sans-serif;
+  --font-2: "LibreFranklin", system-ui, -apple-system, sans-serif;
+  --font-3: "LoRes9PlusOTWide", monospace;
+}
+
+
 canvas {
   display: block;
 }
@@ -14,10 +46,6 @@ canvas {
   right: 100px;
   bottom: 68px; /* allineato alla label "SCROLL DOWN FOR MORE" */
   z-index: 1000;
-}
-
-:root{
-  --site-font: ; /* sostituisci col tuo font reale */
 }
 
 
@@ -258,15 +286,15 @@ body.photo-open .back-btn{
 
 .about-title{
   margin: 0 0 16px;
-  font-family: system-ui, -apple-system, sans-serif;
-  font-size: 28px;
+  font-family: var(--font-1); /* oppure --font-1 */
+  font-size: 21px;
   letter-spacing: 0.02em;
 }
 
 .about-text{
   margin: 0;
-  font-family: system-ui, -apple-system, sans-serif;
-  font-size: 16px;
+  font-family: var(--font-2); /* oppure --font-1 */
+  font-size: 21px;
   line-height: 1.6;
   color: rgba(220,220,220,1);
 }
