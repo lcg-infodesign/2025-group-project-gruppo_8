@@ -369,66 +369,118 @@ body.photo-open .back-btn{
   top: -50px;          /* 上移 50px */
 }
 
-/* ABOUT FOOTER */
 
+
+
+/* ABOUT FOOTER */
 .about-footer {
-  width: 100vw;
-  background-color: #111;
-  color: #ffffff;
-  padding: 60px 40px 40px 40px;
+  width: 100%;
+  background: #0b0b0b;
+  color: #fff;
+  padding: 28px 24px 18px;
   box-sizing: border-box;
   font-family: system-ui, -apple-system, sans-serif;
 }
 
-.footer-top {
+/* ROW: 3 COLONNE */
+.footer-row {
   display: flex;
-  gap: 60px;
+  justify-content: space-between;
+  gap: 18px; /* generale */
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: flex-start;
 }
 
-.footer-col {
+/* CREA UNA SEPARAZIONE SPECIFICA TRA COLONNE */
+.footer-row .footer-block:nth-child(1),
+.footer-row .footer-block:nth-child(2) {
+  margin-right: 8px;  /* avvicina 1 e 2 */
+}
+
+.footer-row .footer-block:nth-child(2) {
+  margin-right: 32px; /* più spazio verso la colonna 3 */
+}
+
+.footer-block {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
+  min-width: 200px;
 }
 
-.footer-block p {
-  margin: 0;
-  line-height: 1.6;
-  font-size: 14px;
-}
-
-.footer-small {
-  margin-top: 10px;
+/* TITOLI */
+.footer-title {
+  font-weight: 700;
   font-size: 12px;
-  opacity: 0.7;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0 0 8px 0;
+}
+
+/* LISTE */
+.footer-list {
+  margin: 0;
+  padding-left: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  opacity: 0.9;
+}
+
+.no-bullets {
+  list-style: none;
+}
+
+.footer-list li {
+  margin-bottom: 4px;
+}
+
+/* TESTO */
+.footer-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+/* LOGHI ORIZZONTALI */
+.footer-logos-row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-top: 14px;
 }
 
 .footer-logo {
-  margin-top: 16px;
-  max-width: 160px;
+  max-width: 120px;
   height: auto;
 }
 
-.footer-logos {
-  display: flex;
-  gap: 24px;
-  align-items: center;
-}
-
+/* BOTTOM TEXT */
 .footer-bottom {
-  margin-top: 60px;
-  max-width: 900px;
+  max-width: 1200px;
+  margin: 16px auto 0;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .footer-bottom p {
+  margin: 0;
   font-size: 12px;
-  line-height: 1.6;
-  opacity: 0.7;
+  line-height: 1.55;
+  opacity: 0.75;
 }
 
 .footer-bottom a {
-  color: #ffffff;
+  color: #fff;
   text-decoration: underline;
 }
 
+/* Responsive */
+@media (max-width: 980px) {
+  .footer-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .footer-logos-row {
+    flex-wrap: wrap;
+  }
+}
