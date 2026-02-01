@@ -152,8 +152,16 @@ let x = width / 2 + (idx - (visibleCountries.length - 1) / 2) * fixedSpacing;
     }
   }
 
+  const legendX = margin - 8;
+  const legendY = height - margin - 80;
 
-  cursor(overArrow || overDot || overCountry || overTimelineYear ? HAND : ARROW);
+  const overLegendInfo =
+    hoverOnAtmospheric(legendX, 80) || // qui margin locale in drawTestDots è 80
+    hoverOnUnderground(legendX, height - 80) || // coerente col tuo hoverOnUnderground
+    hoverOnYieldYear(legendX, legendY);
+
+
+ cursor(overArrow || overDot || overCountry || overTimelineYear || overLegendInfo ? HAND : ARROW);
 
   drawColumnCTA(); // Disegna il messaggio "Click a column to see more"
 
@@ -543,9 +551,19 @@ function drawTestDots(yearData) {
   textSize(14);
   noStroke();
   let margin = 80;
-  text("Atmospheric", margin - 8, margin + 282);
+  const lx = margin - 8;
+
+  // Atmospheric
+  textAlign(LEFT, TOP);
+  const atmLabel = "Atmospheric";
+  text(atmLabel, lx, margin + 282);
+  drawInfoIcon(lx + textWidth(atmLabel) + 14, (margin + 282) + 9, 7);
+
+  // Underground
   textAlign(LEFT, BOTTOM);
-  text("Underground", margin - 8, height - margin - 165);
+  const undLabel = "Underground";
+  text(undLabel, lx, height - margin - 165);
+  drawInfoIcon(lx + textWidth(undLabel) + 14, (height - margin - 165) - 7, 7);
 
   countries.forEach((country, idx) => {
     let tests = yearData[country] || [];
@@ -641,8 +659,10 @@ function drawTestDots(yearData) {
     pop();
   });
 
-  const isHoverATM = (mouseX >= margin - 8 && mouseX <= margin - 8 + 90 && mouseY >= margin + 282 && mouseY <= margin + 282 + 30);
-  const isHoverUND = (mouseX >= margin - 8 && mouseX <= margin - 8 + 100 && mouseY >= height - margin - 165 - 20 && mouseY <= height - margin - 165);
+  const offsetX = margin - 8;
+  const isHoverATM = hoverOnAtmospheric(offsetX, margin);
+  const isHoverUND = hoverOnUnderground(offsetX, height - margin);
+
 
   if (isHoverATM) {
     push();
@@ -705,7 +725,10 @@ function drawLegend() {
   textAlign(LEFT, TOP);
   fill(0, 255, 255);
   textSize(14);
-  text("YIELD (kt)", offsetX, offsetY - 40);
+  const yLabel = "YIELD (kt)";
+  text(yLabel, offsetX, offsetY - 40);
+  drawInfoIcon(offsetX + textWidth(yLabel) + 14, (offsetY - 40) + 9, 7);
+
 
   let legend = [
     { range: "0-19", y: 10 },
@@ -714,6 +737,36 @@ function drawLegend() {
     { range: "151-4999", y: 1000 },
     { range: "5000+", y: 5000 },
   ];
+
+  const isHoverYLD = hoverOnYieldYear(offsetX, offsetY);
+
+if (isHoverYLD) {
+  push();
+  const padding = 8;
+  const lineHeight = 16;
+  fill(0, 0, 0, 200);
+
+  let boxW = 180;
+  let boxH = padding * 4 + lineHeight * 3.5;
+
+  // accanto alla legenda: leggermente sopra/sinistra va bene
+  let boxX = offsetX;
+  let boxY = 138;
+
+  rect(boxX, boxY, boxW, boxH, 5);
+
+  textSize(12);
+  textAlign(LEFT, TOP);
+  fill(0, 255, 255);
+
+  text("YIELD (kt):", boxX + padding, boxY + padding);
+  text("explosive energy measured", boxX + padding, boxY + 2 * padding + lineHeight);
+  text("in kilotons; 1 kt = 1,000", boxX + padding, boxY + 2 * padding + lineHeight * 2);
+  text("tons of TNT.", boxX + padding, boxY + 2 * padding + lineHeight * 3);
+
+  pop();
+}
+
 
   textFont(myFont2);
   textSize(14);
@@ -947,6 +1000,45 @@ function drawBombTooltip() {
   }
 }
 
+function drawInfoIcon(cx, cy, r = 7) {
+  push();
+
+  // badge
+  stroke(0, 255, 255, 220);
+  strokeWeight(1.6);
+  fill(18, 210);
+  circle(cx, cy, r * 2);
+
+  // "i" leggibile: contorno scuro + fill cyan
+  textAlign(CENTER, CENTER);
+  textFont("system-ui");   
+  textSize(r * 1.8);
+
+  stroke(0, 220);
+  strokeWeight(3);
+  fill(0, 255, 255);
+  text("i", cx, cy + 0.6);
+
+  pop();
+}
+
+
+function hoverOnYieldYear(offsetX, offsetY) {
+  const y = offsetY - 40;
+  const label = "YIELD (kt)";
+
+  textFont(myFont2);
+  textSize(14);
+  textAlign(LEFT, TOP);
+
+  const w = textWidth(label) + 14 + 16;
+  const h = 22;
+
+  return (mouseX >= offsetX && mouseX <= offsetX + w &&
+          mouseY >= y && mouseY <= y + h);
+}
+
+
 // atmospheric text hover detection
 function hoverOnAtmospheric(offsetX, margin) {
   const x = offsetX;
@@ -964,6 +1056,8 @@ function hoverOnUnderground(offsetX, canvasHeightMinusMargin) {
   const h = 25;
   return (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h);
 }
+
+
 
 window.addEventListener("load", () => {
   if (window.location.hash === "#page2") {

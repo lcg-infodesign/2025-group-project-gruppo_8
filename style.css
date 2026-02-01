@@ -69,6 +69,20 @@ canvas {
  
 }
 
+#skipIntroWrap {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+body.show-skip #skipIntroWrap {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+
 /* BACK BUTTON — minimal, bianco → azzurrino all'hover */
 .back-btn {
   position: fixed;

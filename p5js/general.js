@@ -109,6 +109,15 @@ let STEP_DELAY = 50;
 let scrollDirection = 0;
 let scrollStep = 0.5;
 
+let page2BackScrollAcc = 0;
+const PAGE2_BACK_SCROLL_THRESHOLD = 450; // regola a gusto
+let backTransActive = false;
+let backTransT = 0;
+const BACK_TRANS_DURATION = 0.55; // secondi (regola a gusto)
+let page2Snapshot = null; // p5.Image
+
+
+
 let UGTypes = [
   "UG",
   "SHAFT",
@@ -118,6 +127,25 @@ let UGTypes = [
   "SHAFT/GR",
   "SHAFT/LG",
 ];
+
+/*(function preHideSkipOnHash() {
+  if (window.location.hash !== "#page2") return;
+
+  const hide = () => {
+    const skipBtn = document.getElementById("skipIntroBtn");
+    if (skipBtn && skipBtn.parentElement) {
+      skipBtn.parentElement.style.display = "none";
+    }
+  };
+
+  // se il DOM c'è già, hide subito; altrimenti aspetta DOMContentLoaded
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", hide);
+  } else {
+    hide();
+  }
+})();*/
+
 
 // NUOVA FUNZIONE — vai alla overview
 // ===============================
@@ -321,10 +349,27 @@ function checkHashNavigation() {
     scrollProgress = endYear;
     scrollDirection = 0;
 
-    // Non serve forzare p.active=true perché lo setti già nel draw
-    // (ma se vuoi lasciarlo non rompe)
+    // hide SKIP when landing directly on page2 (e.g. from year.html)
+    const skipBtn = document.getElementById("skipIntroBtn");
+    if (skipBtn && skipBtn.parentElement) {
+      skipBtn.parentElement.style.display = "none";
+    }
+   
   }
 }
+
+function easeInOutCubic(t) {
+  return t < 0.5 ? 4*t*t*t : 1 - pow(-2*t + 2, 3)/2;
+}
+
+function startBackTransition() {
+  if (backTransActive) return;
+  backTransActive = true;
+  backTransT = 0;
+  scrollDirection = 0; // grafico fermo
+  page2Snapshot = get();   // snapshot UNA volta (ok)
+}
+
 
 
 // ===============================
@@ -689,7 +734,30 @@ function isOverUpHint(mx, my) {
 // pagina2draw
 // ===============================
 function drawPage2() {
+
+   if (backTransActive && page2Snapshot) {
+    backTransT += (deltaTime / 1000) / BACK_TRANS_DURATION;
+    const t = constrain(backTransT, 0, 1);
+    const e = t < 0.5 ? 4*t*t*t : 1 - pow(-2*t + 2, 3)/2;
+
+    background(20);
+
+    push();
+    tint(255, 255 * (1 - e)); // fade out
+    translate(0, +e * 28);    // <<< senso invertito
+    image(page2Snapshot, 0, 0);
+    pop();
+
+    if (t >= 1) {
+      backTransActive = false;
+      page2Snapshot = null;
+      goBackToIntroBottom();
+    }
+    return; 
+  }
+
   background(20);
+
   drawCountryMenu();
 
   // Hover detection for years/columns + cursor
@@ -722,23 +790,26 @@ function drawPage2() {
   textFont(myFont2);
   textSize(14);
   textAlign(LEFT, TOP);
-  text("YIELD (kt)", offsetX, offsetY - 40);
-  textAlign(RIGHT, TOP);
+ 
+  // Yield (textAlign LEFT, TOP in quella zona)
+  const yLabel = "YIELD (kt)";
+  text(yLabel, offsetX, offsetY - 40);
+  drawInfoIcon(offsetX + textWidth(yLabel) + 14, (offsetY - 40) + 9);
 
   textSize(14);
   textAlign(CENTER, TOP);
   //text("TOTAL AMOUNT OF BOMBS", width / 2, 80);
-let activeParticles;
-// 找到这部分代码进行修改
-if (selectedCountry === "ALL COUNTRIES") {
-    activeParticles = particles2.filter((p) => p.active).length;
-} else {
-    // 使用转换函数处理 selectedCountry
-    let target = getDatasetCountryName(selectedCountry); 
-    activeParticles = particles2.filter((p) => 
-      p.active && normalizeCountry(p.country) === normalizeCountry(target)
-    ).length;
-}
+  let activeParticles;
+  // 找到这部分代码进行修改
+  if (selectedCountry === "ALL COUNTRIES") {
+      activeParticles = particles2.filter((p) => p.active).length;
+  } else {
+      // 使用转换函数处理 selectedCountry
+      let target = getDatasetCountryName(selectedCountry); 
+      activeParticles = particles2.filter((p) => 
+        p.active && normalizeCountry(p.country) === normalizeCountry(target)
+      ).length;
+  }
   textFont(myFont3);
   textSize(60);
   fill(0, 255, 255);
@@ -779,10 +850,18 @@ if (selectedCountry === "ALL COUNTRIES") {
 
   // in alto a sinistra, stesso x della legenda
   text("Atmospheric", offsetX, margin + 282);
+  // Atmospheric (textAlign LEFT, TOP)
+  const atmLabel = "Atmospheric";
+  text(atmLabel, offsetX, margin + 282);
+  drawInfoIcon(offsetX + textWidth(atmLabel) + 14, (margin + 282) + 9);
 
   // sopra la legenda
   textAlign(LEFT, BOTTOM);
   text("Underground", offsetX, offsetY - 85);
+  // Underground (qui hai textAlign LEFT, BOTTOM)
+  const undLabel = "Underground";
+  text(undLabel, offsetX, offsetY - 85);
+  drawInfoIcon(offsetX + textWidth(undLabel) + 14, (offsetY - 85) - 7);
 
   // hover sopra Atmospheric
   const isHoverATM = hoverOnAtmospheric(offsetX, margin);
@@ -837,6 +916,38 @@ if (selectedCountry === "ALL COUNTRIES") {
     text("under the ground level.", boxX + padding, boxY + 2 * padding + lineHeight * 2);
     pop();
   }
+
+
+  const isHoverYIELD = hoverOnYield(offsetX, offsetY);
+
+  if (isHoverYIELD) {
+    push();
+    const padding = 8;
+    const lineHeight = 16;
+
+    fill(0, 0, 0, 200);
+
+    let boxW = 180;
+    let boxH = padding * 4 + lineHeight * 3.5;
+
+    let boxX = offsetX;
+    let boxY = 138;
+
+    rect(boxX, boxY, boxW, boxH, 5);
+
+    textSize(12);
+    textAlign(LEFT, TOP);
+    fill(0, 255, 255);
+
+    // testo richiesto (spezzato in righe per stare nel box)
+    text("YIELD (kt):", boxX + padding, boxY + padding);
+    text("explosive energy measured", boxX + padding, boxY + 2 * padding + lineHeight);
+    text("in kilotons;", boxX + padding, boxY + 2 * padding + lineHeight * 2);
+    text("1 kt = 1,000 tons of TNT.", boxX + padding, boxY + 2 * padding + lineHeight * 3);
+
+    pop();
+  }
+
 
 
   legend.forEach((item, i) => {
@@ -905,37 +1016,86 @@ if (selectedCountry === "ALL COUNTRIES") {
 
   // CTA bottom-right (glow/pulse)
   drawColumnCTA();
+
+  if (backTransActive) {
+  drawingContext.restore();
+  }
+
 }
 
 function hoverOnAtmospheric(offsetX, margin) {
-  const x = offsetX;
   const y = margin + 282;
+  const label = "Atmospheric";
 
-  const w = 90;   // larghezza area hover
-  const h = 30;    // ALTEZZA verticale 
+  textFont(myFont2);
+  textSize(14);
+  textAlign(LEFT, TOP);
 
-  return (
-    mouseX >= x &&
-    mouseX <= x + w &&
-    mouseY >= y &&
-    mouseY <= y + h
-  );
+  const w = textWidth(label) + 14 + 16; // testo + gap + area icona
+  const h = 22;
+
+  return (mouseX >= offsetX && mouseX <= offsetX + w &&
+          mouseY >= y && mouseY <= y + h);
 }
+
 
 function hoverOnUnderground(offsetX, offsetY) {
-  const x = offsetX;
-  const y = offsetY - 95;
+  const y = offsetY - 85; 
+  const label = "Underground";
 
-  const w = 100;   // larghezza area hover
-  const h = 20;    // ALTEZZA verticale 
+  textFont(myFont2);
+  textSize(14);
+  textAlign(LEFT, BOTTOM);
 
-  return (
-    mouseX >= x &&
-    mouseX <= x + w &&
-    mouseY >= y &&
-    mouseY <= y + h
-  );
+  const w = textWidth(label) + 14 + 16;
+  const h = 22;
+
+  
+  return (mouseX >= offsetX && mouseX <= offsetX + w &&
+          mouseY >= y - h && mouseY <= y);
 }
+
+
+function hoverOnYield(offsetX, offsetY) {
+  const y = offsetY - 40;
+  const label = "YIELD (kt)";
+
+  textFont(myFont2);
+  textSize(14);
+  textAlign(LEFT, TOP);
+
+  const w = textWidth(label) + 14 + 16;
+  const h = 22;
+
+  return (mouseX >= offsetX && mouseX <= offsetX + w &&
+          mouseY >= y && mouseY <= y + h);
+}
+
+
+
+function drawInfoIcon(cx, cy, r = 7) {
+  push();
+
+  // badge
+  stroke(0, 255, 255, 220);
+  strokeWeight(1.6);
+  fill(18, 210);
+  circle(cx, cy, r * 2);
+
+  // "i" leggibile: contorno scuro + fill cyan
+  textAlign(CENTER, CENTER);
+  textFont("system-ui");   
+  textSize(r * 1.8);
+
+  stroke(0, 220);
+  strokeWeight(3);
+  fill(0, 255, 255);
+  text("i", cx, cy + 0.6);
+
+  pop();
+}
+
+
 
 function drawColumnCTA() {
   const msg = "Click a column to see more";
@@ -961,21 +1121,47 @@ function drawColumnCTA() {
   text(msg, x, y);
 }
 
+function isHoveringCountryMenu() {
+  const mainX = width / 2 - BTN_W / 2 + 20;
+  const mainY = 170;
+
+  const overMain =
+    mouseX >= mainX && mouseX <= mainX + BTN_W &&
+    mouseY >= mainY && mouseY <= mainY + BTN_H;
+
+  if (overMain) return true;
+
+  if (menuOpen) {
+    for (let btn of listButtons) {
+      if (btn.isHovered()) return true;
+    }
+  }
+
+  return false;
+}
+
+
 function updateHoverPage2() {
   hoveredYear = null;
   isHoveringInteractive = false;
 
+
+  // PRIORITY: country menu hover => HAND
+  if (isHoveringCountryMenu()) {
+    cursor(HAND);
+    return;
+  }
+
   // --- PRIORITY: top-right carousel arrows hover => HAND (must run BEFORE exclusions) ---
-  const lineX = width / 2 + 260;
+  const lineX = width - 400 - margin;
   const boxX = lineX + 18;
-  const titleY = 70;
+  const titleY = 75;
   const boxY = titleY;
+  
+  const boxW = 400;
+  const boxH = 210;
 
-  const boxW = 340;
-  const boxH = 120;
-
-
-  const arrowsY = boxY + boxH + 18;
+  const arrowsY = boxY + boxH + 28;
   const hitW = 34,
     hitH = 34;
 
@@ -996,7 +1182,23 @@ function updateHoverPage2() {
     mouseY >= arrowsY - hitH / 2 &&
     mouseY <= arrowsY + hitH / 2;
 
+
   if (overRight || overLeft) {
+    cursor(HAND);
+    return;
+  }
+
+  
+  // --- PRIORITY: legend info labels (Atmospheric / Underground / Yield) => HAND ---
+  // (stesse coordinate che usi in drawPage2)
+  const legendOffsetX = margin - 8;
+  const legendOffsetY = height - margin - 80;
+
+  const overATM = hoverOnAtmospheric(legendOffsetX, margin);
+  const overUND = hoverOnUnderground(legendOffsetX, legendOffsetY);
+  const overYLD = hoverOnYield(legendOffsetX, legendOffsetY);
+
+  if (overATM || overUND || overYLD) {
     cursor(HAND);
     return;
   }
@@ -1055,6 +1257,8 @@ function updateHoverPage2() {
     cursor(ARROW);
     return;
   }
+
+
 
   for (let year = startYear; year <= endYear; year++) {
     const x = map(year, startYear, endYear, margin, width - margin) + 3;
@@ -1179,6 +1383,8 @@ function handleIntroScroll(delta) {
 
 
 function mouseWheel(event) {
+  if (backTransActive) return false;
+
   /*if (page === 1) {
     spreadSpeed += event.delta * 0.05;
 
@@ -1219,21 +1425,24 @@ function mouseWheel(event) {
   } else if (page === 2) {
 
     if (event.delta > 0) {
+      page2BackScrollAcc = 0; 
       scrollDirection = 1;
       return false;
     }
 
     // scroll up -> indietro nella timeline
     if (event.delta < 0) {
+      scrollDirection = 0;
 
-      // Se sei già all'inizio e continui a scrollare su: torna alla intro (page 1)
-      const EPS = 0.02; // tolleranza per float
-      if (scrollProgress <= (startYear - 1) + EPS) {
-        goBackToIntroBottom(event.delta);  // funzione sotto
-        return false;
+      page2BackScrollAcc += abs(event.delta);
+
+      if (page2BackScrollAcc >= PAGE2_BACK_SCROLL_THRESHOLD) {
+      page2BackScrollAcc = 0;
+      goBackToIntroBottom();
       }
 
-      scrollDirection = -1;
+      startBackTransition();
+
       return false;
     }
 
@@ -1779,6 +1988,12 @@ function checkExternalCountryFilter() {
     page = 2;
     enteredPage2ByScroll = true;
     scrollProgress = endYear; // 直接展示最终结果
+  
+    const skipBtn = document.getElementById("skipIntroBtn");
+    if (skipBtn && skipBtn.parentElement) {
+      skipBtn.parentElement.style.display = "none";
+    }
   }
+  
 }
 
