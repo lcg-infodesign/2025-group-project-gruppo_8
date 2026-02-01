@@ -660,6 +660,34 @@ let isNameHovered = (
     push();
     fill(getYieldColor(test.yield));
 
+    // === HIGHLIGHT RDS-200 (1961) ===
+const currentYear = years[currentYearIndex];
+const isRDS200 =
+  currentYear === 1961 &&
+  test.bombName &&
+  test.bombName.toUpperCase() === "RDS-200";
+
+if (isRDS200) {
+  push();
+  noFill();// rettangolo ciano attorno alla bomba
+  stroke(0, 255, 255);
+  strokeWeight(2);
+  rectMode(CENTER);
+  circle(cx, cy, cellSize + 9);
+  stroke(0, 255, 255);// linea verso sinistra
+  strokeWeight(2);
+  line(cx - (cellSize -4) / 2, cy-10, cx - 300, cy -10 );
+  noStroke();// testo sopra la linea
+  textFont(myFont3);
+  textSize(13);
+  fill(0, 255, 255);
+  textAlign(LEFT, BOTTOM);
+  text("Largest bomb ever launched", cx - 297, cy - 11);
+
+  pop();
+}
+
+
     if (isHovered) {
       const pulse = (sin(frameCount * 0.1) + 1) / 2;
       size = cellSize * (1.3 + pulse * 0.65);
