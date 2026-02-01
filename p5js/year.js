@@ -59,6 +59,14 @@ function setup() {
   const urlParams = new URLSearchParams(window.location.search);
 
   const yearParam = urlParams.get("year");
+  if (!yearParam) {
+  const storedYear = sessionStorage.getItem("lastYear");
+  if (storedYear) {
+    const index = years.indexOf(Number(storedYear));
+    if (index !== -1) currentYearIndex = index;
+  }
+}
+
   if (yearParam) {
     const parsedYear = parseInt(yearParam);
     const index = years.indexOf(parsedYear);
@@ -855,6 +863,12 @@ let scrollAccumulator = 0;
 const SCROLL_THRESHOLD = 80; 
 
 function mouseWheel(event) {
+
+  currentYearIndex++;
+saveLastYear(years[currentYearIndex]);
+currentYearIndex--;
+saveLastYear(years[currentYearIndex]);
+
   // 区域限制逻辑保持不变
   if (mouseY < height - 100) return;
 
@@ -912,6 +926,8 @@ function mousePressed() {
       let x = centerX + (i - currentYearIndex) * spacing;
       if (abs(mouseX - x) < spacing / 2) {
         currentYearIndex = i;
+        saveLastYear(years[currentYearIndex]);
+
         return;
       }
     }
@@ -932,6 +948,8 @@ if (tsarCtaBox) {
     if (targetIndex !== -1) {
       // 2. 如果找到了，更新当前索引
       currentYearIndex = targetIndex;
+      saveLastYear(years[currentYearIndex]);
+
     } 
     return; // 结束处理，防止触发下方的其他点击逻辑
   }
@@ -940,6 +958,7 @@ if (tsarCtaBox) {
 
   // index button 1958， 1963， 1996 
   let activeYear = Number(years[currentYearIndex]);
+saveLastYear(years[currentYearIndex]);
 
   if (activeYear === 1958 || activeYear === 1959 || activeYear === 1963 || activeYear === 1996) {
     let btnW = 240;
@@ -964,18 +983,26 @@ if (tsarCtaBox) {
   if (mouseX > width / 2 - 150 && mouseX < width / 2 - 90 && mouseY > 120 && mouseY < 170) {
     if (currentYearIndex > 0) {
       currentYearIndex--;
+      saveLastYear(years[currentYearIndex]);
+
     }
     return;
   }
   if (mouseX > width / 2 + 90 && mouseX < width / 2 + 150 && mouseY > 120 && mouseY < 170) {
     if (currentYearIndex < years.length - 1) {
       currentYearIndex++;
+      saveLastYear(years[currentYearIndex]);
+
     }
     return;
   }
   for (let d of dots) {
     if (dist(mouseX, mouseY, d.cx, d.cy) < d.r) {
-      window.location.href = `single.html?id=${d.id}`;
+      const year = years[currentYearIndex];
+      saveLastYear(years[currentYearIndex]);
+
+window.location.href = `single.html?id=${d.id}&from=year&year=${year}`;
+
       return;
     }
   }
@@ -1008,10 +1035,14 @@ function keyPressed() {
   if (keyCode === LEFT_ARROW) {
     if (currentYearIndex > 0) {
       currentYearIndex--;
+      saveLastYear(years[currentYearIndex]);
+
     }
   } else if (keyCode === RIGHT_ARROW) {
     if (currentYearIndex < years.length - 1) {
       currentYearIndex++;
+      saveLastYear(years[currentYearIndex]);
+
     }
   }
 }
@@ -1350,3 +1381,8 @@ function hoverOnUnderground(offsetX, offsetY) {
   const mouseYRel = mouseY - (yAxis + 25);
   return (mouseXRel >= -h && mouseXRel <= 0 && mouseYRel >= 0 && mouseYRel <= w);
 }
+
+function saveLastYear(year) {
+  sessionStorage.setItem("lastYear", year);
+}
+
