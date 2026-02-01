@@ -87,7 +87,7 @@ body.show-skip #skipIntroWrap {
 .back-btn {
   position: fixed;
   left: 24px;
-  top: calc(50% + 75px);
+  top: calc(50% + 71px);
   transform: translateY(-50%);
   z-index: 2000;
 
@@ -502,4 +502,13 @@ body.photo-open .back-btn{
   .footer-logos-row {
     flex-wrap: wrap;
   }
+}
+.about-content {
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* spazio visivo prima del footer */
+#about-us-canvas {
+  margin-bottom: 160px;
 }

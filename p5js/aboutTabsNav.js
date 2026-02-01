@@ -35,8 +35,8 @@ const CTA_SECONDARY = [
 
 const ATOM_INFO = [
   { name: "Silvia La Mastra", role: "Project Manager\nUX/UI Designer\nResearcher" },
-  { name: "Giovanni Palladino", role: "Front-end Developer\nVisual Designer\nData Eeditor" },
-  { name: "Siyu Yang", role: "Front-end Developer\nVisual Designer\nData Eeditor" },
+  { name: "Giovanni Palladino", role: "Front-end Developer\nVisual Designer\nData Editor" },
+  { name: "Siyu Yang", role: "Front-end Developer\nVisual Designer\nData Editor" },
   { name: "Fang Ding", role: "Front-end Developer\nUX/UI Designer" },
   { name: "Giulia Yoko Felton", role: "UI Designer\nCopywriter" },
   { name: "Giorgia Milani", role: "Copywriter" },
@@ -105,6 +105,9 @@ function buildPage() {
     select("#about-us-canvas").show();
     initAtoms(); 
   }
+    // ricalcola altezza per il footer
+  setTimeout(adjustAboutHeight, 50);
+
 }
 
 function buildCTAs(selector, ctas) {
@@ -341,3 +344,32 @@ drawElectronEllipse(rx, ry, a) {
   pop();
 }
 }
+// ---------- FOOTER AFTER WINDOW HEIGHT ----------
+
+function adjustAboutHeight() {
+  const main = document.querySelector(".about-content");
+  const footer = document.getElementById("about-footer");
+
+  if (!main || !footer) return;
+
+  // reset per ricalcolo corretto
+  main.style.minHeight = "auto";
+
+  const viewportH = window.innerHeight;
+  const mainRect = main.getBoundingClientRect();
+  const footerRect = footer.getBoundingClientRect();
+
+  // altezza reale del contenuto
+  const contentHeight = main.scrollHeight;
+
+  // se il contenuto è più basso della viewport → forziamo min-height
+  if (contentHeight < viewportH) {
+    main.style.minHeight = viewportH + "px";
+  }
+}
+
+// al load
+window.addEventListener("load", adjustAboutHeight);
+
+// al resize
+window.addEventListener("resize", adjustAboutHeight);
