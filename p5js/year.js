@@ -30,6 +30,10 @@ let countryTotalCounts = {};
 let margin = 80;
 let selectedCountry = null;
 
+// --- TSAR CTA (global hitbox) ---
+let tsarCtaBox = null; // {x,y,w,h}
+
+
 
 function preload() {
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
@@ -58,6 +62,41 @@ function setup() {
     selectedCountry = countryParam;
   }
 }
+
+function drawCtaButton(btnX, btnY, btnW, btnH, label, isHover) {
+  // Se “VIEW HISTORIC INSIGHTS” ha già una palette/alpha specifica,
+  // copia qui ESATTAMENTE quegli stessi valori.
+  const r = 8;
+  const padX = 14;
+
+  // stroke/hover come il bottone esistente
+  stroke(0, 255, 255, isHover ? 220 : 120);
+  strokeWeight(isHover ? 1.5 : 1);
+
+  fill(20, 20, 20, 200);
+  rect(btnX, btnY, btnW, btnH, r);
+
+  noStroke();
+  fill(0, 255, 255, isHover ? 255 : 180);
+
+  textFont(myFont3);
+  textSize(13);
+  textAlign(LEFT, CENTER);
+  text(label, btnX + padX, btnY + btnH / 2 - 1);
+
+  // freccetta laterale (stessa logica che vuoi)
+  const ax = btnX + btnW - padX;
+  const ay = btnY + btnH / 2;
+
+  // Se vuoi proprio la stessa freccia del bottone “historic”,
+  // copia il suo disegno. Qui ti do una freccia “che sta bene”.
+  stroke(0, 255, 255, isHover ? 255 : 180);
+  strokeWeight(isHover ? 2 : 1.5);
+  line(ax - 10, ay, ax, ay);
+  line(ax - 4, ay - 4, ax, ay);
+  line(ax - 4, ay + 4, ax, ay);
+}
+
 
 
 function draw() {
@@ -161,13 +200,23 @@ let x = width / 2 + (idx - (visibleCountries.length - 1) / 2) * fixedSpacing;
     hoverOnYieldYear(legendX, legendY);
 
 
- cursor(overArrow || overDot || overCountry || overTimelineYear || overLegendInfo ? HAND : ARROW);
+ /*cursor(overArrow || overDot || overCountry || overTimelineYear || overLegendInfo ? HAND : ARROW);
 
-  drawColumnCTA(); // Disegna il messaggio "Click a column to see more"
+  drawColumnCTA(); // Disegna il messaggio "Click a column to see more"*/
+
+  const overTsarCTA = drawColumnCTA(); // <-- spostata qui per ottenere hover
+
+  cursor(
+    overArrow || overDot || overCountry || overTimelineYear || overLegendInfo || overTsarCTA
+      ? HAND
+      : ARROW
+  );
+
 
   // btn insight page
   let checkYear = Number(currentYear);
-  if (checkYear === 1958 || checkYear === 1963 || checkYear === 1996) {
+  if (checkYear === 1958 || checkYear === 1959 || checkYear === 1963 || checkYear === 1996) {
+
     let btnW = 240;
     let btnH = 40;
     // centro orizzontalmente
@@ -219,7 +268,7 @@ let x = width / 2 + (idx - (visibleCountries.length - 1) / 2) * fixedSpacing;
     // tooltip bomba
       drawBombTooltip(); 
 
-      drawColumnCTA();
+      //drawColumnCTA();
 }
 
 function drawTimeline() {
@@ -599,11 +648,27 @@ function drawTestDots(yearData) {
         let cy = isAtmosph ? lineY - 25 - row * (cellSize + gap) : lineY + 25 + row * (cellSize + gap);
         let d = dist(mouseX, mouseY, cx, cy);
         let isHovered = d < cellSize / 2;
-        let size = isHovered ? cellSize * 1.5 : cellSize;
+
+        // pulsazione SOLO in hover
+        let size = cellSize;
+        push();
         fill(getYieldColor(test.yield));
-        noStroke();
+
+        if (isHovered) {
+          const pulse = (sin(frameCount * 0.28) + 1) / 2; // 0..1
+          size = cellSize * (1.3 + pulse * 0.65);        // ~1.45..2.10
+          stroke(0, 255, 255);
+          strokeWeight(1.4); // 1.5 se vuoi più fine
+        } else {
+            noStroke();
+          }
         circle(cx, cy, size);
-        dots.push({ cx: cx, cy: cy, r: cellSize / 2, id: test.id });
+        
+        pop();
+
+        // r segue la size così click/hover restano coerenti
+        dots.push({ cx: cx, cy: cy, r: size / 2, id: test.id });
+
       });
     }
     drawGroup(atmTests, true);
@@ -836,10 +901,23 @@ function mousePressed() {
     }
   }
 
+    // --- TSAR CTA click ---
+  if (tsarCtaBox) {
+    const overTsar =
+      mouseX >= tsarCtaBox.x && mouseX <= tsarCtaBox.x + tsarCtaBox.w &&
+      mouseY >= tsarCtaBox.y && mouseY <= tsarCtaBox.y + tsarCtaBox.h;
+
+    if (overTsar) {
+      window.location.href = "insight.html?topic=tsarbomba";
+      return;
+    }
+  }
+
+
   // index button 1958， 1963， 1996 
   let activeYear = Number(years[currentYearIndex]);
   
-  if (activeYear === 1958 || activeYear === 1963 || activeYear === 1996) {
+  if (activeYear === 1958 || activeYear === 1959 || activeYear === 1963 || activeYear === 1996) {
     let btnW = 240;
     let btnH = 40;
     let btnX = width / 2 - btnW / 2;
@@ -848,7 +926,7 @@ function mousePressed() {
     if (mouseX > btnX && mouseX < btnX + btnW &&
         mouseY > btnY && mouseY < btnY + btnH) {
       
-      if (activeYear === 1958) {
+      if (activeYear === 1958|| activeYear === 1959) {
         window.location.href = 'insight.html?topic=moratoria58';
       } else if (activeYear === 1963) {
         window.location.href = 'insight.html?topic=trattato63';
@@ -914,7 +992,7 @@ function keyPressed() {
   }
 }
 
-function drawColumnCTA() {
+/*function drawColumnCTA() {
   const msg = "Click a bomb or a country to see more";
 
   const x = width - margin;
@@ -936,7 +1014,93 @@ function drawColumnCTA() {
 
   fill(0, 255, 255, a);
   text(msg, x, y);
+}*/
+
+function drawColumnCTA() {
+  const msg = "Click a bomb or a country to see more";
+  const tsarLabel = "Largest bomb ever detonated";
+
+  const rightX = width - margin;
+
+  // Layout: spostiamo su il msg per fare spazio al bottone sotto.
+  const msgY = height - margin - 70;
+
+  // Bottone sotto (resta sopra la timeline)
+  const padX = 12;
+  const btnH = 30;
+
+  textFont(myFont3);
+  textSize(13);
+  const arrowPad = 18; // spazio a destra per la freccetta triangolare
+  const btnW = textWidth(tsarLabel) + padX * 2 + arrowPad;
+
+  const btnX = rightX - btnW;
+  const btnY = height - margin - 45; // top rect
+
+  // hover
+  const isHoverTsar =
+    mouseX >= btnX && mouseX <= btnX + btnW &&
+    mouseY >= btnY && mouseY <= btnY + btnH;
+
+  // aggiorna hitbox globale per mousePressed()
+  tsarCtaBox = { x: btnX, y: btnY, w: btnW, h: btnH };
+
+  // ---- draw msg (glow) ----
+  {
+    const pulse = (sin(frameCount * 0.08) + 1) / 2; // 0..1
+    const a = 80 + pulse * 175;
+
+    textFont(myFont2);
+    textSize(14);
+    textAlign(RIGHT, BOTTOM);
+
+    noStroke();
+    fill(0, 255, 255, a * 0.25);
+    text(msg, rightX + 1, msgY + 1);
+    text(msg, rightX - 1, msgY - 1);
+
+    fill(0, 255, 255, a);
+    text(msg, rightX, msgY);
+  }
+
+  // ---- draw TSAR button (stile simile al “VIEW HISTORIC INSIGHTS”) ----
+  push();
+  rectMode(CORNER);
+
+  // sfondo + stroke cyan, hover più intenso
+  fill(20, 20, 20, 200);
+  stroke(0, 255, 255, isHoverTsar ? 220 : 120);
+  strokeWeight(isHoverTsar ? 1.5 : 1);
+  rect(btnX, btnY, btnW, btnH, 8);
+
+  noStroke();
+  fill(0, 255, 255, isHoverTsar ? 255 : 180);
+  textFont(myFont3);
+  textSize(13);
+  textAlign(LEFT, CENTER);
+  text(tsarLabel, btnX + padX, btnY + btnH / 2 - 1);
+
+   // freccetta triangolare a destra (come "VIEW HISTORIC INSIGHTS")
+  let triSize = 5;
+  let triX = btnX + btnW - 12;
+  let triY = btnY + btnH / 2;
+
+  if (isHoverTsar) {
+    triX += sin(frameCount * 0.2) * 2; // stesso "wiggle" dell'altro
+  }
+
+  push();
+  translate(triX, triY);
+  noStroke();
+  fill(0, 255, 255, isHoverTsar ? 255 : 180);
+  triangle(-triSize, -triSize, -triSize, triSize, triSize, 0);
+  pop();
+
+  pop();
+
+  return isHoverTsar;
 }
+
 
 function drawBombTooltip() {
   let hoveredDot = null;
