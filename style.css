@@ -87,7 +87,7 @@ body.show-skip #skipIntroWrap {
 .back-btn {
   position: fixed;
   left: 24px;
-  top: calc(50% + 50px);
+  top: calc(50% + 75px);
   transform: translateY(-50%);
   z-index: 2000;
 
