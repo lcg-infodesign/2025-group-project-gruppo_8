@@ -56,7 +56,7 @@ let menuSketch = function (p) {
   p.setup = function () {
     let cnv = p.createCanvas(520, window.innerHeight);
     cnv.position(0, 0);
-    cnv.style("pointer-events", "auto");
+    cnv.style("pointer-events", "none");
     cnv.style("position", "fixed");
     cnv.style("top", "0");
     cnv.style("left", "0");
