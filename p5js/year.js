@@ -7,20 +7,20 @@ let dots = [];
 let mushroomImg;
 let noTestYears = [1947, 1950, 1959, 1997];
 let noTestTexts = {
-  1947: `No lanci nel 1947
+  1947: `No tests were conducted in 1947
 In 1947, no nuclear test launches are recorded because, in the immediate aftermath of Hiroshima and Nagasaki, nuclear powers entered a period of caution and reassessment. The United States, at the time the only country with nuclear weapons, faced no immediate military necessity and was shifting the role of nuclear arms toward deterrence rather than active testing. Additionally, nuclear tests were technically complex, costly, and politically sensitive in a rapidly emerging Cold War context.`,
 
-  1950: `No lanci nel 1950
+  1950: `No tests were conducted in 1950
 In 1950, the strategic competition between the United States and the Soviet Union entered a qualitatively new phase. The year falls between the first Soviet nuclear test in 1949 and the next one in 1951, but it is precisely this apparent absence of spectacular events that determines its historical significance. In fact, 1950 represents the moment when the presence of the USSR as an atomic power became fully perceived by the United States and its allies, ushering in an arms race characterized by growing technological and doctrinal competition.
 The awareness that both superpowers possessed nuclear capabilities introduced the real risk of mutually assured destruction, laying the foundations for the concept of modern nuclear deterrence: international stability was no longer guaranteed by the superiority of a single power, but by the balance of a symmetrical threat. The absence of significant tests during the 1950s did not therefore reflect a period of stagnation, but rather the caution imposed by the fear of uncontrollable escalation.
 At the same time, this period was marked by intense research and development activity. In 1950, systematic studies began on more advanced weapons systems, including the hydrogen bomb, which was destined to exceed the power of previous weapons by orders of magnitude. In this sense, 1950 was a key year in the transformation of deterrence into a structural element of the international order of the Cold War.`,
 
-  1959: `No lanci nel 1959
+  1959: `No tests were conducted in 1959
 The reason there were no tests in 1959 was that the Soviet Union, Great Britain, and the United States agreed to a moratorium on nuclear weapon tests in 1958. This moratorium lasted from November 1958 to August 1961. The Soviet Union resumed on 1 September, 1961, with the US following suit a couple of weeks later.
 France, being on the verge of being a nuclear-capable nation in 1958, did not take part in that moratorium. They didn't test in 1959 because they did not quite have the ability to do so. They did have that ability in 1960.
 The 1958–1961 moratorium represented a rare moment of international cooperation during the Cold War, aiming to slow down the nuclear arms race and reduce atmospheric fallout. While the main powers paused testing, technological development and planning continued in secret. For countries like France, this period allowed them to finalize key technologies before conducting their first successful tests in 1960. The moratorium also highlighted the growing importance of diplomacy and negotiation in nuclear policy, setting a precedent for future treaties such as the Partial Test Ban Treaty of 1963.`,
 
-  1997: `No lanci nel 1997
+  1997: `No tests were conducted in 1997
 In 1997 there were no nuclear launches because the international context was relatively stable and governed by the logic of deterrence. The Cold War had ended several years earlier, the Soviet Union no longer existed, and the direct ideological and military confrontation between superpowers had eased. The United States and Russia still possessed large nuclear arsenals, but they were constrained by arms control treaties such as the START agreements, which reduced the number of operational warheads and increased cooperation and transparency. Moreover, the awareness that any nuclear attack would lead to mutually assured destruction made such a launch irrational from a political and strategic perspective. In the absence of acute crises or serious incidents that could be interpreted as an imminent attack, and with more reliable communication and early-warning systems than in the past, the conditions that might have led to the use of nuclear weapons simply did not exist in 1997.`
 
 };
@@ -235,7 +235,7 @@ if (checkYear === 1958 || checkYear === 1959 || checkYear === 1963 || checkYear 
     let btnH = 30; // 统一高度为 30
     let btnW = 240;
     let btnX = width / 2 - btnW / 2;
-    let btnY = height - margin - 45; // 统一 Y 轴起始高度
+    let btnY = height - margin - 70; // 统一 Y 轴起始高度
     const r = 8;
     const padX = 12;
 
@@ -356,8 +356,8 @@ function drawNoTestBox(year) {
 
   for (let p = 0; p < paragraphs.length; p++) {
     let line = paragraphs[p];
-    // Estrae il titolo "No lanci nel..."
-    if (line.startsWith("No lanci nel")) {
+    // Estrae il titolo "No tests were conducted..."
+    if (line.startsWith("No tests were conducted")) {
       titleLine = line;
       continue;
     }
@@ -1040,40 +1040,28 @@ function keyPressed() {
   text(msg, x, y);
 }*/
 
-function drawColumnCTA() {
+function drawColumnCTA() { 
   const msg = "Click a bomb or a country to see more";
   const tsarLabel = "Go to the Largest bomb";
   
-  // 1. 基础定位
   const rightX = width - margin;
   const bottomY = height - margin; 
-  const moveUp = 25; // 整体向上微调的量，避免挡住 Timeline
-
-  // 2. 按钮参数
-  const padX = 12;
-  const gap = 8;
-  const triSpace = 15;
+  const moveUp = 25;
   const btnH = 30;
   
   textFont(myFont3);
   textSize(13);
   
-  let labelW = textWidth(tsarLabel);
-  let btnW = labelW + gap + triSpace + padX * 2;
+  let btnW = 250;
 
-  // 3. 计算按钮最终位置
   const btnX = rightX - btnW; 
-  const btnY = bottomY - btnH - 15 - moveUp; // 在提示文字上方，并应用 moveUp
+  const btnY = bottomY - btnH - 15 - moveUp;
 
-  // --- 重要：同步更新 Hitbox ---
-  // 这里必须和下面 rect 绘制的坐标完全一致
   const isHoverTsar = mouseX >= btnX && mouseX <= btnX + btnW &&
                       mouseY >= btnY && mouseY <= btnY + btnH;
   
-  // 更新全局变量供 mousePressed 使用
   tsarCtaBox = { x: btnX, y: btnY, w: btnW, h: btnH };
 
-  // 4. 绘制提示文字
   push();
   const pulse = (sin(frameCount * 0.08) + 1) / 2;
   const a = 80 + pulse * 175;
@@ -1085,21 +1073,24 @@ function drawColumnCTA() {
   text(msg, rightX, bottomY);
   pop();
 
-  // 5. 绘制按钮容器
   push(); 
   fill(20, 20, 20, 200);
   stroke(0, 255, 255, isHoverTsar ? 220 : 120);
   strokeWeight(isHoverTsar ? 1.5 : 1);
-  rect(btnX, btnY, btnW, btnH, 8); // 使用计算好的 btnY
+  rect(btnX, btnY, btnW, btnH, 8);
 
-  // 6. 绘制文字和箭头
   noStroke();
+
+  
   fill(0, 255, 255, isHoverTsar ? 255 : 180);
+  textFont(myFont3);
+  textSize(13);
   textAlign(LEFT, CENTER);
-  text(tsarLabel, btnX + padX, btnY + btnH / 2 - 1);
+
+  text(tsarLabel, btnX + 18, btnY + btnH / 2 - 2);
 
   let triSize = 5;
-  let triX = btnX + padX + labelW + gap + 5;
+  let triX = btnX + btnW - 12;
   let triY = btnY + btnH / 2;
   if (isHoverTsar) triX += sin(frameCount * 0.2) * 2;
 
@@ -1107,10 +1098,11 @@ function drawColumnCTA() {
   translate(triX, triY);
   triangle(-triSize, -triSize, -triSize, triSize, triSize, 0);
   pop();
-  pop();
 
-  return isHoverTsar;
+  pop();
 }
+
+
 
 
 function drawBombTooltip() {
@@ -1138,8 +1130,8 @@ function drawBombTooltip() {
     if (bombData) {
       const padding = 10;
       const lineHeight = 20;
-      const boxW = 220;
-      const boxH = padding * 2 + lineHeight * 2;
+      const boxW = 223;
+      const boxH = padding * 2 + lineHeight * 2 + 10;
 
       let boxX = mouseX + 15;
       let boxY = mouseY - boxH / 2;
@@ -1159,16 +1151,17 @@ function drawBombTooltip() {
       // --- left (Labels) ---
       textAlign(LEFT, TOP);
       fill(0, 255, 255);
-      text("Bomb Name:", boxX + padding, boxY + padding);
-      text("Yield (kt):", boxX + padding, boxY + padding + lineHeight);
+      text("Click the bomb for more information", boxX + padding, boxY + padding)
+      text("Bomb Name:", boxX + padding, boxY + padding+ lineHeight);
+      text("Yield (kt):", boxX + padding, boxY + padding + lineHeight+ lineHeight);
 
       // --- right (Values) ---
       textAlign(RIGHT, TOP);
       fill(0, 255, 255);
       const valueX = boxX + boxW - padding;
 
-      text(bombData.bombName, valueX, boxY + padding);
-      text(bombData.yield, valueX, boxY + padding + lineHeight);
+      text(bombData.bombName, valueX, boxY + padding+ lineHeight);
+      text(bombData.yield, valueX, boxY + padding + lineHeight+ lineHeight);
 
       pop();
     }
