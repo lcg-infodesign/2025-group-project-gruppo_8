@@ -1,4 +1,4 @@
-let menuSketch = function (p) { 
+let menuSketch = function (p) {
 
   let btnSize = 60;
   let btnX = 25;
@@ -25,7 +25,6 @@ let menuSketch = function (p) {
     "bombs per year": "year.html",
     "insight": "insight.html?topic=hiroshima",
     "about": "about.html?topic=dataset",
-
   };
 
   const items = ["home", "overview", "bombs per year", "insight", "about"];
@@ -48,21 +47,21 @@ let menuSketch = function (p) {
 
   let insightY = null;
 
-  // true solo quando sei nella pagina insight
   const ON_INSIGHT_PAGE = window.location.pathname.includes("insight.html");
-
 
   p.preload = function () {
     font = p.loadFont("fonts/LibreFranklin-Regular.otf");
   };
 
   p.setup = function () {
-    let cnv = p.createCanvas(520, 350);
+    let cnv = p.createCanvas(520, window.innerHeight);
     cnv.position(0, 0);
     cnv.style("pointer-events", "auto");
     cnv.style("position", "fixed");
+    cnv.style("top", "0");
+    cnv.style("left", "0");
     cnv.style("z-index", "9999");
-    cnv.style("background-color", "transparent"); // sfondo trasparente
+    cnv.style("background-color", "transparent");
 
     menuX = -menuW;
     menuTargetX = -menuW;
@@ -71,10 +70,13 @@ let menuSketch = function (p) {
     p.textSize(14);
   };
 
+  p.windowResized = function () {
+    p.resizeCanvas(520, window.innerHeight);
+  };
+
   p.draw = function () {
-    // Pulizia completamente trasparente
     p.clear();
-    
+
     checkMenuLogic();
     menuX = p.lerp(menuX, menuTargetX, 0.2);
 
@@ -101,19 +103,17 @@ let menuSketch = function (p) {
       p.mouseX >= menuX &&
       p.mouseX <= menuX + menuW + 180 &&
       p.mouseY >= 0 &&
-      p.mouseY <= 280; // rileva solo l’area del menu
+      p.mouseY <= p.height;
 
-    // Verifica se il mouse è nell’area del sottomenu insight
-    // (ma SOLO se NON sei già nella pagina insight)
     let insideSubMenu = false;
     if (!ON_INSIGHT_PAGE && insightY !== null) {
-    let subX = menuX + 38 + 55;
-    let subY = insightY;
+      let subX = menuX + 38 + 55;
+      let subY = insightY;
       insideSubMenu =
         p.mouseX >= subX &&
         p.mouseX <= subX + 250 &&
         p.mouseY >= subY - menuTextH &&
-        p.mouseY <= subY + insightItems.length * menuStepY;
+        p.mouseY <= p.height;
     }
 
     if (menuOpen && !insideMenu && !insideSubMenu && distToButton >= btnSize / 2) {
@@ -130,9 +130,8 @@ let menuSketch = function (p) {
     p.translate(btnX + btnSize / 2, btnY + btnSize / 2);
     p.scale(btnScale);
 
-    // Lo sfondo del pulsante resta trasparente
     p.noStroke();
-    p.fill(0, 0, 0, 0); // completamente trasparente
+    p.fill(0, 0, 0, 0);
     p.ellipse(0, 0, 45, 45);
 
     p.stroke(hoverButton ? p.color(0, 255, 255) : 255);
@@ -160,7 +159,6 @@ let menuSketch = function (p) {
   function drawSideMenu() {
     if (!menuOpen && menuX <= -menuW + 1) return;
 
-    // Non disegna alcun rettangolo di sfondo, solo il testo
     p.textFont(font);
     p.textSize(14);
 
@@ -185,7 +183,6 @@ let menuSketch = function (p) {
       p.text(displayLabel, x, y);
 
       if (label === "insight") insightY = y;
-
       currentY += menuStepY;
     }
 
@@ -193,12 +190,11 @@ let menuSketch = function (p) {
       let subX = menuX + 38 + 55;
       let baseY = insightY;
 
-      // Espande l’area di rilevamento del sottomenu insight
       let insideInsight =
         p.mouseX >= menuX + 38 &&
         p.mouseX <= subX + 250 &&
         p.mouseY >= baseY - menuTextH &&
-        p.mouseY <= baseY + menuStepY * insightItems.length;
+        p.mouseY <= p.height;
 
       if (insideInsight) {
         for (let i = 0; i < insightItems.length; i++) {
@@ -222,7 +218,6 @@ let menuSketch = function (p) {
   p.mouseReleased = function () {
     if (!menuOpen) return;
 
-    // Click sul menu principale
     let currentY = menuStartY;
 
     for (let i = 0; i < items.length; i++) {
@@ -255,14 +250,6 @@ let menuSketch = function (p) {
           return;
         }
 
-       // Click su "insight" = vai al primo insight
-      // (il sottomenu resta comunque disponibile via hover, e cliccando le voci)
-      if (label === "insight") {
-        window.location.href = menuLinks[label];
-        return;
-      }
-
-
         window.location.href = menuLinks[label];
         return;
       }
@@ -270,7 +257,6 @@ let menuSketch = function (p) {
       currentY += menuStepY;
     }
 
-    // Click sul sottomenu
     if (!ON_INSIGHT_PAGE && insightY !== null) {
       let subX = menuX + 38 + 55;
       let baseY = insightY;
@@ -287,16 +273,15 @@ let menuSketch = function (p) {
           p.mouseY <= y;
 
         if (hovering) {
-          // Usa il nuovo titolo inglese come chiave
           window.location.href = insightLinks[label];
           return;
         }
       }
     }
-  }
+  };
 };
 
-// Crea il menu una sola volta sull’oggetto window globale
+// CREA IL MENU UNA SOLA VOLTA
 if (!window.menuCreated) {
   new p5(menuSketch);
   window.menuCreated = true;
