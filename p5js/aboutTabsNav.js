@@ -1,81 +1,343 @@
-// p5js/aboutTabsNav.js
-// One-page About: about.html?topic=dataset|project|us
-(() => {
+let topic;
+let atoms = [];
+let canvas;
+
+// ---------- DATASET CONTENT ----------
+
+const TEXT_MAIN = `
+<p class="about-text">
+The data is sourced from SIPRI, the Oklahoma Geological Survey, and the Natural Resources Defense Council,
+and later consolidated into an open format via the Data Is Plural repository.
+The original datasets were created as part of public and academic research initiatives,
+supported by national and international public funding.
+Each nuclear test is recorded with parameters such as location, date, country, test type, and yield.
+</p>
+`;
+
+const TEXT_REVIEW = `
+<p class="about-text" style="margin-top:2.5rem">
+During our review of the original dataset, we identified several inconsistencies and errors.
+These issues were corrected to ensure the accuracy of the data.
+In addition, certain adjustments were made to improve its usability and visualization.
+</p>
+`;
+
+const CTA_PRIMARY = [
+  { label: "OPEN DATASET REPOSITORY", href: "https://github.com/data-is-plural/nuclear-explosions" },
+  { label: "OPEN OFFICIAL REPORT (PDF)", href: "docs/sipri-report-original.pdf" }
+];
+
+const CTA_SECONDARY = [
+  { label: "OPEN MODIFIED DATASET", href: "https://github.com/GiovanniPalladino/nuclear-explosions-modified" }
+];
+
+// ---------- ATOM NAMES + ROLES ----------
+
+const ATOM_INFO = [
+  { name: "Silvia La Mastra", role: "Project Manager\nUX/UI Designer\nResearcher" },
+  { name: "Giovanni Palladino", role: "Front-end Developer\nVisual Designer\nData Eeditor" },
+  { name: "Siyu Yang", role: "Front-end Developer\nVisual Designer\nData Eeditor" },
+  { name: "Fang Ding", role: "Front-end Developer\nUX/UI Designer" },
+  { name: "Giulia Yoko Felton", role: "UI Designer\nCopywriter" },
+  { name: "Giorgia Milani", role: "Copywriter" },
+  { name: "Ziying Shao", role: "Front-end Developer" }
+];
+
+// ---------- SETUP ----------
+
+function setup() {
   const params = new URLSearchParams(window.location.search);
-  const topic = params.get("topic") || "dataset";
+  topic = params.get("topic") || "dataset";
 
-  const content = {
-    dataset: {
-      //title: "About the Dataset",
-      text: "The SIPRI–FOA dataset documents all known nuclear explosions from 1945 up to 1998, the year when India and Pakistan conducted their last declared nuclear tests. After the adoption of the CTBT, states relied on simulations.",
-      ctas: [
-        {
-          label: "OPEN DATASET REPOSITORY",
-          href: "https://github.com/data-is-plural/nuclear-explosions"
-        },
-        {
-          label: "OPEN OFFICIAL REPORT (PDF)",
-          href: "docs/sipri-report-original.pdf"
-        }
-      ]
-    },
+  // --- 关键：画布只在这里初始化一次 ---
+  canvas = createCanvas(900, 600);
+  canvas.parent("about-us-canvas");
+  canvas.style("pointer-events", "none");
 
-    project: {
-      //title: "About the Project",
-      text: "The dataset provides structured details for each nuclear test, including the responsible country, location, date, test type, explosive yield, and declared purpose. Test types have been grouped into atmospheric/surface and underground categories.",
-      ctas: [
-        {
-          label: "OPEN PROJECT REPOSITORY",
-          href: "https://github.com/lcg-infodesign/2025-group-project-gruppo_8"
-        }
-      ]
-    },
+  updateTabs();
+  buildPage();
 
-    us: {
-      //title: "About Us",
-      text: "The SIPRI–FOA dataset documents all known nuclear explosions from 1945 up to 1998, the year when India and Pakistan conducted their last declared nuclear tests. After the adoption of the CTBT, states relied on simulations.",
-      ctas: []
-    }
-  };
-
-  const conf = content[topic] || content.dataset;
-
-  // Active state tabs
-  document.querySelectorAll(".about-tab").forEach(a => {
-    a.classList.toggle("is-active", a.dataset.topic === topic);
-    if (a.dataset.topic === topic) a.setAttribute("aria-current", "page");
-    else a.removeAttribute("aria-current");
-  });
-
-  // Fill content
-  const titleEl = document.querySelector(".about-title");
-  const textEl = document.querySelector(".about-text");
-  const ctaRow = document.querySelector(".about-cta-row");
-
-  if (titleEl) titleEl.textContent = conf.title;
-  if (textEl) textEl.textContent = conf.text;
-
-  // Build CTAs
-  if (ctaRow) {
-    ctaRow.innerHTML = "";
-
-    conf.ctas.forEach(cta => {
-      const a = document.createElement("a");
-      a.className = "cta-btn";
-      a.href = cta.href;
-
-      // apri in nuova tab SOLO se è un link esterno o un pdf
-      const isExternal = /^https?:\/\//.test(cta.href);
-      const isPdf = /\.pdf(\?|#|$)/i.test(cta.href);
-
-      if (isExternal || isPdf) {
-        a.target = "_blank";
-        a.rel = "noopener";
-      }
-
-      a.innerHTML = `${cta.label}<span class="cta-arrow" aria-hidden="true">▶</span>`;
-      ctaRow.appendChild(a);
+  // 绑定点击事件
+  selectAll(".about-tab").forEach(tab => {
+    tab.mousePressed(e => {
+      e.preventDefault();
+      topic = tab.attribute("data-topic");
+      updateTabs();
+      buildPage();
     });
-  }
-})();
+  });
+}
 
+
+// ---------- UI ----------
+
+function updateTabs() {
+  selectAll(".about-tab").forEach(tab => {
+    const tabTopic = tab.attribute("data-topic");
+    if (tabTopic === topic) {
+      tab.addClass("is-active");
+    } else {
+      tab.removeClass("is-active");
+    }
+  });
+}
+
+function buildPage() {
+  // 清空文本容器
+  select(".about-title").html("");
+  select(".about-text-wrap").html("");
+  select(".review-text").html("");
+  select(".primary-cta").html("");
+  select(".secondary-cta").html("");
+
+  if (topic === "dataset") {
+    // 隐藏画布容器
+    select("#about-us-canvas").hide();
+    
+    // 填充 Dataset 内容
+    select(".about-text-wrap").html(TEXT_MAIN);
+    buildCTAs(".primary-cta", CTA_PRIMARY);
+    select(".review-text").html(TEXT_REVIEW);
+    buildCTAs(".secondary-cta", CTA_SECONDARY);
+  } 
+  else if (topic === "us") {
+    // 显示画布容器并初始化原子数据
+    select("#about-us-canvas").show();
+    initAtoms(); 
+  }
+}
+
+function buildCTAs(selector, ctas) {
+  const row = select(selector);
+  ctas.forEach(cta => {
+    const a = createA(cta.href, "");
+    a.parent(row);
+    a.addClass("cta-btn");
+    a.attribute("target", "_blank");
+    a.attribute("rel", "noopener");
+    a.html(`${cta.label}<span class="cta-arrow">▶</span>`);
+  });
+}
+
+// ---------- ATOMS (ORIGINAL FULL VERSION) ----------
+
+function initAtoms() {
+  // 增加高度到 600，确保能放下两行文字
+  canvas = createCanvas(900, 600); 
+  canvas.parent("about-us-canvas");
+  canvas.style("pointer-events", "none");
+  clear();
+  atoms = [];
+
+  // 第一行原子
+  for (let i = 0; i < 4; i++) {
+    let x = map(i, 0, 3, 100, width - 100); // 增加左右边距
+    atoms.push(new AtomicModel(x, 150, i));  // 稍微往下移一点
+  }
+
+  // 第二行原子
+  let secondRowIndices = [4, 5, 6];
+  for (let i = 0; i < 3; i++) {
+    let x = map(i, 0, 2, 200, width - 200); // 让三个原子居中一点
+    atoms.push(new AtomicModel(x, 420, secondRowIndices[i])); // 给文字留出空间
+  }
+}
+
+function draw() {
+  if (topic !== "us") return;
+
+  clear(); // sfondo trasparente
+  for (let atom of atoms) {
+    atom.update();
+    atom.display();
+    drawNameAndRole(atom);
+  }
+}
+
+// ---------- NOME + RUOLO SOTTO L'ATOMO ----------
+
+function drawNameAndRole(atom) {
+  push();
+
+  textAlign(CENTER);
+  textSize(20);
+    fill(200);
+textFont('LibreFranklin');
+
+  text(ATOM_INFO[atom.type].name, atom.pos.x, atom.pos.y + atom.r + 50);
+  fill(200);
+  textSize(16);
+  text(ATOM_INFO[atom.type].role, atom.pos.x, atom.pos.y + atom.r + 90);
+  pop();
+}
+
+// ---------- AtomicModel (IDENTICO AL TUO) ----------
+
+class AtomicModel {
+  constructor(x, y, type) {
+    this.pos = createVector(x, y);
+    this.type = type;
+    this.angle = 0;
+    this.baseColor = color(0, 255, 255);
+    this.lineColor = color(0, 255, 255, 80);
+    this.r = 40;
+  }
+
+  update() {
+    this.angle += 0.03;
+  }
+
+  display() {
+    push();
+    translate(this.pos.x, this.pos.y);
+
+    stroke(this.lineColor);
+    strokeWeight(1.5);
+    noFill();
+
+    fill(this.baseColor);
+    noStroke();
+    ellipse(0, 0, 10, 10);
+    noFill();
+    stroke(this.lineColor);
+
+    switch (this.type) {
+
+      case 0:
+        stroke(0, 255, 255, 200);// 经典圆环 + 点状概率云
+        this.drawElectron(40, this.angle);
+        this.drawElectron(40, -this.angle * 0.8);
+
+        for (let step = 0; step < TWO_PI; step += PI / 10) {
+          let jitter = noise(step, this.angle) * 2;
+          point(
+            (40 + jitter) * cos(step),
+            (40 + jitter) * sin(step)
+          );
+        }
+        break;
+
+      case 1: // 同心波纹轨道
+        for (let i = 0; i < 3; i++) {
+          let r = 30 + i * 20;
+          let speedMult = (i % 2 === 0) ? 1 : -0.6;
+          ellipse(0, 0, r, r);
+          this.drawElectron(r / 2, this.angle * speedMult + i);
+        }
+        break;
+
+      case 2: // 多维陀螺仪系统
+        ellipse(0, 0, 80, 80);
+        this.drawElectron(40, this.angle);
+        for (let i = 0; i < 2; i++) {
+          push();
+          rotate(i * PI / 2 + this.angle * 0.5);
+          ellipse(0, 0, 30, 80);
+          this.drawElectronEllipse(15, 40, this.angle * 2);
+          pop();
+        }
+        break;
+      case 3:
+        // ===== 统一圆形外轮廓（固定圆） =====
+        stroke(0, 255, 255, 200);
+        strokeWeight(2);
+        noFill();
+
+        // ===== 光环波动动画（点状圆环） =====
+        let rings = 3;
+        for (let i = 0; i < rings; i++) {
+          // 半径波动，最大时为 40（半径），和固定外轮廓一致
+          let r = 20 + i * 10 + sin(this.angle * (0.5 + i * 0.3)) * 5;
+          stroke(0, 255, 255, 150 - i * 40);
+          for (let step = 0; step < TWO_PI; step += PI / 15) {
+            let jitter = noise(step, this.angle) * 2;
+            point(
+              (r + jitter) * cos(step),
+              (r + jitter) * sin(step)
+            );
+          }
+        }
+
+        // 核心小球
+        fill(this.baseColor);
+        noStroke();
+        ellipse(0, 0, 10, 10);
+        break;
+
+
+      case 4:
+        // ===== 统一圆形外轮廓 =====
+        stroke(0, 255, 255, 80);
+        strokeWeight(1.5);
+        noFill();
+        ellipse(0, 0, 80, 80); // 外轮廓
+
+        // 内部偏移旋转特色
+        push();
+        rotate(this.angle);
+        ellipse(20, 0, 40, 40);
+        fill(this.baseColor);
+        noStroke();
+        ellipse(40, 0, 5, 5);
+        pop();
+        break;
+
+      case 5: // 点状虚线星云
+        stroke(0, 255, 255, 200);
+        for (let i = 0; i < 3; i++) {
+          let r = 40 + i * 15;
+          push();
+          rotate(this.angle * (0.5 + i * 0.2));
+          for (let step = 0; step < TWO_PI; step += PI / 8) {
+            point(
+              (r / 2) * cos(step),
+              (r / 2) * sin(step)
+            );
+          }
+          pop();
+        }
+        break;
+
+      case 6: // 核心小球 + 四个旋转椭圆
+        // ===== 内部四个旋转椭圆 =====
+        let ellipseCount = 4; // 椭圆数量
+        let rx = 40; // 水平半径
+        let ry = 10; // 垂直半径
+        for (let i = 0; i < ellipseCount; i++) {
+          push();
+          // 初始角度平均分布 + 统一旋转
+          let initialAngle = i * TWO_PI / 8;
+          rotate(this.angle + initialAngle);
+          stroke(0, 255, 255, 150);
+          noFill();
+          ellipse(0, 0, rx * 2, ry * 2);
+          pop();
+        }
+
+        // 核心小球
+        fill(this.baseColor);
+        noStroke();
+        ellipse(0, 0, 10, 10);
+
+        break;
+
+    }
+
+    pop();
+  }
+drawElectron(r, a) {
+  push();
+  fill(this.baseColor); // 实心填充
+  noStroke();           // 不描边
+  ellipse(r * cos(a), r * sin(a), 6, 6);
+  pop();
+}
+
+drawElectronEllipse(rx, ry, a) {
+  push();
+  fill(this.baseColor); // 实心填充
+  noStroke();           // 不描边
+  ellipse(rx * cos(a), ry * sin(a), 6, 6);
+  pop();
+}
+}
