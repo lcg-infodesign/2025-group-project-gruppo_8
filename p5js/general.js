@@ -856,8 +856,8 @@ function drawPage2() {
   // Separation lines between years and particles
   // ===============================
 push();
-stroke(0, 255, 255, 160);
-strokeWeight(2);
+stroke(200, 160);
+strokeWeight(1.5);
 
 // 整体左移 5px
 const xBase = margin - 20 - 5;
@@ -910,10 +910,8 @@ for (let y = yAxis + 25 + 144 + offset; y <= yAxis + 25 + 144 + offset + 40; y +
 
 pop();
 
-
-
   const atmLabel = "Atmospheric";
-
+fill(200)
   push();
   translate(offsetX - 45, yAxis - 25);   // 原起点
   rotate(-HALF_PI);
@@ -943,9 +941,8 @@ pop();
   );
   pop();
 push();
-stroke(0, 255, 255, 160);
-strokeWeight(2);
-
+stroke(200, 160);
+strokeWeight(1.5);
 // 右边横轴虚线（直接从横轴开始）
 const xRight = width - margin + 10 ;
 for (let y = yAxis - 25; y >= yAxis - 25 - 40; y -= dashLength + dashGap) {
