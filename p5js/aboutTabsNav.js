@@ -49,12 +49,25 @@ function setup() {
   const params = new URLSearchParams(window.location.search);
   topic = params.get("topic") || "dataset";
 
+  // --- 关键：画布只在这里初始化一次 ---
+  canvas = createCanvas(900, 600);
+  canvas.parent("about-us-canvas");
+  canvas.style("pointer-events", "none");
+
   updateTabs();
   buildPage();
 
-  if (topic === "us") initAtoms();
-  else noCanvas();
+  // 绑定点击事件
+  selectAll(".about-tab").forEach(tab => {
+    tab.mousePressed(e => {
+      e.preventDefault();
+      topic = tab.attribute("data-topic");
+      updateTabs();
+      buildPage();
+    });
+  });
 }
+
 
 // ---------- UI ----------
 
@@ -66,19 +79,27 @@ function updateTabs() {
 }
 
 function buildPage() {
+  // 清空文本容器
   select(".about-title").html("");
   select(".about-text-wrap").html("");
   select(".review-text").html("");
   select(".primary-cta").html("");
   select(".secondary-cta").html("");
-  select("#about-us-canvas").html("");
 
   if (topic === "dataset") {
-    select(".about-title").html("");
+    // 隐藏画布容器
+    select("#about-us-canvas").hide();
+    
+    // 填充 Dataset 内容
     select(".about-text-wrap").html(TEXT_MAIN);
     buildCTAs(".primary-cta", CTA_PRIMARY);
     select(".review-text").html(TEXT_REVIEW);
     buildCTAs(".secondary-cta", CTA_SECONDARY);
+  } 
+  else if (topic === "us") {
+    // 显示画布容器并初始化原子数据
+    select("#about-us-canvas").show();
+    initAtoms(); 
   }
 }
 
@@ -100,6 +121,7 @@ function initAtoms() {
   // 增加高度到 600，确保能放下两行文字
   canvas = createCanvas(900, 600); 
   canvas.parent("about-us-canvas");
+  canvas.style("pointer-events", "none");
   clear();
   atoms = [];
 

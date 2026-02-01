@@ -219,7 +219,7 @@ body.photo-open .back-btn{
   top: 40px;          /* 与 insight 一致 */
   left: 0;
   width: 100%;
-  z-index: 10050;
+  z-index: 99999;
   display: flex;
   justify-content: center;
   pointer-events: auto;
@@ -227,13 +227,18 @@ body.photo-open .back-btn{
 
 /* About Tabs 容器 — inline-flex + gap */
 .about-tabs {
+  --about-tabs-scale: 1;
   display: inline-flex;
   gap: 10px;          /* 与 insight gap 一致 */
   transform-origin: center center;
+  transform: scale(var(--about-tabs-scale));
+
+  pointer-events: auto;
 }
 
 /* 每个 Tab 按钮 — 边框 + 圆角 + 背景透明 + 文本蓝色 */
 .about-tab {
+  pointer-events: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -252,7 +257,6 @@ body.photo-open .back-btn{
   text-decoration: none;
   line-height: 1;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
   user-select: none;
 
   transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
@@ -359,7 +363,8 @@ body.photo-open .back-btn{
 /* 方法 A：移动整个 div */
 #about-us-canvas {
   position: relative;  /* 或 absolute，根据需要 */
-  top: -50px;          /* 上移 50px */
+  top: -100px;    
+  z-index:1;      /* 上移 50px */
 }
 
 /* 方法 B：直接移动 canvas */
