@@ -73,8 +73,12 @@ function setup() {
 
 function updateTabs() {
   selectAll(".about-tab").forEach(tab => {
-    const active = tab.attribute("data-topic") === topic;
-    tab.toggleClass("is-active", active);
+    const tabTopic = tab.attribute("data-topic");
+    if (tabTopic === topic) {
+      tab.addClass("is-active");
+    } else {
+      tab.removeClass("is-active");
+    }
   });
 }
 
