@@ -31,6 +31,11 @@ let animPlaying = false;
 let mapZoomed = false;
 let animBlueR = 0;
 
+let isHandCursor = false;      // gestisce il cursore in modo centralizzato
+let tsarNameBounds = null;     // hitbox click sul nome (solo per RDS-200)
+let hoverNearBombPoint = false; // hover sul pallino nella mappa zoom
+
+
 const purposeTextMap = {
   WR: "Activities associated with a weapons development programme, also used when a test’s purpose is unspecified.",
   COMBAT:
@@ -242,6 +247,8 @@ function setup() {
 }
 
 function draw() {
+  isHandCursor = false; // reset ogni frame
+
   background(20);
 
   // if (bombBgImg) {
@@ -257,15 +264,18 @@ function draw() {
   // tint(255, 255);
   if (mapZoomed) {
     drawZoomedMap();
+    cursor(isHandCursor ? HAND : ARROW);
     return;
   }
 
   drawBombRing();
+
   if (!bombData) {
     fill(255);
     textAlign(CENTER, CENTER);
     textSize(26);
     text("No bomb data available", width / 2, height / 2);
+    cursor(isHandCursor ? HAND : ARROW);
     return;
   }
 
@@ -291,10 +301,12 @@ function draw() {
   strokeWeight(1);
   noFill();
   ellipse(centerX, centerY, animBlueR * 2);
+
   drawHiroshimaAnnotation();
   drawBombAnnotation();
-
   drawInfo();
+
+  cursor(isHandCursor ? HAND : ARROW);
 }
 
 function mapYieldToRadius(y) {
@@ -400,7 +412,8 @@ function drawInfo() {
     mouseY <= offsetY + scaledH;
 
   if (isHoverMap) {
-    cursor(HAND);
+    isHandCursor = true;
+    
     fill(0, 150);
     rect(offsetX, offsetY, scaledW, scaledH);
 
@@ -411,6 +424,8 @@ function drawInfo() {
     let iconX = offsetX + scaledW / 2;
     let iconY = offsetY + scaledH / 2;
     let iconSize = 100;
+
+    
 
     if (!mapZoomed) {
       let baseSize = 6;
@@ -427,9 +442,32 @@ function drawInfo() {
       line(iconX - iconSize / 2, iconY + iconSize / 2, iconX + iconSize / 2, iconY - iconSize / 2);
     }
 
-  } else {
-    cursor(ARROW);
-  }
+  } 
+
+  
+  // --- icona PICCOLA sempre visibile in basso a destra ---
+  push();
+  noFill();
+  stroke(0, 255, 255, isHoverMap ? 255 : 170);
+  strokeWeight(1.6);
+
+  const pad = 10;
+  const base = 4;            // piccola
+  const s = base;            // statica (se vuoi, puoi fare: isHoverMap ? base*1.2 : base)
+
+  const iconX = offsetX + scaledW - pad - s;
+  const iconY = offsetY + scaledH - pad - s;
+
+  // due "corner" mini in basso a destra
+  line(iconX - s, iconY - s, iconX,     iconY - s);
+  line(iconX - s, iconY - s, iconX - s, iconY);
+
+  line(iconX + s, iconY + s, iconX,     iconY + s);
+  line(iconX + s, iconY + s, iconX + s, iconY);
+
+  pop();
+
+    
 
   stroke(0, 255, 255, 150);
   strokeWeight(1);
@@ -455,7 +493,59 @@ function drawInfo() {
   textAlign(CENTER, TOP);
   textSize(14);
   fill(0, 255, 255);
-  text("Yield(kt) ", width / 2, height - 90);
+
+  const yLabel = "Yield (kt)";
+  const yX = width / 2;
+  const yY = height - 90;
+
+  textFont(myFont3);
+  text(yLabel, yX, yY);
+
+  // icona a destra del label centrato
+  const labelW = textWidth(yLabel);
+  const iconR = 6;
+  const iconCX = yX + labelW / 2 + 14;
+  const iconCY = yY + 9;
+
+  drawInfoIcon(iconCX, iconCY, iconR);
+
+  // hover area = label + icon
+  const hoverYield =
+    mouseX >= (yX - labelW / 2) && mouseX <= (iconCX + iconR) &&
+    mouseY >= yY && mouseY <= (yY + 18);
+
+  if (hoverYield) {
+    isHandCursor = true;
+
+    // tooltip (stesso testo della year)
+    push();
+    const padding = 8;
+    const lineHeight = 16;
+
+    fill(0, 0, 0, 200);
+
+    const boxW = 200;
+    const boxH = padding * 4 + lineHeight * 3.5;
+
+    // posizionalo sopra al label
+    const boxX = yX - boxW / 2;
+    const boxY = yY - boxH - 10;
+
+    rect(boxX, boxY, boxW, boxH, 5);
+
+    textFont(myFont2);
+    textSize(12);
+    textAlign(LEFT, TOP);
+    fill(0, 255, 255);
+
+    text("YIELD (kt):", boxX + padding, boxY + padding);
+    text("explosive energy measured", boxX + padding, boxY + 2 * padding + lineHeight);
+    text("in kilotons; 1 kt = 1,000", boxX + padding, boxY + 2 * padding + lineHeight * 2);
+    text("tons of TNT.", boxX + padding, boxY + 2 * padding + lineHeight * 3);
+
+    pop();
+  }
+
 
   textFont(myFont2);
   textAlign(LEFT, TOP);
@@ -507,11 +597,30 @@ function getTypeTitle(type) {
   return typeTitle[type.toUpperCase()] || "Unknown";
 }
 
+function drawInfoIcon(cx, cy, r = 6) {
+  push();
+
+  stroke(0, 255, 255, 220);
+  strokeWeight(1.6);
+  fill(18, 210);
+  circle(cx, cy, r * 2);
+
+  textAlign(CENTER, CENTER);
+  textFont("system-ui");
+  textSize(r * 1.8);
+
+  stroke(0, 220);
+  strokeWeight(3);
+  fill(0, 255, 255);
+  text("i", cx, cy + 0.6);
+
+  pop();
+}
+
 
 function drawZoomedMap() {
   if (!mapImg || !bombData) return;
 
-  cursor(ARROW);
   image(mapImg, offsetX, offsetY, scaledW, scaledH);
 
   stroke(0, 255, 255, 150);
@@ -548,7 +657,7 @@ function drawZoomedMap() {
     mouseY <= iconY + iconSize;
 
   if (isCloseHover) {
-    cursor(HAND);
+    isHandCursor = true;
   }
 
   // ---------- GRID ----------
@@ -601,6 +710,13 @@ function drawZoomedMap() {
   circle(px, py, r * 2);
 
   let hoverNearBomb = dist(mouseX, mouseY, px, py) < 20;
+
+  hoverNearBombPoint = hoverNearBomb; // salva per mousePressed
+
+  if (hoverNearBomb) {
+    isHandCursor = true; // manina quando sei sul pallino
+  }
+
 
   if (hoverNearBomb) {
     const padding = 8;
@@ -759,11 +875,12 @@ function drawHiroshimaAnnotation() {
 
   noStroke();
   if (isHiroshimaHover && hHorizProgress > 0.95) {
-    cursor(HAND);
-    fill(255);
+  isHandCursor = true;
+  fill(255);
   } else {
     fill(0, 255, 255);
   }
+
 
   textFont(myFont2);
   textSize(14);
@@ -826,12 +943,39 @@ function drawBombAnnotation() {
   let textX = anchorX - currentHorizLength - 10;
 
   noStroke();
-  fill(red(c), green(c), blue(c));
 
-  textFont(myFont1);
-  textSize(20);
-  textAlign(RIGHT, CENTER);
-  text(bombData.name, textX, anchorY);
+const isTsar = (bombData.year === "1961" && bombData.name === "RDS-200");
+
+textFont(myFont1);
+textSize(20);
+textAlign(RIGHT, CENTER);
+
+const nameW = textWidth(bombData.name);
+const nameH = 24; // approx per hitbox
+const bx = textX - nameW;
+const by = anchorY - nameH / 2;
+
+// hitbox SOLO se Tsar
+if (isTsar) {
+  tsarNameBounds = { x: bx, y: by, w: nameW, h: nameH };
+
+  const isHoverName =
+    mouseX >= bx && mouseX <= bx + nameW &&
+    mouseY >= by && mouseY <= by + nameH;
+
+  if (isHoverName) {
+    isHandCursor = true;
+    fill(200);
+  } else {
+    fill(red(c), green(c), blue(c));
+  }
+} else {
+  tsarNameBounds = null;
+  fill(red(c), green(c), blue(c));
+}
+
+text(bombData.name, textX, anchorY);
+
 }
 
 function mousePressed() {
@@ -849,6 +993,16 @@ if (hiroshimaTextBounds) {
     return;
   }
 }
+
+// --- CLICK SU NOME TSAR (RDS-200) ---
+if (tsarNameBounds) {
+  const b = tsarNameBounds;
+  if (mouseX >= b.x && mouseX <= b.x + b.w && mouseY >= b.y && mouseY <= b.y + b.h) {
+    window.location.href = "insight.html?topic=tsarbomba";
+    return;
+  }
+}
+
 
 
   // --- 2. 重置动画变量 (保持不变) ---
@@ -888,8 +1042,14 @@ if (hiroshimaTextBounds) {
       mouseY >= currentY - 14 && // 14 是 textSize
       mouseY <= currentY;
 
+    // --- CLICK SUL PALLINO (stessa azione del testo) ---
+    let px = lonToMapX(bombData.longitude);
+    let py = latToMapY(bombData.latitude);
+    let isPointClicked = dist(mouseX, mouseY, px, py) < 20;
+
+
     // 如果两者之一被点击
-    if (isCoordClicked || isHintClicked) {
+    if (isCoordClicked || isHintClicked || isPointClicked) {
       let lat = bombData.latitude;
       let lon = bombData.longitude;
       let googleMapsURL = `https://www.google.com/maps?q=${lat},${lon}&t=k`;
