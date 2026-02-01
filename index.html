@@ -21,8 +21,10 @@
       </button> 
     </div>-->
 
-    <div id="skipIntroWrap">
-      <button id="skipIntroBtn">SKIP</button>
+    <div id="skipIntroWrap" class="skip-intro" id="skip-intro">
+      <button id="skipIntroBtn" 
+      onclick="window.dispatchEvent(new CustomEvent('changePage', { detail: { page: 2 } }))">
+      SKIP</button>
     </div>
 
 
