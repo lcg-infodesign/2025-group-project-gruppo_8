@@ -150,6 +150,8 @@ let UGTypes = [
 // NUOVA FUNZIONE — vai alla overview
 // ===============================
 function goToOverview() {
+
+
   enteredPage2ByScroll = false;
   // Vai alla pagina 2 (grafico)
   page = 2;
@@ -164,11 +166,15 @@ function goToOverview() {
     }
   }
 
-  // Nascondi il bottone "CLICK TO CONTINUE", se esiste
-  const skipBtn = document.getElementById("skipIntroBtn");
-  if (skipBtn && skipBtn.parentElement) {
-    skipBtn.parentElement.style.display = "none";
-  }
+   updateSkipVisibility();
+
+}
+
+
+function updateSkipVisibility() {
+  // usa il tuo meccanismo CSS: body.show-skip
+  if (page === 1) document.body.classList.add("show-skip");
+  else document.body.classList.remove("show-skip");
 }
 
 //    // goToOverview DA USARE PER APPARIRE LE BOMBE GRADUALI SE CLICCHI SKIP //
@@ -246,6 +252,8 @@ function setup() {
 
   creaParticlesDaTabella();
   checkHashNavigation();
+  updateSkipVisibility();
+
 function initMenu() {
   let mainX = width / 2 - BTN_W / 2 + 20; 
   let mainY = 170;
@@ -349,11 +357,8 @@ function checkHashNavigation() {
     scrollProgress = endYear;
     scrollDirection = 0;
 
-    // hide SKIP when landing directly on page2 (e.g. from year.html)
-    const skipBtn = document.getElementById("skipIntroBtn");
-    if (skipBtn && skipBtn.parentElement) {
-      skipBtn.parentElement.style.display = "none";
-    }
+    updateSkipVisibility();
+
    
   }
 }
@@ -1816,8 +1821,8 @@ function goBackToIntroBottom() {
   const backBtn = document.getElementById("backToTopBtn");
   if (backBtn) backBtn.style.display = "none";
 
-  const skipBtn = document.getElementById("skipIntroBtn");
-  if (skipBtn && skipBtn.parentElement) skipBtn.parentElement.style.display = "block";
+  updateSkipVisibility();
+
 }
 
 function goNextPage() {
@@ -1831,10 +1836,8 @@ function goNextPage() {
 
   lastStepTime = millis();
 
-  const skipBtn = document.getElementById("skipIntroBtn");
-  if (skipBtn && skipBtn.parentElement) {
-    skipBtn.parentElement.style.display = "none";
-  }
+  updateSkipVisibility();
+
 }
 
 
