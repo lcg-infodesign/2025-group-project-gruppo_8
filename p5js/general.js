@@ -791,7 +791,7 @@ function drawPage2() {
   text("Bombs Launched", width / 2, 137);
 
   noStroke();
-  fill(0, 255, 255);
+  fill(200);
   textFont(myFont2);
   textSize(14);
   textAlign(LEFT, TOP);
@@ -1081,11 +1081,7 @@ pop();
   });
 
 if (scrollDirection !== 0 && millis() - lastStepTime > STEP_DELAY) {
-    if (scrollDirection > 0) {
-        scrollProgress += scrollDirection * scrollStep;  // 向下保持原来的速度
-    } else {
-        scrollProgress += scrollDirection * scrollStep * 0.1; // 向上减半速度
-    }
+    scrollProgress += scrollDirection * scrollStep;
     scrollProgress = constrain(scrollProgress, startYear - 1, endYear);
     lastStepTime = millis();
 }
