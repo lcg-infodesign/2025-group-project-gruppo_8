@@ -27,7 +27,7 @@ const RADIUS = 6;
 const PADDING_AREA = 14;
 
 let menuButtons = [];
-let menuItems = []; 
+let menuItems = [];
 let listButtons = [];
 
 let page = 1;
@@ -166,7 +166,7 @@ function goToOverview() {
     }
   }
 
-   updateSkipVisibility();
+  updateSkipVisibility();
 
 }
 
@@ -201,7 +201,7 @@ function preload() {
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  
+
 
   for (let i = 0; i < table.getRowCount(); i++) {
     let row = table.getRow(i);
@@ -254,27 +254,27 @@ function setup() {
   checkHashNavigation();
   updateSkipVisibility();
 
-function initMenu() {
-  let mainX = width / 2 - BTN_W / 2 + 20; 
-  let mainY = 170;
-  let columnGap = 10; 
+  function initMenu() {
+    let mainX = width / 2 - BTN_W / 2 + 20;
+    let mainY = 170;
+    let columnGap = 10;
 
-  listButtons = [];
-  for (let i = 0; i < countries.length; i++) {
-    // 0 = 左列, 1 = 右列
-    let col = i < 4 ? 0 : 1; 
-    let row = i % 4;
-    
-    // 计算对齐：
-    // 如果是左列(0)，x = mainX - (BTN_W + columnGap)/2
-    // 如果是右列(1)，x = mainX + (BTN_W + columnGap)/2
-    let offsetX = (col === 0) ? -(BTN_W + columnGap) / 2 : (BTN_W + columnGap) / 2;
-    let targetX = mainX + offsetX;
-    let targetY = mainY + BTN_H + GAP + row * (BTN_H + GAP);
-    
-    listButtons.push(new MenuButton(targetX, mainY, countries[i], targetY));
+    listButtons = [];
+    for (let i = 0; i < countries.length; i++) {
+      // 0 = 左列, 1 = 右列
+      let col = i < 4 ? 0 : 1;
+      let row = i % 4;
+
+      // 计算对齐：
+      // 如果是左列(0)，x = mainX - (BTN_W + columnGap)/2
+      // 如果是右列(1)，x = mainX + (BTN_W + columnGap)/2
+      let offsetX = (col === 0) ? -(BTN_W + columnGap) / 2 : (BTN_W + columnGap) / 2;
+      let targetX = mainX + offsetX;
+      let targetY = mainY + BTN_H + GAP + row * (BTN_H + GAP);
+
+      listButtons.push(new MenuButton(targetX, mainY, countries[i], targetY));
+    }
   }
-}
   initMenu();
   checkExternalCountryFilter();
 }
@@ -359,12 +359,12 @@ function checkHashNavigation() {
 
     updateSkipVisibility();
 
-   
+
   }
 }
 
 function easeInOutCubic(t) {
-  return t < 0.5 ? 4*t*t*t : 1 - pow(-2*t + 2, 3)/2;
+  return t < 0.5 ? 4 * t * t * t : 1 - pow(-2 * t + 2, 3) / 2;
 }
 
 function startBackTransition() {
@@ -740,10 +740,10 @@ function isOverUpHint(mx, my) {
 // ===============================
 function drawPage2() {
 
-   if (backTransActive && page2Snapshot) {
+  if (backTransActive && page2Snapshot) {
     backTransT += (deltaTime / 1000) / BACK_TRANS_DURATION;
     const t = constrain(backTransT, 0, 1);
-    const e = t < 0.5 ? 4*t*t*t : 1 - pow(-2*t + 2, 3)/2;
+    const e = t < 0.5 ? 4 * t * t * t : 1 - pow(-2 * t + 2, 3) / 2;
 
     background(20);
 
@@ -758,7 +758,7 @@ function drawPage2() {
       page2Snapshot = null;
       goBackToIntroBottom();
     }
-    return; 
+    return;
   }
 
   background(20);
@@ -795,7 +795,7 @@ function drawPage2() {
   textFont(myFont2);
   textSize(14);
   textAlign(LEFT, TOP);
- 
+
   // Yield (textAlign LEFT, TOP in quella zona)
   const yLabel = "YIELD (kt)";
   text(yLabel, offsetX, offsetY - 40);
@@ -807,13 +807,13 @@ function drawPage2() {
   let activeParticles;
   // 找到这部分代码进行修改
   if (selectedCountry === "ALL COUNTRIES") {
-      activeParticles = particles2.filter((p) => p.active).length;
+    activeParticles = particles2.filter((p) => p.active).length;
   } else {
-      // 使用转换函数处理 selectedCountry
-      let target = getDatasetCountryName(selectedCountry); 
-      activeParticles = particles2.filter((p) => 
-        p.active && normalizeCountry(p.country) === normalizeCountry(target)
-      ).length;
+    // 使用转换函数处理 selectedCountry
+    let target = getDatasetCountryName(selectedCountry);
+    activeParticles = particles2.filter((p) =>
+      p.active && normalizeCountry(p.country) === normalizeCountry(target)
+    ).length;
   }
   textFont(myFont3);
   textSize(60);
@@ -852,21 +852,111 @@ function drawPage2() {
   textFont(myFont2);
   textSize(14);
   textAlign(LEFT, TOP);
+  // ===============================
+  // Separation lines between years and particles
+  // ===============================
+push();
+stroke(0, 255, 255, 160);
+strokeWeight(2);
 
-  // in alto a sinistra, stesso x della legenda
-  text("Atmospheric", offsetX, margin + 282);
-  // Atmospheric (textAlign LEFT, TOP)
+// 整体左移 5px
+const xBase = margin - 20 - 5;
+
+// 上方分隔线
+line(
+  xBase,
+  yAxis - 25,
+  width - margin + 10 ,
+  yAxis - 25
+);
+
+// 向上的竖轴（实线部分）
+line(
+  xBase,
+  yAxis - 25,
+  xBase,
+  yAxis - 25 - 144
+);
+
+// 上方竖轴末端虚线延伸
+let dashLength = 4;   // 虚线段长度
+let dashGap = 6;      // 虚线间隔
+let offset = 5;       // 实线和虚线之间的距离
+
+for (let y = yAxis - 25 - 144 - offset; y >= yAxis - 25 - 144 - offset - 40; y -= dashLength + dashGap) {
+  line(xBase, y, xBase, y - dashLength);
+}
+
+// 下方分隔线
+line(
+  xBase,
+  yAxis + 25,
+  width - margin + 10 ,
+  yAxis + 25
+);
+
+// 向下的竖轴（实线部分）
+line(
+  xBase,
+  yAxis + 25,
+  xBase,
+  yAxis + 25 + 144
+);
+
+// 下方竖轴末端虚线延伸
+for (let y = yAxis + 25 + 144 + offset; y <= yAxis + 25 + 144 + offset + 40; y += dashLength + dashGap) {
+  line(xBase, y, xBase, y + dashLength);
+}
+
+pop();
+
+
+
   const atmLabel = "Atmospheric";
-  text(atmLabel, offsetX, margin + 282);
-  drawInfoIcon(offsetX + textWidth(atmLabel) + 14, (margin + 282) + 9);
 
-  // sopra la legenda
-  textAlign(LEFT, BOTTOM);
-  text("Underground", offsetX, offsetY - 85);
-  // Underground (qui hai textAlign LEFT, BOTTOM)
+  push();
+  translate(offsetX - 45, yAxis - 25);   // 原起点
+  rotate(-HALF_PI);
+  textAlign(LEFT, TOP);
+  text(atmLabel, 0, 0);
+
+  // icon 接在后面
+  drawInfoIcon(
+    textWidth(atmLabel) + 14,
+    9
+  );
+  pop();
+
   const undLabel = "Underground";
-  text(undLabel, offsetX, offsetY - 85);
-  drawInfoIcon(offsetX + textWidth(undLabel) + 14, (offsetY - 85) - 7);
+  const undW = textWidth(undLabel);
+
+  push();
+  translate(offsetX - 45, yAxis + 25);   // 同一个锚点
+  rotate(-HALF_PI);
+  textAlign(RIGHT, TOP);              // 终点对齐锚点
+  text(undLabel, 0, 0);
+
+  // icon 接在前面
+  drawInfoIcon(
+    -undW - 14,
+    9
+  );
+  pop();
+push();
+stroke(0, 255, 255, 160);
+strokeWeight(2);
+
+// 右边横轴虚线（直接从横轴开始）
+const xRight = width - margin + 10 ;
+for (let y = yAxis - 25; y >= yAxis - 25 - 40; y -= dashLength + dashGap) {
+  line(xRight, y, xRight, y - dashLength);
+}
+for (let y = yAxis + 25; y <= yAxis + 25 + 40; y += dashLength + dashGap) {
+  line(xRight, y, xRight, y + dashLength);
+}
+
+pop();
+
 
   // hover sopra Atmospheric
   const isHoverATM = hoverOnAtmospheric(offsetX, margin);
@@ -990,11 +1080,16 @@ function drawPage2() {
     }
   });
 
-  if (scrollDirection !== 0 && millis() - lastStepTime > STEP_DELAY) {
-    scrollProgress += scrollDirection * scrollStep;
+if (scrollDirection !== 0 && millis() - lastStepTime > STEP_DELAY) {
+    if (scrollDirection > 0) {
+        scrollProgress += scrollDirection * scrollStep;  // 向下保持原来的速度
+    } else {
+        scrollProgress += scrollDirection * scrollStep * 0.1; // 向上减半速度
+    }
     scrollProgress = constrain(scrollProgress, startYear - 1, endYear);
     lastStepTime = millis();
-  }
+}
+
 
   //stop automatico SOLO a fine animazione (non per click)
   if (introTimelinePlaying && scrollProgress >= endYear) {
@@ -1023,42 +1118,66 @@ function drawPage2() {
   drawColumnCTA();
 
   if (backTransActive) {
-  drawingContext.restore();
+    drawingContext.restore();
   }
+
 
 }
 
-function hoverOnAtmospheric(offsetX, margin) {
-  const y = margin + 282;
+function hoverOnAtmospheric(offsetX, offsetY) {
   const label = "Atmospheric";
 
   textFont(myFont2);
   textSize(14);
   textAlign(LEFT, TOP);
 
-  const w = textWidth(label) + 14 + 16; // testo + gap + area icona
-  const h = 22;
+  // 文字起点
+  const xStart = offsetX - 45;         // translate X
+  const yStart = yAxis - 25;           // translate Y
 
-  return (mouseX >= offsetX && mouseX <= offsetX + w &&
-          mouseY >= y && mouseY <= y + h);
+  // 文字宽度 + icon 偏移
+  const textW = textWidth(label);
+  const iconGap = 14;                  // 文字和icon间距
+  const iconSize = 16;                 // icon 占用宽度
+  const w = textW + iconGap + iconSize;
+
+  const h = 22; // 高度可根据文字行高调整
+
+  // 因为文字旋转了 -90°，hover 区域也要对应旋转
+  // 旋转前用原坐标检测最简单：
+  const mouseXRel = mouseX - xStart;
+  const mouseYRel = mouseY - yStart;
+
+  // 对于 -HALF_PI 旋转，文字沿 Y 轴增长，X 轴固定
+  return (mouseXRel >= 0 && mouseXRel <= h &&
+    mouseYRel >= -w && mouseYRel <= 0);
 }
 
-
 function hoverOnUnderground(offsetX, offsetY) {
-  const y = offsetY - 85; 
   const label = "Underground";
 
   textFont(myFont2);
   textSize(14);
-  textAlign(LEFT, BOTTOM);
 
-  const w = textWidth(label) + 14 + 16;
-  const h = 22;
+  // 文字起点（同 drawPage2 中 translate 的锚点）
+  const xStart = offsetX - 35;
+  const yStart = yAxis + 25;
 
-  
-  return (mouseX >= offsetX && mouseX <= offsetX + w &&
-          mouseY >= y - h && mouseY <= y);
+  const textW = textWidth(label);
+  const iconGap = 14;    // icon 与文字间距
+  const iconSize = 16;
+  const w = textW + iconGap + iconSize;
+  const h = 22;          // 高度可微调
+
+  // 文字旋转 -HALF_PI，textAlign RIGHT, TOP
+  const mouseXRel = mouseX - xStart;
+  const mouseYRel = mouseY - yStart;
+
+  // 对于 -90°旋转，文字沿 Y 轴方向增长（但因为右对齐，所以反向）
+  return (mouseXRel >= -h && mouseXRel <= 0 &&
+    mouseYRel >= 0 && mouseYRel <= w);
 }
+
 
 
 function hoverOnYield(offsetX, offsetY) {
@@ -1073,7 +1192,7 @@ function hoverOnYield(offsetX, offsetY) {
   const h = 22;
 
   return (mouseX >= offsetX && mouseX <= offsetX + w &&
-          mouseY >= y && mouseY <= y + h);
+    mouseY >= y && mouseY <= y + h);
 }
 
 
@@ -1089,7 +1208,7 @@ function drawInfoIcon(cx, cy, r = 7) {
 
   // "i" leggibile: contorno scuro + fill cyan
   textAlign(CENTER, CENTER);
-  textFont("system-ui");   
+  textFont("system-ui");
   textSize(r * 1.8);
 
   stroke(0, 220);
@@ -1162,7 +1281,7 @@ function updateHoverPage2() {
   const boxX = lineX + 18;
   const titleY = 75;
   const boxY = titleY;
-  
+
   const boxW = 400;
   const boxH = 210;
 
@@ -1193,7 +1312,7 @@ function updateHoverPage2() {
     return;
   }
 
-  
+
   // --- PRIORITY: legend info labels (Atmospheric / Underground / Yield) => HAND ---
   // (stesse coordinate che usi in drawPage2)
   const legendOffsetX = margin - 8;
@@ -1430,7 +1549,7 @@ function mouseWheel(event) {
   } else if (page === 2) {
 
     if (event.delta > 0) {
-      page2BackScrollAcc = 0; 
+      page2BackScrollAcc = 0;
       scrollDirection = 1;
       return false;
     }
@@ -1442,8 +1561,8 @@ function mouseWheel(event) {
       page2BackScrollAcc += abs(event.delta);
 
       if (page2BackScrollAcc >= PAGE2_BACK_SCROLL_THRESHOLD) {
-      page2BackScrollAcc = 0;
-      goBackToIntroBottom();
+        page2BackScrollAcc = 0;
+        goBackToIntroBottom();
       }
 
       startBackTransition();
@@ -1553,29 +1672,29 @@ function mousePressed() {
         break;
       }
     }
-// 在 mousePressed 的 page === 2 判断中替换
-if (page === 2) {
-  let mainX = width / 2 - BTN_W / 2 + 20;
-  let mainY = 170;
+    // 在 mousePressed 的 page === 2 判断中替换
+    if (page === 2) {
+      let mainX = width / 2 - BTN_W / 2 + 20;
+      let mainY = 170;
 
-  // 点击主按钮开关
-  if (mouseX >= mainX && mouseX <= mainX + BTN_W && 
-      mouseY >= mainY && mouseY <= mainY + BTN_H) {
-    menuOpen = !menuOpen;
-    return;
-  }
-
-  // 如果菜单开着，检查子项点击
-  if (menuOpen) {
-    for (let btn of listButtons) {
-      if (btn.isHovered()) {
-        selectedCountry = btn.label;
-        menuOpen = false;
+      // 点击主按钮开关
+      if (mouseX >= mainX && mouseX <= mainX + BTN_W &&
+        mouseY >= mainY && mouseY <= mainY + BTN_H) {
+        menuOpen = !menuOpen;
         return;
       }
+
+      // 如果菜单开着，检查子项点击
+      if (menuOpen) {
+        for (let btn of listButtons) {
+          if (btn.isHovered()) {
+            selectedCountry = btn.label;
+            menuOpen = false;
+            return;
+          }
+        }
+      }
     }
-  }
-}
   }
 }
 
@@ -1671,12 +1790,12 @@ class Particle2 {
     this.x = lerp(this.x, this.tx, this.speed);
     this.y = lerp(this.y, this.ty, this.speed);
   }
-draw() {
+  draw() {
     if (!this.active) return;
 
     // 同样在这里使用转换函数
     let target = getDatasetCountryName(selectedCountry);
-    
+
     let visible =
       selectedCountry === "ALL COUNTRIES" ||
       normalizeCountry(this.country) === normalizeCountry(target);
@@ -1873,7 +1992,7 @@ function drawCountryMenu() {
 function isMouseInMenuArea(mainX, mainY) {
   let columnGap = 10;
   let totalW = BTN_W * 2 + columnGap;
-  
+
   // 左边界：中轴线往左半个总宽
   let left = mainX + (BTN_W / 2) - (totalW / 2) - PADDING_AREA;
   let right = left + totalW + PADDING_AREA * 2;
@@ -1912,16 +2031,16 @@ function drawMainButton(x, y) {
   textFont(myFont2);
   textSize(20);
   textAlign(RIGHT, CENTER); // 右对齐，方便紧贴按钮左侧
-  
+
   // x 是按钮左边缘，减去一个间距（比如 12px）
   text("by", x - 15, y + BTN_H / 2 - 4);
   let isHover = mouseX >= x && mouseX <= x + BTN_W && mouseY >= y && mouseY <= y + BTN_H;
-  
+
   stroke(0, 255, 255);
   strokeWeight(2);
   if (isHover || menuOpen) fill(0, 255, 255);
   else noFill();
-  
+
   rect(x, y, BTN_W, BTN_H, RADIUS);
 
   noStroke();
@@ -1982,21 +2101,49 @@ function getDatasetCountryName(label) {
 function checkExternalCountryFilter() {
   let params = new URLSearchParams(window.location.search);
   let countryParam = params.get('country');
-  
+
   if (countryParam) {
     // 将 URL 中的国家名赋值给你的全局变量
     selectedCountry = countryParam.toUpperCase();
-    
+
     // 自动跳转到第二页视图
     page = 2;
     enteredPage2ByScroll = true;
     scrollProgress = endYear; // 直接展示最终结果
-  
+
     const skipBtn = document.getElementById("skipIntroBtn");
     if (skipBtn && skipBtn.parentElement) {
       skipBtn.parentElement.style.display = "none";
     }
   }
-  
+
 }
+
+function drawYAxisGradient() {
+  const rectHeight = 144; // 矩形高度，和你的分隔线一致
+  const rectWidth = 700;   // 自己调宽度
+  const baseAlpha = 200;  // 蓝色最深透明度
+
+  push();
+  noStroke();
+
+  // 左侧矩形（Atmospheric）
+  for (let i = 0; i <= rectHeight; i++) {
+    let alpha = map(i, 0, rectHeight, baseAlpha, 0); // 从底部蓝色到底部透明
+    fill(0, 255, 255, alpha);
+    rect(margin - 20 - 5 , yAxis - 25 - i, rectWidth, 1); 
+  }
+
+  // 右侧矩形（Underground）
+  for (let i = 0; i <= rectHeight; i++) {
+    let alpha = map(i, 0, rectHeight, baseAlpha, 0);
+    fill(0, 255, 255, alpha);
+    // y 起点要加上高度，再用负值绘制 1px
+    rect(margin - 20 - 5 , yAxis + 25 + i, rectWidth, 1);
+  }
+
+  pop();
+}
+
+
 
