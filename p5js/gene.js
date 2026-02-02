@@ -344,20 +344,6 @@ function introTop() {
   snapTo(0);
 }*/
 
-function introNext() {
-  syncIntroIndex();
-
-  // appena l'utente scende oltre il primo testo, la label sparisce
-  if (introIndex >= 0) showScrollLabelPage1 = false;
-
-  if (introIndex < 3) {
-    introIndex++;
-    snapTo(introTargets[introIndex]);
-  } else {
-    snapTo(maxScroll);
-    if (!autoExpandStarted) autoExpandStarted = true;
-  }
-}
 
 function introPrev() {
   syncIntroIndex();
@@ -756,16 +742,20 @@ function snapTo(val) {
 }
 
 function introNext() {
-  // primo click: porta str1 al centro
+  // 第一个 click: porta str1 al centro
   if (introIndex < 3) {
     introIndex++;
     snapTo(introTargets[introIndex]);
   } else {
-    // oltre str4: avvia espansione (se la vuoi subito dopo l'ultimo step)
-    snapTo(maxScroll);
+    // ✅ 关键：到最后一段时，直接“到达底部”
+    snapping = false;
+    scrollOffset = maxScroll;
+    snapTarget = maxScroll;
+
     if (!autoExpandStarted) autoExpandStarted = true;
   }
 }
+
 
 function introPrev() {
   if (introIndex > 0) {
