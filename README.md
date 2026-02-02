@@ -43,18 +43,23 @@ This project uses an upstream dataset that is MIT-licensed. Any derived datasets
 ### Level 1 — Global overview (1945–1998)
 - Understand the temporal evolution of nuclear tests.
 - Understand the distribution and variation of explosion yield (power).
-- Interpret the data within historical and political context.
+- Detect anomalies, peaks, and shifts in relation to historical context.
+
 
 ### Level 2 — Year-by-year analysis
 - Compare states by number of tests and yield.
 - Identify number of explosions and involved states.
 - Distinguish test typologies (atmospheric vs underground) and their evolution over time.
-- Detect anomalies, peaks, and shifts in relation to historical context.
+
 
 ### Level 3 — Single explosion
 - Access detailed attributes of a single test (name, country, yield, type, purpose).
 - Locate the explosion geographically.
 - Evaluate yield by comparison with **Hiroshima** as a reference.
+
+
+### Bonus level — Insights
+- Interpret the data within historical and political context.
 
 ---
 
@@ -77,7 +82,7 @@ We used the following variables for the visualizations:
 ---
 
 ## Data processing (our modifications)
-To improve consistency and usability, we performed cleaning and standardization, including:
+To improve consistency and usability, we performed cleaning standardization and correction, including:
 
 - **Yield:** missing values replaced with `0`
 - **Dates:** converted `date_long` to EU format `DD/MM/YYYY` stored in `date_DMY`
@@ -87,7 +92,7 @@ To improve consistency and usability, we performed cleaning and standardization,
   - `ATMOSPH` (atmospheric/surface-related)
   - `UG` (underground-related)
 
-The cleaned dataset is maintained here:
+The cleaned and modified dataset is maintained here:
 https://github.com/GiovanniPalladino/nuclear-explosions-modified
 
 ---
