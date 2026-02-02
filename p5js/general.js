@@ -614,7 +614,7 @@ function drawIntroBlockData(str, x, y, w) {
   text(str, x, y, w);
 }
 
-function drawScrollHintArrow() {
+/*function drawScrollHintArrow() {
   // Only show at the very start
   const visible = scrollOffset < 80;
   if (!visible) return;
@@ -673,7 +673,64 @@ function drawScrollHintArrow() {
 
   pop();
 
+}*/
+
+function drawScrollHintArrow() {
+  // CTA page 1:
+  // - all'inizio: label + UNA freccia sotto
+  // - dal primo step in poi: la label sparisce, ma la freccia resta
+  // (qui NON tocchiamo la logica di scroll/click: solo rendering)
+
+  const cx = width / 2;
+  const bob = sin(frameCount * 0.08) * 4;
+  const cy = height - 44 + bob;
+  const labelY = cy - 24; // baseline label (sopra la freccia)
+
+  const halfW = 10; // half width of the chevron
+  const h = 8;      // height of the chevron
+
+  // safety: se introTargets non è pronto, usa un fallback
+  const firstTarget = (introTargets && introTargets.length) ? introTargets[0] : 120;
+
+  // label visibile solo prima che il primo testo sia centrato
+  const showLabel = scrollOffset < firstTarget - 10;
+
+  // la freccia resta finché puoi ancora scendere (prima dell'espansione)
+  if (scrollOffset >= maxScroll - 2) return;
+
+  // fade label mentre ti avvicini al primo target
+  const labelAlpha = showLabel
+    ? map(scrollOffset, 0, max(1, firstTarget - 10), 255, 0, true)
+    : 0;
+
+  // freccia sempre visibile (fade leggero solo a fine pagina)
+  const fadeStart = maxScroll - 140;
+  const arrowAlpha = scrollOffset > fadeStart
+    ? map(scrollOffset, fadeStart, maxScroll, 255, 0, true)
+    : 255;
+
+  push();
+
+  // LABEL
+  if (showLabel) {
+    noStroke();
+    fill(200, labelAlpha);
+    textFont(myFont2);
+    textSize(12);
+    textAlign(CENTER, BOTTOM);
+    text("SCROLL DOWN FOR MORE", cx, labelY);
+  }
+
+  // UNA SOLA FRECCIA centrata sotto la label
+  stroke(200, arrowAlpha);
+  strokeWeight(2);
+  noFill();
+  line(cx - halfW, cy - h, cx, cy);
+  line(cx + halfW, cy - h, cx, cy);
+
+  pop();
 }
+
 
 
 
