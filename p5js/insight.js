@@ -37,9 +37,9 @@ let insightSketch = function (p) {
 
     "moratoria58": {
       texts: [
-        "The 1958 nuclear test moratorium was a unilateral suspension of nuclear weapons testing announced by the Soviet Union on March 31, 1958, and followed by the United States and United Kingdom.",
-        "This moratorium lasted from November 1958 to September 1961, representing the first significant pause in nuclear testing since the beginning of the atomic age.",
-        "The moratorium broke down when the Soviet Union resumed testing in 1961, citing the need to respond to increased international tensions and the Berlin Crisis."
+        "The 1958 moratorium on nuclear testing was a direct response to the growing tensions of the Cold War and increasing fears of nuclear proliferation. The accumulation of atomic weapons by the superpowers and the environmental and strategic effects of testing, especially atmospheric testing, fueled the urgency for international control.",
+        "In November 1958, the United Kingdom, the United States, and the Soviet Union initiated a voluntary suspension of nuclear testing, which lasted until September 1961. This period marked the first concrete attempt to regulate the arms race through voluntary moratoriums.",
+        "In 1959, diplomatic efforts continued in parallel, aiming to turn this pause into a stable system of control through negotiations that would later lead to agreements in the following years. Subsequently, other moratoriums were announced by individual states: for example, Soviet President Gorbachev declared a suspension of tests in July 1985, but since the United States did not adhere to it, both military tests and civilian nuclear explosions resumed in February 1987. "
       ],
       imagePaths: [
         "images/insight_1958_img1.jpg",
@@ -53,9 +53,9 @@ let insightSketch = function (p) {
 
     "trattato63": {
       texts: [
-        "Partial Test Ban Treaty – PTBT (1963): This was the first international agreement to effectively limit nuclear testing.",
-        "It entered into force in 1963 and prohibited nuclear explosions in the atmosphere, underwater, and in outer space, while still allowing underground testing—a compromise that enabled the US, USSR, and UK to continue their programs without formally violating the treaty.",
-        "The initial goal was to reduce global radioactive fallout; implicitly, it was not intended to slow down the arms race. Many states never ratified it, and in the decades that followed, testing simply shifted underground, becoming the dominant mode until the late 1990s."
+        "Since 1945, more than 2,000 nuclear explosions have been conducted, mainly for the purpose of testing nuclear weapons and studying their effects. Before 1963, many of these tests took place in the atmosphere or underwater, causing widespread radioactive contamination with serious environmental and health consequences on a global scale.",
+        "Signed in 1963 by the United States, the Soviet Union, and the United Kingdom, the Partial Test Ban Treaty (PTBT) prohibited nuclear tests in the atmosphere, outer space, and underwater, while still allowing underground testing. As a result of the treaty, none of these three countries has carried out atmospheric nuclear tests since 1963.",
+        "Other nuclear-armed states gradually followed suit: France restricted its testing to underground explosions starting in 1974, and China did so from 1980 onward.Although the treaty did not put an end to all nuclear testing, it marked a crucial step in arms control. It significantly reduced global radioactive pollution and helped pave the way for later disarmament agreements."
       ],
       imagePaths: [
         "images/1963.png",
@@ -88,9 +88,9 @@ let insightSketch = function (p) {
 
     "tsarbomba": {
       texts: [
-        "The RDS-200, known as Tsar Bomba, was the most powerful nuclear weapon ever detonated, with a yield of 50 megatons of TNT, developed by the Soviet Union and tested on October 30, 1961.",
-        "The bomb was originally designed for a 100-megaton yield, but was scaled down to reduce radioactive fallout. Even at half its potential yield, it was 3,800 times more powerful than the Hiroshima bomb.",
-        "The fireball was about 8 kilometers (5.0 mi) in diameter and the mushroom cloud reached a height of 67 km (42 mi). The heat from the explosion could have caused third-degree burns 100 km (62 mi) away."
+        "RDS-220, also known as Tsar Bomba and code-named Vanya, was the most powerful thermonuclear weapon ever detonated and the largest nuclear explosion in human history.",
+        "Developed and tested by the Soviet Union on October 30, 1961, the device was exploded over Novaya Zemlya in the Russian Arctic during the Cold War for military and research purposes. Although originally designed to yield 100 megatons, it was deliberately scaled down to about 50 megatons (50,000 kilotons) of TNT to reduce radioactive fallout, still making it approximately 3,800 times more powerful than the Hiroshima bomb.",
+        "Dropped from a bomber aircraft and detonated at high altitude to minimize ground contamination while maximizing the shockwave, the explosion produced a fireball about 8 kilometers (5 miles) in diameter and a mushroom cloud rising to 67 kilometers (42 miles). The heat was intense enough to cause third-degree burns up to 100 kilometers (62 miles) away, and the blast was detected across vast distances worldwide, remaining an enduring symbol of the nuclear arms race."
       ],
       imagePaths: [
         "images/tsar1.jpg",
@@ -448,14 +448,19 @@ let insightSketch = function (p) {
     rebuildSnapTargets();
     const idx = nearestStepIndex();
 
-    // scorll: Hiroshima goes into gallery
+    // scroll: Hiroshima goes into gallery
     if (dir > 0 && idx >= snapTargets.length - 1) {
       if (currentTopic === "hiroshima") {
-        freeScrollMode = true;
-        showScrollLabel = false;
+        // Enter gallery and move on the first click
+        if (!freeScrollMode) {
+          freeScrollMode = true;
+          showScrollLabel = false;
+        }
+        nudgeFreeScroll(+1); 
       }
       return;
     }
+
 
     if (dir < 0) {
       freeScrollMode = false;
@@ -465,6 +470,36 @@ let insightSketch = function (p) {
     snapToStep(idx + (dir > 0 ? 1 : -1));
   }
 
+
+  function nudgeFreeScroll(dir) {
+    // At the moment only Hiroshima enters a gallery (freeScrollMode)
+    if (currentTopic !== "hiroshima") return;
+
+    rebuildSnapTargets();
+
+    const bottomMargin = 120;
+    const baseThumbY = calculateThumbY(0);
+
+    // If calculateThumbY() is disabled, don't try to scroll gallery
+    if (baseThumbY <= -999) return;
+
+    const maxScrollY = baseThumbY - (p.height - bottomMargin - thumbSize);
+    const minScrollY = snapTargets[snapTargets.length - 1];
+    const upper = Math.max(minScrollY, maxScrollY);
+
+    const STEP = Math.max(220, p.height * 0.75); // one “click/press” worth of scroll
+    targetScrollY = p.constrain(targetScrollY + dir * STEP, minScrollY, upper);
+
+    // If you reach the top of the gallery going up, exit free scroll
+    const eps = 0.8;
+    if (dir < 0 && targetScrollY <= minScrollY + eps) {
+      targetScrollY = minScrollY;
+      freeScrollMode = false;
+      isSnapping = false;
+    }
+  }
+
+
   function drawScrollHintIfNeeded(hasLongSections) {
     if (!hasLongSections) return false;
     if (showPreview) return false;
@@ -472,7 +507,25 @@ let insightSketch = function (p) {
     rebuildSnapTargets();
     const idx = nearestStepIndex();
     const isLast = idx >= snapTargets.length - 1;
-    if (isLast) return false;
+    if (!freeScrollMode) {
+      const allowLastToEnterGallery = (currentTopic === "hiroshima" && isLast);
+      if (isLast && !allowLastToEnterGallery) return false;
+    } else {
+      // freeScrollMode: show arrow until we reach the bottom of the gallery
+      if (currentTopic !== "hiroshima") return false;
+
+      const bottomMargin = 120;
+      const baseThumbY = calculateThumbY(0);
+      if (baseThumbY <= -999) return false;
+
+      const maxScrollY = baseThumbY - (p.height - bottomMargin - thumbSize);
+      const minScrollY = snapTargets[snapTargets.length - 1];
+      const upper = Math.max(minScrollY, maxScrollY);
+
+      const eps = 0.8;
+      const atBottom = targetScrollY >= upper - eps;
+      if (atBottom) return false;
+    }
 
     const cx = p.width / 2;
     const baseCy = p.height - 34;
@@ -625,6 +678,31 @@ let insightSketch = function (p) {
       viewLittleBoyBtnBox = null;
       return;
     }
+
+    
+    rebuildSnapTargets();
+
+    const bottomMargin = 120;
+    const baseThumbY = calculateThumbY(0);
+    if (baseThumbY <= -999) {
+      viewFatManBtnBox = null;
+      viewLittleBoyBtnBox = null;
+      return;
+    }
+
+    const maxScrollY = baseThumbY - (p.height - bottomMargin - thumbSize);
+    const minScrollY = snapTargets[snapTargets.length - 1];
+    const upper = Math.max(minScrollY, maxScrollY);
+
+    const eps = 0.8;
+    const atBottom = targetScrollY >= upper - eps;
+
+    if (!atBottom) {
+      viewFatManBtnBox = null;
+      viewLittleBoyBtnBox = null;
+      return;
+    }
+
 
     const btnH = 40;
     const padX = 18;
@@ -958,12 +1036,49 @@ let insightSketch = function (p) {
         p.mouseX > cx - hitW / 2 && p.mouseX < cx + hitW / 2 &&
         p.mouseY > baseCy - hitH / 2 && p.mouseY < baseCy + hitH / 2;
 
-      if (overHint && !isLast) {
-        stepScroll(+1);
-        return;
+            if (overHint) {
+        if (!freeScrollMode) {
+          // Allow the extra click on the last text ONLY for Hiroshima
+          if (!isLast || currentTopic === "hiroshima") {
+            stepScroll(+1);
+            return;
+          }
+        } else {
+          // In the gallery, clicking the arrow nudges you down
+          nudgeFreeScroll(+1);
+          return;
+        }
       }
+
     }
   };
+
+   
+  p.keyPressed = function () {
+    if (showPreview) return false;
+
+    const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
+    const hasLongSections = !!config.hasThreeSections || !!config.hasFourSections;
+    if (!hasLongSections) return false;
+    if (isSnapping) return false;
+
+    // DOWN -> next step / continue in gallery
+    if (p.keyCode === p.DOWN_ARROW) {
+      if (!freeScrollMode) stepScroll(+1);
+      else nudgeFreeScroll(+1);
+      return false; // prevent browser/page scroll
+    }
+
+    // UP -> previous step / go back inside gallery
+    if (p.keyCode === p.UP_ARROW) {
+      if (!freeScrollMode) stepScroll(-1);
+      else nudgeFreeScroll(-1);
+      return false; // prevent browser/page scroll
+    }
+
+    return false;
+  };
+
 
   let wheelAccum = 0;
 
