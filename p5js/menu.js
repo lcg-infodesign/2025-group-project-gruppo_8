@@ -16,7 +16,6 @@ let menuSketch = function (p) {
 
   let font;
 
-  // ---- CONFIGURAZIONE MENU ----
   const menuStartY = 110;
   const menuStepY = 28;
   const menuTextH = 18;
@@ -53,7 +52,7 @@ let menuSketch = function (p) {
     "about us": "about.html?topic=us",
   };
 
-  // submenu open state（点击三角才展开）
+  // submenu open state
   let insightSubOpen = false;
   let aboutSubOpen = false;
 
@@ -62,7 +61,6 @@ let menuSketch = function (p) {
 
   const ON_INSIGHT_PAGE = window.location.pathname.includes("insight.html");
 
-  // ✅ 存储每帧可点击区域（draw & click 统一）
   let hitBoxes = [];
 
   p.preload = function () {
@@ -85,7 +83,7 @@ let menuSketch = function (p) {
     p.textFont(font);
     p.textSize(14);
 
-    // --- DOM arrow buttons (clickable) ---
+    //arrow buttons
     insightArrowBtn = p.createDiv("");
     insightArrowBtn.style("position", "fixed");
     insightArrowBtn.style("width", "22px");
@@ -118,17 +116,14 @@ let menuSketch = function (p) {
   };
 
   p.draw = function () {
-    // ① 先画一次：生成 hitBoxes（用上一帧 menuX）
+
     p.clear();
     drawSideMenu();
 
-    // ② 用 hitBoxes 做正确的 insideSubMenu 判断，避免误关菜单
     checkMenuLogic();
 
-    // ③ 更新 menuX
     menuX = p.lerp(menuX, menuTargetX, 0.2);
 
-    // ④ 再画一次：最终画面（用更新后的 menuX）
     p.clear();
     drawSideMenu();
     drawButton();
@@ -159,7 +154,6 @@ let menuSketch = function (p) {
       p.mouseY >= 0 &&
       p.mouseY <= p.height;
 
-    // ✅ 新逻辑：submenu 是否在鼠标下 = 看 hitBoxes（不再用旧的 subX/subY）
     let insideSubMenu = hitBoxes.some(b => {
       if (b.kind === "main") return false;
       return (
@@ -225,13 +219,12 @@ let menuSketch = function (p) {
 
     let currentY = menuStartY;
 
-    // 默认隐藏（只有 hover 父项才显示）
     insightArrowBtn.style("display", "none");
     aboutArrowBtn.style("display", "none");
 
     const x = menuX + 38;
-    const indent = 18;    // ✅ submenu 在同一列，稍微缩进
-    const arrowZone = 40; // ✅ 给三角形留 hover 区域
+    const indent = 18; 
+    const arrowZone = 40; 
 
     for (let i = 0; i < items.length; i++) {
       let label = items[i];
@@ -240,7 +233,6 @@ let menuSketch = function (p) {
       let y = currentY;
       let w = p.textWidth(displayLabel);
 
-      // ✅ 父项 hover 包含三角区域
       let hoveringText =
         p.mouseX >= x &&
         p.mouseX <= x + w + arrowZone &&
@@ -252,7 +244,6 @@ let menuSketch = function (p) {
 
       if (hoveringText) hoverAnyItem = true;
 
-      // ✅ 父项可点击区域（点击文字跳转）
       hitBoxes.push({
         kind: "main",
         label,
@@ -263,7 +254,6 @@ let menuSketch = function (p) {
         href: menuLinks[label],
       });
 
-      // ✅ hover 父项时：画灰色实心▼ + 显示 DOM 点击层
       if (label === "insight" && hoveringText) {
         const triX = x + w + 14;
         const triY = y - 4;
@@ -298,10 +288,8 @@ let menuSketch = function (p) {
         hoverAnyItem = true;
       }
 
-      // ✅ 到下一行（submenu 从这里开始往下挤）
       currentY += menuStepY;
 
-      // ✅ Insight submenu：同一列下方展开，并把后面项挤下去
       if (label === "insight" && insightSubOpen && !ON_INSIGHT_PAGE) {
         for (let k = 0; k < insightItems.length; k++) {
           let subLabel = insightItems[k];
@@ -332,7 +320,6 @@ let menuSketch = function (p) {
         }
       }
 
-      // ✅ About submenu：同一列下方展开，并把后面项挤下去
       if (label === "about" && aboutSubOpen) {
         for (let k = 0; k < aboutItems.length; k++) {
           let subLabel = aboutItems[k];
@@ -379,7 +366,7 @@ let menuSketch = function (p) {
 
       if (!hovering) continue;
 
-      // overview 特判保留你原逻辑
+      // overview
       if (b.kind === "main" && b.label === "overview") {
         let onIndex =
           window.location.pathname.includes("index.html") ||
@@ -395,7 +382,6 @@ let menuSketch = function (p) {
         return;
       }
 
-      // 其他一律跳转
       window.location.href = b.href;
       return;
     }

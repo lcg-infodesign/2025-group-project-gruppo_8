@@ -78,7 +78,7 @@ let insightSketch = function (p) {
         "images/1996.png",
         "images/96.jpeg",
         "images/961.jpeg",
-        "images/963.jpeg" 
+        "images/963.jpeg"
       ],
       thumbnails: [],
       bottomTexts: [],
@@ -103,7 +103,7 @@ let insightSketch = function (p) {
     }
   };
 
-  
+
   let scrollY = 0;
   let targetScrollY = 0;
 
@@ -448,7 +448,7 @@ let insightSketch = function (p) {
     rebuildSnapTargets();
     const idx = nearestStepIndex();
 
-    // 到最后一个 section 往下：只有 Hiroshima 才进入 gallery 自由滚动
+    // scorll: Hiroshima goes into gallery
     if (dir > 0 && idx >= snapTargets.length - 1) {
       if (currentTopic === "hiroshima") {
         freeScrollMode = true;
@@ -965,58 +965,57 @@ let insightSketch = function (p) {
     }
   };
 
-let wheelAccum = 0;
-let lastWheel = 0;
+  let wheelAccum = 0;
 
-p.mouseWheel = function(event) {
-  if (showPreview) return false;
+  p.mouseWheel = function (event) {
+    if (showPreview) return false;
 
-  const config = contentConfig[currentTopic];
-  const hasLongSections = !!config.hasThreeSections || !!config.hasFourSections;
-  if (!hasLongSections) return false;
-  if (Math.abs(event.delta) < 6) return false;
-  if (isSnapping) return false;
+    const config = contentConfig[currentTopic];
+    const hasLongSections = !!config.hasThreeSections || !!config.hasFourSections;
+    if (!hasLongSections) return false;
+    if (Math.abs(event.delta) < 6) return false;
+    if (isSnapping) return false;
 
-  rebuildSnapTargets();
+    rebuildSnapTargets();
 
-  if (!freeScrollMode) {
-    wheelAccum += event.delta;
+    if (!freeScrollMode) {
+      wheelAccum += event.delta;
 
-    if (wheelAccum > 60) {
-      wheelAccum = 0;
-      stepScroll(+1);
-    } else if (wheelAccum < -60) {
-      wheelAccum = 0;
-      stepScroll(-1);
+      if (wheelAccum > 60) {
+        wheelAccum = 0;
+        stepScroll(+1);
+      } else if (wheelAccum < -60) {
+        wheelAccum = 0;
+        stepScroll(-1);
+      }
     }
-  }
-  else {
-    targetScrollY += event.delta * 0.8;
+    else {
+      targetScrollY += event.delta * 0.8;
 
-    const bottomMargin = 120;
-    const baseThumbY = calculateThumbY(0);
+      const bottomMargin = 120;
+      const baseThumbY = calculateThumbY(0);
 
-    const maxScrollY =
-      baseThumbY - (p.height - bottomMargin - thumbSize);
+      const maxScrollY =
+        baseThumbY - (p.height - bottomMargin - thumbSize);
 
-    const minScrollY = snapTargets[snapTargets.length - 1];
+      const minScrollY = snapTargets[snapTargets.length - 1];
 
-    targetScrollY = p.constrain(
-      targetScrollY,
-      minScrollY,
-      Math.max(minScrollY, maxScrollY)
-    );
+      targetScrollY = p.constrain(
+        targetScrollY,
+        minScrollY,
+        Math.max(minScrollY, maxScrollY)
+      );
 
-    const eps = 0.8;
-    if (event.delta < 0 && targetScrollY <= minScrollY + eps) {
-      targetScrollY = minScrollY;
-      freeScrollMode = false;
-      isSnapping = false;
+      const eps = 0.8;
+      if (event.delta < 0 && targetScrollY <= minScrollY + eps) {
+        targetScrollY = minScrollY;
+        freeScrollMode = false;
+        isSnapping = false;
+      }
     }
-  }
 
-  return false;
-};
+    return false;
+  };
 
 };
 
