@@ -520,7 +520,7 @@ function drawYearNavigation(currentYear) {
   const alphaBase = 200;
   const pulse = sin(frameCount * 0.08) * 55;
   const activeAlpha = constrain(alphaBase + pulse, 80, 255);
-  const disabledAlpha = 0; // feccia trasparente per frecce disabilitate
+  const disabledAlpha = 0; 
 
   const halfW = 12;
   const h = 10;
@@ -529,9 +529,6 @@ function drawYearNavigation(currentYear) {
   strokeWeight(4);
   noFill();
 
-  // ====================
-  // FRECCIA SINISTRA
-  // ====================
   let isFirstYear = (currentYearIndex === 0);
   let hoverLeft = !isFirstYear &&
     mouseX > width / 2 - 150 && mouseX < width / 2 - 90 &&
@@ -544,9 +541,6 @@ function drawYearNavigation(currentYear) {
   line(cxL + halfW, cyL - h, cxL, cyL);
   line(cxL + halfW, cyL + h, cxL, cyL);
 
-  // ====================
-  // FRECCIA DESTRA 
-  // ====================
   let isLastYear = (currentYearIndex === years.length - 1);
   let hoverRight = !isLastYear &&
     mouseX > width / 2 + 90 && mouseX < width / 2 + 150 &&
@@ -583,7 +577,6 @@ function drawTestDots(yearData) {
     let tests = yearData[country] || [];
     let x = width / 2 + (idx - (countries.length - 1) / 2) * fixedSpacing;
 
-    // --- Dynamic hover area check ---
     textFont(myFont2);
     textSize(14);
     let nameW = textWidth(country);
@@ -597,7 +590,7 @@ let isNameHovered = (
 
 
 
-    // --- (drawGroup) ---
+    // underground type
     const undergroundTypes = ["UG", "SHAFT", "TUNNEL", "GALLERY", "MINE", "SHAFT/GR", "SHAFT/LG"];
     let sottTests = tests.filter(t => undergroundTypes.includes(t.type));
     let atmTests = tests.filter(t => !undergroundTypes.includes(t.type));
@@ -605,9 +598,9 @@ let isNameHovered = (
     sottTests.sort((a, b) => getColorLevel(a.yield) - getColorLevel(b.yield));
 
    function drawGroup(testArray, isAtmosph) {
-  let numCols = Math.max(1, Math.min(cols, testArray.length));
-  let colWidth = (numCols - 1) * (cellSize + gap);
-  testArray.forEach((test, i) => {
+    let numCols = Math.max(1, Math.min(cols, testArray.length));
+    let colWidth = (numCols - 1) * (cellSize + gap);
+    testArray.forEach((test, i) => {
     let col = i % cols;
     let row = Math.floor(i / cols);
     let cx = x - colWidth / 2 + col * (cellSize + gap);
@@ -627,7 +620,6 @@ let isNameHovered = (
     push();
     fill(getYieldColor(test.yield));
 
-    // === HIGHLIGHT RDS-200 (1961) ===
 const currentYear = years[currentYearIndex];
 const isRDS200 =
   currentYear === 1961 &&
@@ -636,15 +628,15 @@ const isRDS200 =
 
 if (isRDS200) {
   push();
-  noFill();// rettangolo ciano attorno alla bomba
+  noFill();
   stroke(0, 255, 255);
   strokeWeight(2);
   rectMode(CENTER);
   circle(cx, cy, cellSize + 9);
-  stroke(0, 255, 255);// linea verso sinistra
+  stroke(0, 255, 255);
   strokeWeight(2);
   line(cx - (cellSize -4) / 2, cy-10, cx - 300, cy -10 );
-  noStroke();// testo sopra la linea
+  noStroke();
   textFont(myFont3);
   textSize(13);
   fill(0, 255, 255);
@@ -674,7 +666,6 @@ if (isRDS200) {
     drawGroup(atmTests, true);
     drawGroup(sottTests, false);
 
-    //  country name and total
   push();
   translate(x, yAxis); 
   textAlign(CENTER, CENTER);
@@ -745,7 +736,7 @@ function drawBottomInfo(yearData) {
 
 function drawLegend() {
 
-  let offsetX = margin - 8; // usa lo stesso margin del grafico
+  let offsetX = margin - 8;
   let offsetY = height - margin - 80;
 
   textFont(myFont2);
@@ -776,7 +767,6 @@ function drawLegend() {
     let boxW = 180;
     let boxH = padding * 4 + lineHeight * 3.5;
 
-    // accanto alla legenda: leggermente sopra/sinistra va bene
     let boxX = offsetX;
     let boxY = 138;
 
@@ -811,41 +801,26 @@ function drawLegend() {
   });
 }
 
-
-// === mouse wheel per cambiare anno ===
 let lastScrollTime = 0;
 let scrollVelocity = 0;
 
-// 在函数外部定义一个变量，用来存储滚动的累积量
 let scrollAccumulator = 0; 
-// 设定灵敏度阈值：数字越小越灵敏（滚一点就动），数字越大越迟钝
 const SCROLL_THRESHOLD = 80; 
 
 function mouseWheel(event) {
 
-
-  // 区域限制逻辑保持不变
   if (mouseY < height - 100) return;
 
   const oldIndex = currentYearIndex;
-
-  // 获取当前滚动的距离（取横向或纵向中较大的那个）
   const currentDelta = abs(event.deltaX) > abs(event.deltaY) ? event.deltaX : event.deltaY;
-
-  // 1. 将本次滚动的距离加入累加器
   scrollAccumulator += currentDelta;
 
-  // 2. 只要累加器超过了阈值，就进行年份切换（使用 while 循环支持一次滚多页）
   while (abs(scrollAccumulator) >= SCROLL_THRESHOLD) {
     if (scrollAccumulator > 0) {
-      // 向下滚 / 向右滚 -> 年份增加
       if (currentYearIndex < years.length - 1) currentYearIndex++; 
-        // 消费掉阈值
         scrollAccumulator -= SCROLL_THRESHOLD;
       } else {
-      // 向上滚 / 向左滚 -> 年份减少
       if (currentYearIndex > 0) currentYearIndex--;
-      // 消费掉阈值
       scrollAccumulator += SCROLL_THRESHOLD;
     }
     
@@ -861,12 +836,10 @@ function mouseWheel(event) {
     setYearInURL(years[currentYearIndex]);
   }
 
-  // 阻止默认网页滚动
   event.preventDefault();
   return false;
 }
 
-// blocca lo scroll per un certo tempo
 function lockScroll(time) {
   isScrollingLocked = true;
   setTimeout(() => {
