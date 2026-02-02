@@ -1041,25 +1041,31 @@ function drawFirstBombButtons(hasThreeSections) {
     // =========================
     // GALLERY FREE SCROLL MODE
     // =========================
-    else {
-      targetScrollY += event.delta * 0.8;
+else {
+  targetScrollY += event.delta * 0.8;
 
-      const bottomMargin = 120;                 // 你要的底部留白
-      const baseThumbY = calculateThumbY(0);   // thumbs 初始 y（不随滚动变化）
+  const bottomMargin = 120;
+  const baseThumbY = calculateThumbY(0);
 
-      // 让 “thumbs 底部” 停在屏幕底部以上 bottomMargin
-      const maxScrollY =
-        baseThumbY - (p.height - bottomMargin - thumbSize);
+  const maxScrollY =
+    baseThumbY - (p.height - bottomMargin - thumbSize);
 
-      const minScrollY = snapTargets[snapTargets.length - 1];
+  const minScrollY = snapTargets[snapTargets.length - 1];
 
-      // 防止 maxScrollY 小于 minScrollY 导致抖动/反向
-      targetScrollY = p.constrain(
-        targetScrollY,
-        minScrollY,
-        Math.max(minScrollY, maxScrollY)
-      );
-    }
+  targetScrollY = p.constrain(
+    targetScrollY,
+    minScrollY,
+    Math.max(minScrollY, maxScrollY)
+  );
+
+  // ✅关键修复：往上滚到 gallery 顶部时，退出自由滚动，回到 section snap
+  const eps = 0.8; // 容差，避免浮点抖动
+  if (event.delta < 0 && targetScrollY <= minScrollY + eps) {
+    targetScrollY = minScrollY;
+    freeScrollMode = false;
+    isSnapping = false; // 让下一次 wheel 能正常触发 stepScroll(-1)
+  }
+}
 
 
     return false;
