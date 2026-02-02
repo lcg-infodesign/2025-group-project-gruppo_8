@@ -668,35 +668,7 @@ function isOverDownHint(mx, my) {
   );
 }
 
-function snapTo(val) {
-  snapTarget = constrain(val, 0, maxScroll);
-  snapping = true;
-}
 
-function introNext() {
-  // primo click: porta str1 al centro
-  if (introIndex < 3) {
-    introIndex++;
-    snapTo(introTargets[introIndex]);
-  } else {
-    // oltre str4: avvia espansione (se la vuoi subito dopo l'ultimo step)
-    snapTo(maxScroll);
-    if (!autoExpandStarted) autoExpandStarted = true;
-  }
-}
-
-function introPrev() {
-  if (introIndex > 0) {
-    introIndex--;
-    snapTo(introTargets[introIndex]);
-  } else {
-    // torna all'inizio (prima di str1)
-    introIndex = -1;
-    autoExpandStarted = false;
-    centerCircleSize = 10;
-    snapTo(0);
-  }
-}
 
 
 // --------------------------------------------------DA CAPIRE DOVE POSIZIONARLO!!!!-------------------------------------------
@@ -1928,6 +1900,7 @@ function goBackToIntroBottom() {
 
   // se avevi snapping o stati simili, qui li "spengi"
   snapping = false;
+  
 
   // UI opzionale: gestisci bottoni
   const backBtn = document.getElementById("backToTopBtn");
