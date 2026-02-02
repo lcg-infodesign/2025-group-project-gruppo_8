@@ -42,18 +42,17 @@ This project uses an upstream dataset that is MIT-licensed. Any derived datasets
 
 ### Level 1 — Global overview (1945–1998)
 - Understand the temporal evolution of nuclear tests.
-- Distinguish test typologies (atmospheric vs underground) and their evolution over time.
 - Understand the distribution and variation of explosion yield (power).
 - Interpret the data within historical and political context.
 
 ### Level 2 — Year-by-year analysis
-- Identify number of explosions and involved states in a specific year.
 - Compare states by number of tests and yield.
+- Identify number of explosions and involved states.
+- Distinguish test typologies (atmospheric vs underground) and their evolution over time.
 - Detect anomalies, peaks, and shifts in relation to historical context.
 
 ### Level 3 — Single explosion
 - Access detailed attributes of a single test (name, country, yield, type, purpose).
-- Understand the meaning of “type” and “purpose” in context.
 - Locate the explosion geographically.
 - Evaluate yield by comparison with **Hiroshima** as a reference.
 
