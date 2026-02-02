@@ -73,6 +73,10 @@ function setup() {
     if (index !== -1) currentYearIndex = index;
   }
 
+  saveLastYear(years[currentYearIndex]);
+  setYearInURL(years[currentYearIndex]);
+
+
   const countryParam = urlParams.get("country");
   if (countryParam && countries.includes(countryParam)) {
     selectedCountry = countryParam;
@@ -864,16 +868,14 @@ const SCROLL_THRESHOLD = 80;
 
 function mouseWheel(event) {
 
-  currentYearIndex++;
-saveLastYear(years[currentYearIndex]);
-currentYearIndex--;
-saveLastYear(years[currentYearIndex]);
 
   // 区域限制逻辑保持不变
   if (mouseY < height - 100) return;
 
+  const oldIndex = currentYearIndex;
+
   // 获取当前滚动的距离（取横向或纵向中较大的那个）
-  let currentDelta = abs(event.deltaX) > abs(event.deltaY) ? event.deltaX : event.deltaY;
+  const currentDelta = abs(event.deltaX) > abs(event.deltaY) ? event.deltaX : event.deltaY;
 
   // 1. 将本次滚动的距离加入累加器
   scrollAccumulator += currentDelta;
@@ -882,16 +884,12 @@ saveLastYear(years[currentYearIndex]);
   while (abs(scrollAccumulator) >= SCROLL_THRESHOLD) {
     if (scrollAccumulator > 0) {
       // 向下滚 / 向右滚 -> 年份增加
-      if (currentYearIndex < years.length - 1) {
-        currentYearIndex++;
-      }
-      // 消费掉阈值
-      scrollAccumulator -= SCROLL_THRESHOLD;
-    } else {
+      if (currentYearIndex < years.length - 1) currentYearIndex++; 
+        // 消费掉阈值
+        scrollAccumulator -= SCROLL_THRESHOLD;
+      } else {
       // 向上滚 / 向左滚 -> 年份减少
-      if (currentYearIndex > 0) {
-        currentYearIndex--;
-      }
+      if (currentYearIndex > 0) currentYearIndex--;
       // 消费掉阈值
       scrollAccumulator += SCROLL_THRESHOLD;
     }
@@ -901,6 +899,11 @@ saveLastYear(years[currentYearIndex]);
        scrollAccumulator = 0;
        break; 
     }
+  }
+
+   if (currentYearIndex !== oldIndex) {
+    saveLastYear(years[currentYearIndex]);
+    setYearInURL(years[currentYearIndex]);
   }
 
   // 阻止默认网页滚动
@@ -927,6 +930,7 @@ function mousePressed() {
       if (abs(mouseX - x) < spacing / 2) {
         currentYearIndex = i;
         saveLastYear(years[currentYearIndex]);
+        setYearInURL(years[currentYearIndex]);
 
         return;
       }
@@ -935,8 +939,8 @@ function mousePressed() {
 
   // --- TSAR CTA click ---
   // --- TSAR CTA click ---
-if (tsarCtaBox) {
-  const overTsar =
+  if (tsarCtaBox) {
+    const overTsar =
     mouseX >= tsarCtaBox.x && mouseX <= tsarCtaBox.x + tsarCtaBox.w &&
     mouseY >= tsarCtaBox.y && mouseY <= tsarCtaBox.y + tsarCtaBox.h;
 
@@ -958,7 +962,7 @@ if (tsarCtaBox) {
 
   // index button 1958， 1963， 1996 
   let activeYear = Number(years[currentYearIndex]);
-saveLastYear(years[currentYearIndex]);
+  saveLastYear(years[currentYearIndex]);
 
   if (activeYear === 1958 || activeYear === 1959 || activeYear === 1963 || activeYear === 1996) {
     let btnW = 240;
@@ -984,6 +988,7 @@ saveLastYear(years[currentYearIndex]);
     if (currentYearIndex > 0) {
       currentYearIndex--;
       saveLastYear(years[currentYearIndex]);
+      setYearInURL(years[currentYearIndex]);
 
     }
     return;
@@ -992,6 +997,7 @@ saveLastYear(years[currentYearIndex]);
     if (currentYearIndex < years.length - 1) {
       currentYearIndex++;
       saveLastYear(years[currentYearIndex]);
+      setYearInURL(years[currentYearIndex]);
 
     }
     return;
@@ -1000,6 +1006,7 @@ saveLastYear(years[currentYearIndex]);
     if (dist(mouseX, mouseY, d.cx, d.cy) < d.r) {
       const year = years[currentYearIndex];
       saveLastYear(years[currentYearIndex]);
+      setYearInURL(years[currentYearIndex]);
 
 window.location.href = `single.html?id=${d.id}&from=year&year=${year}`;
 
@@ -1024,7 +1031,10 @@ window.location.href = `single.html?id=${d.id}&from=year&year=${year}`;
       mouseY < yAxis + areaAltezza
     ) {
 
-      window.location.href = `index.html?country=${country}#page2`;
+      saveLastYear(years[currentYearIndex]); // salva l'anno corrente prima di lasciare la pagina
+      setYearInURL(years[currentYearIndex]); 
+      window.location.href = `index.html?country=${country}&from=year#page2`;
+
       return;
     }
   });
@@ -1036,12 +1046,14 @@ function keyPressed() {
     if (currentYearIndex > 0) {
       currentYearIndex--;
       saveLastYear(years[currentYearIndex]);
+      setYearInURL(years[currentYearIndex]);
 
     }
   } else if (keyCode === RIGHT_ARROW) {
     if (currentYearIndex < years.length - 1) {
       currentYearIndex++;
       saveLastYear(years[currentYearIndex]);
+      setYearInURL(years[currentYearIndex]);
 
     }
   }
@@ -1266,7 +1278,10 @@ window.addEventListener("load", () => {
 });
 
 function onCountryClick(countryName) {
-  window.location.href = `index.html?country=${countryName}#page2`;
+  saveLastYear(years[currentYearIndex]);
+  setYearInURL(years[currentYearIndex]); // opzionale
+  indow.location.href = `index.html?country=${countryName}&from=year#page2`;
+
 }
 
 function drawAxes() {
@@ -1384,5 +1399,12 @@ function hoverOnUnderground(offsetX, offsetY) {
 
 function saveLastYear(year) {
   sessionStorage.setItem("lastYear", year);
+}
+
+function setYearInURL(year) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("year", year);
+  // preserva eventuale hash (#...) e altri parametri
+  history.replaceState(null, "", url.toString());
 }
 

@@ -2093,7 +2093,22 @@ function getDatasetCountryName(label) {
 }
 function checkExternalCountryFilter() {
   let params = new URLSearchParams(window.location.search);
-  let countryParam = params.get('country');
+  const countryParam = params.get("country");
+  const fromParam = params.get("from");
+
+  // --- back button (da "year") ---
+  const backBtn = document.getElementById("backFromYearBtn");
+  if (backBtn) {
+    const shouldShow = !!countryParam && fromParam === "year";
+    backBtn.style.display = shouldShow ? "block" : "none";
+
+    if (shouldShow) {
+      backBtn.onclick = () => {
+        const y = sessionStorage.getItem("lastYear");
+        window.location.href = y ? `year.html?year=${y}` : "year.html";
+      };
+    }
+  }
 
   if (countryParam) {
     // 将 URL 中的国家名赋值给你的全局变量
