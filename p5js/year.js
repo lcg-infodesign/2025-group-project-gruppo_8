@@ -702,7 +702,7 @@ if (isRDS200) {
 
     if (isHovered) {
       const pulse = (sin(frameCount * 0.1) + 1) / 2;
-      size = cellSize * (1.3 + pulse * 0.65);
+      size = cellSize * (1.2 + pulse * 0.5);
       stroke(0, 255, 255);
       strokeWeight(1.4);
     } else {
@@ -944,7 +944,7 @@ function mousePressed() {
     mouseX >= tsarCtaBox.x && mouseX <= tsarCtaBox.x + tsarCtaBox.w &&
     mouseY >= tsarCtaBox.y && mouseY <= tsarCtaBox.y + tsarCtaBox.h;
 
-  if (overTsar) {
+  /*if (overTsar) {
     // 1. 寻找 1961 年在数据中的位置
     const targetYear = 1961;
     const targetIndex = years.indexOf(targetYear);
@@ -956,7 +956,30 @@ function mousePressed() {
 
     } 
     return; // 结束处理，防止触发下方的其他点击逻辑
+  }*/
+
+    if (overTsar) {
+  const currentYear = Number(years[currentYearIndex]);
+
+  // se sei già nel 1961 → vai all'insight Tsar Bomba
+  if (currentYear === 1961) {
+    saveLastYear(years[currentYearIndex]);
+    setYearInURL(years[currentYearIndex]);
+    window.location.href = "insight.html?topic=tsarbomba";
+    return;
   }
+
+  // altrimenti → jump interno al 1961
+  const targetYear = 1961;
+  const targetIndex = years.indexOf(targetYear);
+  if (targetIndex !== -1) {
+    currentYearIndex = targetIndex;
+    saveLastYear(years[currentYearIndex]);
+    setYearInURL(years[currentYearIndex]);
+  }
+  return;
+}
+
 }
 
 
@@ -1085,7 +1108,12 @@ function keyPressed() {
 
 function drawColumnCTA() { 
   const msg = "Click a bomb or a country to see more";
-  const tsarLabel = "Go to the Largest bomb";
+
+  const currentYear = Number(years[currentYearIndex]);
+  const tsarLabel = (currentYear === 1961)
+    ? "VIEW HISTORIC INSIGHT"
+    : "Go to the Largest bomb";
+
   
   const rightX = width - margin;
   const bottomY = height - margin; 
@@ -1143,6 +1171,9 @@ function drawColumnCTA() {
   pop();
 
   pop();
+
+  return isHoverTsar;
+
 }
 
 

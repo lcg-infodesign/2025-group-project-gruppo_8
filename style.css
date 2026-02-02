@@ -5,6 +5,12 @@ html, body {
   color: #ffffff;             /* opzionale, così il testo di default è bianco */
 }
 
+
+body.menu-pointer, 
+body.menu-pointer canvas {
+  cursor: pointer !important;
+}
+
 @font-face{
   font-family: "LexendZetta";
   src: url("fonts/LexendZetta-Regular.ttf") format("truetype");
@@ -512,3 +518,6 @@ body.photo-open .back-btn{
 #about-us-canvas {
   margin-bottom: 160px;
 }
+
+
+
