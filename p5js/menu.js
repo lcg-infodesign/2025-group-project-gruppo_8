@@ -9,7 +9,6 @@ let menuSketch = function (p) {
   let hoverIcon = false;
   let hoverAnyItem = false;
 
-
   let menuOpen = false;
   let menuX;
   let menuTargetX;
@@ -37,7 +36,7 @@ let menuSketch = function (p) {
     "Moratorium 1958",
     "Test Ban Treaty 1963",
     "Test Ban Treaty 1996",
-    "Tsar Bomba - 50 MT"
+    "RDS-200"
   ];
 
   const insightLinks = {
@@ -45,12 +44,26 @@ let menuSketch = function (p) {
     "Moratorium 1958": "insight.html?topic=moratoria58",
     "Test Ban Treaty 1963": "insight.html?topic=trattato63",
     "Test Ban Treaty 1996": "insight.html?topic=trattato96",
-    "Tsar Bomba - 50 MT": "insight.html?topic=tsarbomba"
+    "RDS-200": "insight.html?topic=tsarbomba"
   };
 
-  let insightY = null;
+  const aboutItems = ["about the dataset", "about us"];
+  const aboutLinks = {
+    "about the dataset": "about.html?topic=dataset",
+    "about us": "about.html?topic=us",
+  };
+
+  // submenu open state（点击三角才展开）
+  let insightSubOpen = false;
+  let aboutSubOpen = false;
+
+  // DOM clickable triangles
+  let insightArrowBtn, aboutArrowBtn;
 
   const ON_INSIGHT_PAGE = window.location.pathname.includes("insight.html");
+
+  // ✅ 存储每帧可点击区域（draw & click 统一）
+  let hitBoxes = [];
 
   p.preload = function () {
     font = p.loadFont("fonts/LibreFranklin-Regular.otf");
@@ -71,6 +84,33 @@ let menuSketch = function (p) {
 
     p.textFont(font);
     p.textSize(14);
+
+    // --- DOM arrow buttons (clickable) ---
+    insightArrowBtn = p.createDiv("");
+    insightArrowBtn.style("position", "fixed");
+    insightArrowBtn.style("width", "22px");
+    insightArrowBtn.style("height", "22px");
+    insightArrowBtn.style("display", "none");
+    insightArrowBtn.style("z-index", "10000");
+    insightArrowBtn.style("cursor", "pointer");
+    insightArrowBtn.style("background", "transparent");
+    insightArrowBtn.mousePressed(() => {
+      insightSubOpen = !insightSubOpen;
+      if (insightSubOpen) aboutSubOpen = false;
+    });
+
+    aboutArrowBtn = p.createDiv("");
+    aboutArrowBtn.style("position", "fixed");
+    aboutArrowBtn.style("width", "22px");
+    aboutArrowBtn.style("height", "22px");
+    aboutArrowBtn.style("display", "none");
+    aboutArrowBtn.style("z-index", "10000");
+    aboutArrowBtn.style("cursor", "pointer");
+    aboutArrowBtn.style("background", "transparent");
+    aboutArrowBtn.mousePressed(() => {
+      aboutSubOpen = !aboutSubOpen;
+      if (aboutSubOpen) insightSubOpen = false;
+    });
   };
 
   p.windowResized = function () {
@@ -78,35 +118,23 @@ let menuSketch = function (p) {
   };
 
   p.draw = function () {
+    // ① 先画一次：生成 hitBoxes（用上一帧 menuX）
     p.clear();
+    drawSideMenu();
 
+    // ② 用 hitBoxes 做正确的 insideSubMenu 判断，避免误关菜单
     checkMenuLogic();
+
+    // ③ 更新 menuX
     menuX = p.lerp(menuX, menuTargetX, 0.2);
 
+    // ④ 再画一次：最终画面（用更新后的 menuX）
+    p.clear();
     drawSideMenu();
     drawButton();
 
     document.body.classList.toggle("menu-pointer", hoverIcon || hoverAnyItem);
-
-
   };
-
-  function applyGlobalCursor(isPointer) {
-    const value = isPointer ? "pointer" : "";
-
-    // 1) html/body (utile per testi/DOM)
-    document.documentElement.style.cursor = value;
-    document.body.style.cursor = value;
-
-    // 2) IMPORTANTISSIMO: forza anche sui canvas, altrimenti il canvas della pagina vince
-    const canvases = document.querySelectorAll("canvas");
-    canvases.forEach((c) => {
-      // quando serve pointer, sovrascrivi; quando non serve, lascia che gli altri sketch decidano
-      if (isPointer) c.style.cursor = "pointer";
-      else c.style.cursor = "";
-    });
-  }
-
 
   function checkMenuLogic() {
     let distToButton = p.dist(
@@ -131,16 +159,16 @@ let menuSketch = function (p) {
       p.mouseY >= 0 &&
       p.mouseY <= p.height;
 
-    let insideSubMenu = false;
-    if (!ON_INSIGHT_PAGE && insightY !== null) {
-      let subX = menuX + 38 + 55;
-      let subY = insightY;
-      insideSubMenu =
-        p.mouseX >= subX &&
-        p.mouseX <= subX + 250 &&
-        p.mouseY >= subY - menuTextH &&
-        p.mouseY <= p.height;
-    }
+    // ✅ 新逻辑：submenu 是否在鼠标下 = 看 hitBoxes（不再用旧的 subX/subY）
+    let insideSubMenu = hitBoxes.some(b => {
+      if (b.kind === "main") return false;
+      return (
+        p.mouseX >= b.x &&
+        p.mouseX <= b.x + b.w &&
+        p.mouseY >= b.y - b.h &&
+        p.mouseY <= b.y
+      );
+    });
 
     if (menuOpen && !insideMenu && !insideSubMenu && distToButton >= btnSize / 2) {
       menuOpen = false;
@@ -184,68 +212,154 @@ let menuSketch = function (p) {
 
   function drawSideMenu() {
     hoverAnyItem = false;
+    hitBoxes = [];
 
-    if (!menuOpen && menuX <= -menuW + 1) return;
+    if (!menuOpen && menuX <= -menuW + 1) {
+      if (insightArrowBtn) insightArrowBtn.style("display", "none");
+      if (aboutArrowBtn) aboutArrowBtn.style("display", "none");
+      return;
+    }
 
     p.textFont(font);
     p.textSize(14);
 
     let currentY = menuStartY;
-    insightY = null;
+
+    // 默认隐藏（只有 hover 父项才显示）
+    insightArrowBtn.style("display", "none");
+    aboutArrowBtn.style("display", "none");
+
+    const x = menuX + 38;
+    const indent = 18;    // ✅ submenu 在同一列，稍微缩进
+    const arrowZone = 40; // ✅ 给三角形留 hover 区域
 
     for (let i = 0; i < items.length; i++) {
       let label = items[i];
       let displayLabel = label === "home" ? "NE ARCHIVE" : label;
 
-      let x = menuX + 38;
       let y = currentY;
       let w = p.textWidth(displayLabel);
 
-      let hovering =
+      // ✅ 父项 hover 包含三角区域
+      let hoveringText =
         p.mouseX >= x &&
-        p.mouseX <= x + w &&
+        p.mouseX <= x + w + arrowZone &&
         p.mouseY >= y - menuTextH &&
         p.mouseY <= y;
 
-
-      p.fill(hovering ? p.color(0, 255, 255) : 220);
+      p.fill(hoveringText ? p.color(0, 255, 255) : 220);
       p.text(displayLabel, x, y);
 
+      if (hoveringText) hoverAnyItem = true;
 
-      if (label === "insight") insightY = y;
+      // ✅ 父项可点击区域（点击文字跳转）
+      hitBoxes.push({
+        kind: "main",
+        label,
+        x,
+        y,
+        w,
+        h: menuTextH,
+        href: menuLinks[label],
+      });
+
+      // ✅ hover 父项时：画灰色实心▼ + 显示 DOM 点击层
+      if (label === "insight" && hoveringText) {
+        const triX = x + w + 14;
+        const triY = y - 4;
+
+        p.push();
+        p.noStroke();
+        p.fill(180);
+        p.triangle(triX - 6, triY - 4, triX + 6, triY - 4, triX, triY + 6);
+        p.pop();
+
+        const cnvRect = p.canvas.getBoundingClientRect();
+        insightArrowBtn.style("left", `${cnvRect.left + triX - 11}px`);
+        insightArrowBtn.style("top", `${cnvRect.top + triY - 11}px`);
+        insightArrowBtn.style("display", "block");
+        hoverAnyItem = true;
+      }
+
+      if (label === "about" && hoveringText) {
+        const triX = x + w + 14;
+        const triY = y - 4;
+
+        p.push();
+        p.noStroke();
+        p.fill(180);
+        p.triangle(triX - 6, triY - 4, triX + 6, triY - 4, triX, triY + 6);
+        p.pop();
+
+        const cnvRect = p.canvas.getBoundingClientRect();
+        aboutArrowBtn.style("left", `${cnvRect.left + triX - 11}px`);
+        aboutArrowBtn.style("top", `${cnvRect.top + triY - 11}px`);
+        aboutArrowBtn.style("display", "block");
+        hoverAnyItem = true;
+      }
+
+      // ✅ 到下一行（submenu 从这里开始往下挤）
       currentY += menuStepY;
 
-      if (hovering) hoverAnyItem = true;
-    }
-
-    if (!ON_INSIGHT_PAGE && insightY !== null) {
-      let subX = menuX + 38 + 55;
-      let baseY = insightY;
-
-      let insideInsight =
-        p.mouseX >= menuX + 38 &&
-        p.mouseX <= subX + 250 &&
-        p.mouseY >= baseY - menuTextH &&
-        p.mouseY <= p.height;
-
-      if (insideInsight) {
-        for (let i = 0; i < insightItems.length; i++) {
-          let label = insightItems[i];
-          let y = baseY + i * menuStepY;
-          let w = p.textWidth(label);
+      // ✅ Insight submenu：同一列下方展开，并把后面项挤下去
+      if (label === "insight" && insightSubOpen && !ON_INSIGHT_PAGE) {
+        for (let k = 0; k < insightItems.length; k++) {
+          let subLabel = insightItems[k];
+          let subY = currentY;
+          let subW = p.textWidth(subLabel);
 
           let hovering =
-            p.mouseX >= subX &&
-            p.mouseX <= subX + w &&
-            p.mouseY >= y - menuTextH &&
-            p.mouseY <= y;
-
+            p.mouseX >= x + indent &&
+            p.mouseX <= x + indent + subW &&
+            p.mouseY >= subY - menuTextH &&
+            p.mouseY <= subY;
 
           p.fill(hovering ? p.color(0, 255, 255) : 160);
-          p.text(label, subX, y);
+          p.text(subLabel, x + indent, subY);
+
+          hitBoxes.push({
+            kind: "insightSub",
+            label: subLabel,
+            x: x + indent,
+            y: subY,
+            w: subW,
+            h: menuTextH,
+            href: insightLinks[subLabel],
+          });
 
           if (hovering) hoverAnyItem = true;
+          currentY += menuStepY;
+        }
+      }
 
+      // ✅ About submenu：同一列下方展开，并把后面项挤下去
+      if (label === "about" && aboutSubOpen) {
+        for (let k = 0; k < aboutItems.length; k++) {
+          let subLabel = aboutItems[k];
+          let subY = currentY;
+          let subW = p.textWidth(subLabel);
+
+          let hovering =
+            p.mouseX >= x + indent &&
+            p.mouseX <= x + indent + subW &&
+            p.mouseY >= subY - menuTextH &&
+            p.mouseY <= subY;
+
+          p.fill(hovering ? p.color(0, 255, 255) : 160);
+          p.text(subLabel, x + indent, subY);
+
+          hitBoxes.push({
+            kind: "aboutSub",
+            label: subLabel,
+            x: x + indent,
+            y: subY,
+            w: subW,
+            h: menuTextH,
+            href: aboutLinks[subLabel],
+          });
+
+          if (hovering) hoverAnyItem = true;
+          currentY += menuStepY;
         }
       }
     }
@@ -254,65 +368,36 @@ let menuSketch = function (p) {
   p.mouseReleased = function () {
     if (!menuOpen) return;
 
-    let currentY = menuStartY;
+    for (let i = 0; i < hitBoxes.length; i++) {
+      const b = hitBoxes[i];
 
-    for (let i = 0; i < items.length; i++) {
-      let label = items[i];
-      let displayLabel = label === "home" ? "NE ARCHIVE" : label;
+      const hovering =
+        p.mouseX >= b.x &&
+        p.mouseX <= b.x + b.w &&
+        p.mouseY >= b.y - b.h &&
+        p.mouseY <= b.y;
 
-      let x = menuX + 38;
-      let y = currentY;
-      let w = p.textWidth(displayLabel);
+      if (!hovering) continue;
 
-      let hovering =
-        p.mouseX >= x &&
-        p.mouseX <= x + w &&
-        p.mouseY >= y - menuTextH &&
-        p.mouseY <= y;
+      // overview 特判保留你原逻辑
+      if (b.kind === "main" && b.label === "overview") {
+        let onIndex =
+          window.location.pathname.includes("index.html") ||
+          window.location.pathname.endsWith("/");
 
-      if (hovering) {
-        if (label === "overview") {
-          let onIndex =
-            window.location.pathname.includes("index.html") ||
-            window.location.pathname.endsWith("/");
-
-          if (onIndex) {
-            window.dispatchEvent(
-              new CustomEvent("changePage", { detail: { page: 2 } })
-            );
-          } else {
-            window.location.href = "index.html#page2";
-          }
-          return;
+        if (onIndex) {
+          window.dispatchEvent(
+            new CustomEvent("changePage", { detail: { page: 2 } })
+          );
+        } else {
+          window.location.href = "index.html#page2";
         }
-
-        window.location.href = menuLinks[label];
         return;
       }
 
-      currentY += menuStepY;
-    }
-
-    if (!ON_INSIGHT_PAGE && insightY !== null) {
-      let subX = menuX + 38 + 55;
-      let baseY = insightY;
-
-      for (let i = 0; i < insightItems.length; i++) {
-        let label = insightItems[i];
-        let y = baseY + i * menuStepY;
-        let w = p.textWidth(label);
-
-        let hovering =
-          p.mouseX >= subX &&
-          p.mouseX <= subX + w &&
-          p.mouseY >= y - menuTextH &&
-          p.mouseY <= y;
-
-        if (hovering) {
-          window.location.href = insightLinks[label];
-          return;
-        }
-      }
+      // 其他一律跳转
+      window.location.href = b.href;
+      return;
     }
   };
 };
