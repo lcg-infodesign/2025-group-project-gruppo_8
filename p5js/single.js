@@ -680,8 +680,11 @@ function drawZoomedMap() {
 
     fill(0, 0, 0, 200);
 
+    const line1 = "Click to view on Google Maps";
+    const line2 = "Launched by: " + bombData.country;
+
     let boxW = 180;
-    let boxH = padding * 2 + lineHeight * 3;
+    let boxH = padding * 2 + lineHeight * 2;
 
     let boxX = px + 15;
     let boxY = py - boxH / 2;
@@ -693,18 +696,12 @@ function drawZoomedMap() {
     rect(boxX, boxY, boxW, boxH, 5);
 
     textSize(12);
+    textFont(myFont2);
     textAlign(LEFT, TOP);
     fill(0, 255, 255);
-    text("Country:", boxX + padding, boxY + padding);
-    text("Latitude:", boxX + padding, boxY + padding + lineHeight);
-    text("Longitude:", boxX + padding, boxY + padding + lineHeight * 2);
 
-    textAlign(RIGHT, TOP);
-    const valueX = boxX + boxW - padding;
-
-    text(bombData.country, valueX, boxY + padding);
-    text(nf(bombData.latitude, 0, 2), valueX, boxY + padding + lineHeight);
-    text(nf(bombData.longitude, 0, 2), valueX, boxY + padding + lineHeight * 2);
+    text(line1, boxX + padding, boxY + padding);
+    text(line2, boxX + padding, boxY + padding + lineHeight);
   }
 
   noStroke();
@@ -810,41 +807,55 @@ function drawHiroshimaAnnotation() {
 
   let textX = anchorX + currentHorizLength + 10;
 
-  let hText = "Little Boy\nHiroshima, 1945";
+  const line1 = "Little Boy";
+  const line2 = "Hiroshima, 1945";
+  const line3 = "Yield: 15kt";
 
-  let isHiroshimaHover =
-    mouseX >= textX &&
-    mouseX <= textX + 130 &&
-    mouseY >= anchorY - 15 &&
-    mouseY <= anchorY + 15;
+  textFont(myFont2);
+  textSize(14);
+
+  const lineH = 16; 
+  const textW = max(textWidth(line1), textWidth(line2), textWidth(line3));
+  const textH = lineH * 3;
+
+  const textY = anchorY - textH / 2;
+
+  const padding = 10;
+
+  const active = (hHorizProgress > 0.95);
+
+  const bounds = {
+    x: textX - padding,
+    y: textY - padding,
+    w: textW + padding * 2,
+    h: textH + padding * 2,
+  };
+
+  const isHiroshimaHover =
+    active &&
+    mouseX >= bounds.x &&
+    mouseX <= bounds.x + bounds.w &&
+    mouseY >= bounds.y &&
+    mouseY <= bounds.y + bounds.h;
 
   noStroke();
-  if (isHiroshimaHover && hHorizProgress > 0.95) {
+  if (isHiroshimaHover) {
     isHandCursor = true;
     fill(255);
   } else {
     fill(0, 255, 255);
   }
 
-  textFont(myFont2);
-  textSize(14);
-  textAlign(LEFT, CENTER);
-  text(hText, textX, anchorY);
+  textAlign(LEFT, TOP);
+  text(line1 + "\n" + line2 + "\n" + line3, textX, textY);
 
-  if (hHorizProgress > 0.95) {
-    const padding = 10;
-
-    hiroshimaTextBounds = {
-      x: textX - padding,
-      y: anchorY - 18 - padding,
-      w: 130 + padding * 2,
-      h: 36 + padding * 2
-    };
+  if (active) {
+    hiroshimaTextBounds = bounds;
   } else {
     hiroshimaTextBounds = null;
   }
-
 }
+
 
 function drawBombAnnotation() {
   if (!bombData) return;
@@ -1011,7 +1022,7 @@ function mousePressed() {
       mouseY >= currentY - coordH &&
       mouseY <= currentY;
 
-    textFont(myFont2); 
+    textFont(myFont2);
     textSize(14);
     let hintText = "<< Click to view on Google Maps";
     let hintW = textWidth(hintText);
@@ -1020,7 +1031,7 @@ function mousePressed() {
     let isHintClicked =
       mouseX >= hintX - hintW &&
       mouseX <= hintX &&
-      mouseY >= currentY - 14 && 
+      mouseY >= currentY - 14 &&
       mouseY <= currentY;
 
     let px = lonToMapX(bombData.longitude);
