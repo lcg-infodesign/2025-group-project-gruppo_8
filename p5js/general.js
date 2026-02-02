@@ -2117,6 +2117,15 @@ function drawCountryMenu() {
   let mainX = width / 2 - BTN_W / 2 + 20;
   let mainY = 170;
 
+  // ✅ NEW: hover 主按钮就自动展开（不用点击）
+  const overMain =
+    mouseX >= mainX && mouseX <= mainX + BTN_W &&
+    mouseY >= mainY && mouseY <= mainY + BTN_H;
+
+  if (!menuOpen && overMain) {
+    menuOpen = true;
+  }
+
   // 绘制主按钮
   drawMainButton(mainX, mainY);
 
@@ -2124,23 +2133,23 @@ function drawCountryMenu() {
   if (menuOpen) {
     for (let i = 0; i < listButtons.length; i++) {
       let btn = listButtons[i];
-      // 只有在打开时才更新位置动画
       btn.update();
       btn.display();
     }
 
-    // 自动检测离开区域关闭菜单 (Polimi风格的交互细节)
+    // 自动检测离开区域关闭菜单（你原本就有）
     if (!isMouseInMenuArea(mainX, mainY)) {
       menuOpen = false;
     }
   } else {
-    // 菜单关闭时，重置所有按钮位置到主按钮处，方便下次弹出动画
+    // 菜单关闭时，重置所有按钮位置到主按钮处
     for (let btn of listButtons) {
       btn.visibleY = mainY;
       btn.x = mainX;
     }
   }
 }
+
 
 function isMouseInMenuArea(mainX, mainY) {
   let columnGap = 10;

@@ -746,7 +746,7 @@ function drawZoomedMap() {
   translate(centerX, currentY);
   textAlign(CENTER, BOTTOM);
   if (isCoordHover) {
-    cursor(HAND);
+       isHandCursor = true;   
     fill(255);
     scale(1.05);
   } else {
