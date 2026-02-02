@@ -299,16 +299,17 @@ function windowResized() {
   computeIntroTargets();
 }
 
-
-
 function syncIntroIndex() {
-  // trova l'ultimo target "superato"
-  let idx = 0;
+  // ✅ 关键：一开始必须是 -1，表示“还没到第一段”
+  let idx = -1;
+
   for (let i = 0; i < introTargets.length; i++) {
     if (scrollOffset >= introTargets[i] - 10) idx = i;
   }
+
   introIndex = idx;
 }
+
 
 function snapTo(val) {
   snapTarget = constrain(val, 0, maxScroll);
@@ -742,12 +743,15 @@ function snapTo(val) {
 }
 
 function introNext() {
+  // ✅ 关键：每次点击前都先根据 scrollOffset 同步当前段落
+  syncIntroIndex();
+
   // 第一个 click: porta str1 al centro
   if (introIndex < 3) {
     introIndex++;
     snapTo(introTargets[introIndex]);
   } else {
-    // ✅ 关键：到最后一段时，直接“到达底部”
+    // 到最后一段时，直接“到达底部”
     snapping = false;
     scrollOffset = maxScroll;
     snapTarget = maxScroll;
@@ -1764,25 +1768,63 @@ function mousePressed() {
   }
 }
 
+function applyIntroDelta(delta) {
+  // 走和滚轮一模一样的逻辑
+  handleIntroScroll(delta);
+}
+
+function kickSpreadToward(targetScroll) {
+  // scroll里：scrollOffset += delta * 0.5
+  // 反推：delta = (targetScroll - scrollOffset) / 0.5
+  const delta = (targetScroll - scrollOffset) / 0.5;
+
+  // scroll里：spreadSpeed += delta * 0.05
+  spreadSpeed += delta * 0.05;
+
+  // scroll里：往上滚会立刻停扩张（保持一致）
+  if (delta < 0) {
+    autoExpandStarted = false;
+    centerCircleSize = 10;
+  }
+}
+
+
 
 function keyPressed() {
 
   // PAGE 1 controls
   if (page === 1) {
-    if (keyCode === DOWN_ARROW) { // 32 = SPACE
+
+    if (keyCode === DOWN_ARROW) {
+      syncIntroIndex();
+
+      // 目标：下一段文字对应的 target（最后一步用 maxScroll）
+      const target = (introIndex < 3) ? introTargets[introIndex + 1] : maxScroll;
+
+      // ✅ 先给背景一个“像滚轮”的推力
+      kickSpreadToward(target);
+
+      // ✅ 再用你原来的 step 跳段逻辑（文字一按一段）
       introNext();
-      return;
+      return false;
     }
+
     if (keyCode === UP_ARROW) {
+      syncIntroIndex();
+
+      // 目标：上一段文字对应的 target（回到最顶就是 0）
+      const target = (introIndex > 0) ? introTargets[introIndex - 1] : 0;
+
+      kickSpreadToward(target);
       introPrev();
-      return;
+      return false;
     }
+
     if (keyCode === HOME) {
       introTop();
-      return;
+      return false;
     }
   }
-
 
   // Only on page2 and when menu is not open
   if (page !== 2 || menuOpen) return;
@@ -1793,9 +1835,6 @@ function keyPressed() {
     infoStep--;
   }
 }
-
-
-
 
 // ===============================
 // particles in page1
