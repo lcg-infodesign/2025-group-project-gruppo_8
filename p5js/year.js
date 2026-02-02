@@ -720,14 +720,14 @@ if (isRDS200) {
     drawGroup(sottTests, false);
 
     //  country name and total
- push();
-translate(x, yAxis); 
-textAlign(CENTER, CENTER);
-textFont(myFont2);
-textSize(14);
-fill(isNameHovered ? color(0,255,255) : color(200));
-text(country, 0, 0);
-pop();
+  push();
+  translate(x, yAxis); 
+  textAlign(CENTER, CENTER);
+  textFont(myFont2);
+  textSize(14);
+  fill(isNameHovered ? color(0,255,255) : color(200));
+  text(country, 0, 0);
+  pop();
 
   });
 
