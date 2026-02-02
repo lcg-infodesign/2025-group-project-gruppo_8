@@ -865,31 +865,15 @@ function mousePressed() {
     }
   }
 
-  // --- TSAR CTA click ---
-  // --- TSAR CTA click ---
   if (tsarCtaBox) {
     const overTsar =
     mouseX >= tsarCtaBox.x && mouseX <= tsarCtaBox.x + tsarCtaBox.w &&
     mouseY >= tsarCtaBox.y && mouseY <= tsarCtaBox.y + tsarCtaBox.h;
 
-  /*if (overTsar) {
-    // 1. 寻找 1961 年在数据中的位置
-    const targetYear = 1961;
-    const targetIndex = years.indexOf(targetYear);
-
-    if (targetIndex !== -1) {
-      // 2. 如果找到了，更新当前索引
-      currentYearIndex = targetIndex;
-      saveLastYear(years[currentYearIndex]);
-
-    } 
-    return; // 结束处理，防止触发下方的其他点击逻辑
-  }*/
-
     if (overTsar) {
   const currentYear = Number(years[currentYearIndex]);
 
-  // se sei già nel 1961 → vai all'insight Tsar Bomba
+  // 1961 to insight Tsar Bomba
   if (currentYear === 1961) {
     saveLastYear(years[currentYearIndex]);
     setYearInURL(years[currentYearIndex]);
@@ -897,7 +881,6 @@ function mousePressed() {
     return;
   }
 
-  // altrimenti → jump interno al 1961
   const targetYear = 1961;
   const targetIndex = years.indexOf(targetYear);
   if (targetIndex !== -1) {
@@ -909,9 +892,6 @@ function mousePressed() {
 }
 
 }
-
-
-  // index button 1958， 1963， 1996 
   let activeYear = Number(years[currentYearIndex]);
   saveLastYear(years[currentYearIndex]);
 
@@ -919,7 +899,7 @@ function mousePressed() {
     let btnW = 240;
     let btnH = 40;
     let btnX = width / 2 - btnW / 2;
-    let btnY = height - margin - 65; // 确保 Y 坐标与 draw() 中绘制的位置一致
+    let btnY = height - margin - 65; 
 
     if (mouseX > btnX && mouseX < btnX + btnW &&
       mouseY > btnY && mouseY < btnY + btnH) {
@@ -959,16 +939,15 @@ function mousePressed() {
       saveLastYear(years[currentYearIndex]);
       setYearInURL(years[currentYearIndex]);
 
-window.location.href = `single.html?id=${d.id}&from=year&year=${year}`;
+    window.location.href = `single.html?id=${d.id}&from=year&year=${year}`;
 
       return;
     }
   }
-  // year_bombe.html
-  const fixedSpacing = 150; // 
+
+  const fixedSpacing = 150;
   const lineY = height / 2 + 50;
 
-  //  Seleziona solo i paesi visibili se un paese è selezionato
   countries.forEach((country, idx) => {
     let x = width / 2 + (idx - (countries.length - 1) / 2) * fixedSpacing;
     let areaSinistra = 40;
@@ -982,7 +961,7 @@ window.location.href = `single.html?id=${d.id}&from=year&year=${year}`;
       mouseY < yAxis + areaAltezza
     ) {
 
-      saveLastYear(years[currentYearIndex]); // salva l'anno corrente prima di lasciare la pagina
+      saveLastYear(years[currentYearIndex]);
       setYearInURL(years[currentYearIndex]); 
       window.location.href = `index.html?country=${country}&from=year#page2`;
 
@@ -1010,29 +989,6 @@ function keyPressed() {
   }
 }
 
-/*function drawColumnCTA() {
-  const msg = "Click a bomb or a country to see more";
-
-  const x = width - margin;
-  const y = height - margin;
-
-  // pulsazione automatica
-  const pulse = (sin(frameCount * 0.08) + 1) / 2; // 0..1
-  const a = 80 + pulse * 175; // alpha
-
-  textFont(myFont2);
-  textSize(14);
-  textAlign(RIGHT, BOTTOM);
-
-  // "glow" finto: 2 passate morbide + 1 netta
-  noStroke();
-  fill(0, 255, 255, a * 0.25);
-  text(msg, x + 1, y + 1);
-  text(msg, x - 1, y - 1);
-
-  fill(0, 255, 255, a);
-  text(msg, x, y);
-}*/
 
 function drawColumnCTA() { 
   const msg = "Click a bomb or a country to see more";
@@ -1150,14 +1106,12 @@ function drawBombTooltip() {
       textSize(12);
       textFont(myFont2);
 
-      // --- left (Labels) ---
       textAlign(LEFT, TOP);
       fill(0, 255, 255);
       text("Click the bomb for more information", boxX + padding, boxY + padding)
       text("Bomb Name:", boxX + padding, boxY + padding+ lineHeight);
       text("Yield (kt):", boxX + padding, boxY + padding + lineHeight+ lineHeight);
 
-      // --- right (Values) ---
       textAlign(RIGHT, TOP);
       fill(0, 255, 255);
       const valueX = boxX + boxW - padding;
@@ -1173,13 +1127,12 @@ function drawBombTooltip() {
 function drawInfoIcon(cx, cy, r = 7) {
   push();
 
-  // badge
   stroke(0, 255, 255, 220);
   strokeWeight(1.6);
   fill(18, 210);
   circle(cx, cy, r * 2);
 
-  // "i" leggibile: contorno scuro + fill cyan
+  // "i" 
   textAlign(CENTER, CENTER);
   textFont("system-ui");
   textSize(r * 1.8);
@@ -1209,25 +1162,21 @@ function hoverOnYieldYear(offsetX, offsetY) {
 }
 
 
-// atmospheric text hover detection
-// 修改 Atmospheric 的检测 (现在是垂直排列在左侧)
 function hoverOnAtmospheric(offsetX, dummy) {
-  let x = offsetX - 65; // 旋转后的 X 范围
-  let y = yAxis - 180;  // 向上延伸的长度
+  let x = offsetX - 65; 
+  let y = yAxis - 180;  
   let w = 40;
   let h = 150;
   return (mouseX > x && mouseX < x + w && mouseY > y && mouseY < y);
 }
 
-// 修改 Underground 的检测
 function hoverOnUnderground(offsetX, dummy) {
   let x = offsetX - 65;
-  let y = yAxis + 30;   // 向下延伸
+  let y = yAxis + 30; 
   let w = 40;
   let h = 150;
   return (mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h);
 }
-
 
 
 window.addEventListener("load", () => {
@@ -1238,7 +1187,7 @@ window.addEventListener("load", () => {
 
 function onCountryClick(countryName) {
   saveLastYear(years[currentYearIndex]);
-  setYearInURL(years[currentYearIndex]); // opzionale
+  setYearInURL(years[currentYearIndex]); 
   indow.location.href = `index.html?country=${countryName}&from=year#page2`;
 
 }
@@ -1248,25 +1197,20 @@ function drawAxes() {
   stroke(200, 160);
   strokeWeight(1.5);
 
-  // 横轴上方
+  
   line(xBase, yAxis - 25, width - margin + 10, yAxis - 25);
-  // 上方竖轴（实线）
   line(xBase, yAxis - 25, xBase, yAxis - 25 - 144);
-  // 上方竖轴虚线
   for (let y = yAxis - 25 - 144 - offset; y >= yAxis - 25 - 144 - offset - 40; y -= dashLength + dashGap) {
     line(xBase, y, xBase, y - dashLength);
   }
 
-  // 横轴下方
+  
   line(xBase, yAxis + 25, width - margin + 10, yAxis + 25);
-  // 下方竖轴（实线）
   line(xBase, yAxis + 25, xBase, yAxis + 25 + 144);
-  // 下方竖轴虚线
   for (let y = yAxis + 25 + 144 + offset; y <= yAxis + 25 + 144 + offset + 40; y += dashLength + dashGap) {
     line(xBase, y, xBase, y + dashLength);
   }
 
-  // 右边横轴虚线
   const xRight = width - margin + 10;
   for (let y = yAxis - 25; y >= yAxis - 25 - 40; y -= dashLength + dashGap) {
     line(xRight, y, xRight, y - dashLength);
@@ -1278,9 +1222,6 @@ function drawAxes() {
   pop();
 }
 
-// -------------------------------
-// 绘制 Atmospheric 和 Underground 标签及图标
-// -------------------------------
 function drawAtmosUndLabels() {
   // Atmospheric
   push();
@@ -1363,7 +1304,6 @@ function saveLastYear(year) {
 function setYearInURL(year) {
   const url = new URL(window.location.href);
   url.searchParams.set("year", year);
-  // preserva eventuale hash (#...) e altri parametri
   history.replaceState(null, "", url.toString());
 }
 
