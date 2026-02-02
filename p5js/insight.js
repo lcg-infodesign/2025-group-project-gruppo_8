@@ -200,14 +200,14 @@ let insightSketch = function(p) {
 
     scrollY += (targetScrollY - scrollY) * 0.12;
     // sblocca wheel quando sei praticamente arrivata
-    if (isSnapping && Math.abs(targetScrollY - scrollY) < 0.4) {
+    if (isSnapping && Math.abs(targetScrollY - scrollY) < 0.6) {
       isSnapping = false;
     }
 
     thumbOffset += (targetThumbOffset - thumbOffset) * 0.18;
     
     fadeIn = p.min(fadeIn + 3, 255);
-    floatOffset = p.max(floatOffset - 0.6, 0);
+    floatOffset = p.max(floatOffset - 0.55, 0);
 
     // TITLE "Insight" REMOVED:
     // la navbar HTML/CSS sopra al canvas sostituisce questo titolo.
