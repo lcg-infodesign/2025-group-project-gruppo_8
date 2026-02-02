@@ -110,13 +110,13 @@ let scrollProgress;
 let lastStepTime = 0;
 let STEP_DELAY = 50;
 let scrollDirection = 0;
-let scrollStep = 0.5;
+let scrollStep = 0.55;
 
 let page2BackScrollAcc = 0;
-const PAGE2_BACK_SCROLL_THRESHOLD = 950; // regola a gusto
+const PAGE2_BACK_SCROLL_THRESHOLD = 2000; // regola a gusto
 let backTransActive = false;
 let backTransT = 0;
-const BACK_TRANS_DURATION = 0.55; // secondi (regola a gusto)
+const BACK_TRANS_DURATION = 0.6; // secondi (regola a gusto)
 let page2Snapshot = null; // p5.Image
 
 let jumpedToPage2 = false;          // 是否通过 skip/overview 直接去过 page2
