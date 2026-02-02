@@ -2,7 +2,7 @@ let topic;
 let atoms = [];
 let canvas;
 
-// ---------- DATASET CONTENT ----------
+// DATASET CONTENT 
 
 const TEXT_MAIN = `
 <p class="about-text">
@@ -31,7 +31,7 @@ const CTA_SECONDARY = [
   { label: "OPEN MODIFIED DATASET", href: "https://github.com/GiovanniPalladino/nuclear-explosions-modified" }
 ];
 
-// ---------- ATOM NAMES + ROLES ----------
+// NAMES
 
 const ATOM_INFO = [
   { name: "Silvia La Mastra", role: "Project Manager\nUX/UI Designer\nResearcher" },
@@ -43,7 +43,7 @@ const ATOM_INFO = [
   { name: "Ziying Shao", role: "Front-end Developer" }
 ];
 
-// ---------- SETUP ----------
+
 
 function setup() {
   const params = new URLSearchParams(window.location.search);
@@ -68,8 +68,6 @@ function setup() {
   });
 }
 
-
-// ---------- UI ----------
 
 function updateTabs() {
   selectAll(".about-tab").forEach(tab => {
@@ -105,7 +103,6 @@ function buildPage() {
     select("#about-us-canvas").show();
     initAtoms(); 
   }
-    // ricalcola altezza per il footer
   setTimeout(adjustAboutHeight, 50);
 
 }
@@ -122,7 +119,6 @@ function buildCTAs(selector, ctas) {
   });
 }
 
-// ---------- ATOMS (ORIGINAL FULL VERSION) ----------
 
 function initAtoms() {
   // 增加高度到 600，确保能放下两行文字
@@ -149,7 +145,7 @@ function initAtoms() {
 function draw() {
   if (topic !== "us") return;
 
-  clear(); // sfondo trasparente
+  clear(); 
   for (let atom of atoms) {
     atom.update();
     atom.display();
@@ -157,7 +153,7 @@ function draw() {
   }
 }
 
-// ---------- NOME + RUOLO SOTTO L'ATOMO ----------
+// Name
 
 function drawNameAndRole(atom) {
   push();
@@ -173,8 +169,6 @@ textFont('LibreFranklin');
   text(ATOM_INFO[atom.type].role, atom.pos.x, atom.pos.y + atom.r + 90);
   pop();
 }
-
-// ---------- AtomicModel (IDENTICO AL TUO) ----------
 
 class AtomicModel {
   constructor(x, y, type) {
@@ -331,7 +325,7 @@ class AtomicModel {
 drawElectron(r, a) {
   push();
   fill(this.baseColor); // 实心填充
-  noStroke();           // 不描边
+  noStroke();           
   ellipse(r * cos(a), r * sin(a), 6, 6);
   pop();
 }
@@ -344,32 +338,27 @@ drawElectronEllipse(rx, ry, a) {
   pop();
 }
 }
-// ---------- FOOTER AFTER WINDOW HEIGHT ----------
+//FOOTER AFTER WINDOW HEIGHT
 
 function adjustAboutHeight() {
   const main = document.querySelector(".about-content");
   const footer = document.getElementById("about-footer");
 
   if (!main || !footer) return;
-
-  // reset per ricalcolo corretto
   main.style.minHeight = "auto";
 
   const viewportH = window.innerHeight;
   const mainRect = main.getBoundingClientRect();
   const footerRect = footer.getBoundingClientRect();
-
-  // altezza reale del contenuto
   const contentHeight = main.scrollHeight;
 
-  // se il contenuto è più basso della viewport → forziamo min-height
   if (contentHeight < viewportH) {
     main.style.minHeight = viewportH + "px";
   }
 }
 
-// al load
+//load
 window.addEventListener("load", adjustAboutHeight);
 
-// al resize
+//resize
 window.addEventListener("resize", adjustAboutHeight);

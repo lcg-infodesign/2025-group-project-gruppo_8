@@ -14,7 +14,6 @@ let hHorizProgress = 0;
 //to google map
 let coordX, coordY, coordW, coordH;
 
-// Map variables
 let mapImg;
 let scaledW, scaledH, offsetX, offsetY;
 const LON_MIN = -180;
@@ -31,13 +30,12 @@ let animPlaying = false;
 let mapZoomed = false;
 let animBlueR = 0;
 
-// --- CTA button ---
 let ctaBtnX, ctaBtnY, ctaBtnW, ctaBtnH;
 let ctaBtnVisible = false;
 
-let isHandCursor = false;      // gestisce il cursore in modo centralizzato
-let tsarNameBounds = null;     // hitbox click sul nome (solo per RDS-200)
-let hoverNearBombPoint = false; // hover sul pallino nella mappa zoom
+let isHandCursor = false;    
+let tsarNameBounds = null;   
+let hoverNearBombPoint = false; 
 
 
 const purposeTextMap = {
@@ -173,7 +171,7 @@ const typeTitle = {
 
 function preload() {
   const urlParams = new URLSearchParams(window.location.search);
-  bombID = urlParams.get("id") || "1"; //Ottieni l'ID della bomba dall'URL, se non presente usa "1"
+  bombID = urlParams.get("id") || "1"; 
   console.log("bombID =", bombID);
 
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
@@ -231,30 +229,28 @@ function setup() {
   strokeCap(SQUARE);
   textFont(myFont2);
 
-  // Cerca i dati della bomba corrispondente all'ID
   for (let i = 0; i < table.getRowCount(); i++) {
     if (table.getString(i, "id_no").trim() === bombID) {
       bombData = getBombData(table.getRow(i));
       break;
     }
   }
-  // Se non viene trovato alcun ID corrispondente → torna direttamente alla prima pagina
+  
   if (!bombData && table.getRowCount() > 0) {
-    bombData = getBombData(table.getRow(0)); // Torna alla prima pagina
+    bombData = getBombData(table.getRow(0)); 
   }
 
   if (bombData) {
     typeImg = typeImages[bombData.type];
   }
 
-  // --- determina se il CTA deve essere visibile ---
   ctaBtnVisible = (bombID === "61053" || bombID === "45002" || bombID === "45003");
 
   calculateMapDimensions();
 }
 
 function draw() {
-  isHandCursor = false; // reset ogni frame
+  isHandCursor = false; 
 
   background(20);
 
@@ -302,7 +298,6 @@ function draw() {
   drawBombAnnotation();
   drawInfo();
 
-  // --- CTA button (solo per 61053 e 45002) ---
   if (ctaBtnVisible) {
     drawCtaSection();
   }
@@ -445,11 +440,6 @@ function drawInfo() {
 
   } 
 
-  
- 
-
-    
-
   stroke(0, 255, 255, 150);
   strokeWeight(1);
   fill(0, 255, 255, 20);
@@ -482,7 +472,6 @@ function drawInfo() {
   textFont(myFont3);
   text(yLabel, yX, yY);
 
-  // icona a destra del label centrato
   const labelW = textWidth(yLabel);
   const iconR = 6;
   const iconCX = yX + labelW / 2 + 14;
@@ -490,7 +479,6 @@ function drawInfo() {
 
   drawInfoIcon(iconCX, iconCY, iconR);
 
-  // hover area = label + icon
   const hoverYield =
     mouseX >= (yX - labelW / 2) && mouseX <= (iconCX + iconR) &&
     mouseY >= yY && mouseY <= (yY + 18);
@@ -498,7 +486,6 @@ function drawInfo() {
   if (hoverYield) {
     isHandCursor = true;
 
-    // tooltip (stesso testo della year)
     push();
     const padding = 8;
     const lineHeight = 16;
@@ -508,7 +495,6 @@ function drawInfo() {
     const boxW = 200;
     const boxH = padding * 4 + lineHeight * 3.5;
 
-    // posizionalo sopra al label
     const boxX = yX - boxW / 2;
     const boxY = yY - boxH - 10;
 
@@ -612,7 +598,7 @@ function drawZoomedMap() {
   stroke(0, 255, 255);
   strokeWeight(2);
 
-  // ---------- CLOSE ICON (X) ----------
+  // close x
   let iconX = offsetX + scaledW - 16;
   let iconY = offsetY + 16;
   let iconSize = 12;
@@ -630,7 +616,6 @@ function drawZoomedMap() {
     iconY - iconSize / 2
   );
 
-  // --- hover sulla X ---
   let isCloseHover =
     mouseX >= iconX - iconSize &&
     mouseX <= iconX + iconSize &&
@@ -641,7 +626,7 @@ function drawZoomedMap() {
     isHandCursor = true;
   }
 
-  // ---------- GRID ----------
+  //GRID
   stroke(0, 255, 255, 150);
   strokeWeight(1);
   fill(0, 255, 255);
@@ -679,7 +664,6 @@ function drawZoomedMap() {
     text(lat.toFixed(0) + "°", offsetX - 20, y);
   }
 
-  // ---------- BOMB POINT ----------
   let px = lonToMapX(bombData.longitude);
   let py = latToMapY(bombData.latitude);
 
@@ -692,10 +676,10 @@ function drawZoomedMap() {
 
   let hoverNearBomb = dist(mouseX, mouseY, px, py) < 20;
 
-  hoverNearBombPoint = hoverNearBomb; // salva per mousePressed
+  hoverNearBombPoint = hoverNearBomb; 
 
   if (hoverNearBomb) {
-    isHandCursor = true; // manina quando sei sul pallino
+    isHandCursor = true; 
   }
 
 
@@ -732,7 +716,6 @@ function drawZoomedMap() {
     text(nf(bombData.longitude, 0, 2), valueX, boxY + padding + lineHeight * 2);
   }
 
-  // ---------- TOP TEXT ----------
   noStroke();
   textAlign(CENTER, BOTTOM);
   fill(0, 255, 255);
@@ -741,7 +724,6 @@ function drawZoomedMap() {
 
   let currentY = offsetY - 10;
 
-  // left
   push();
   textFont(myFont2);
   textSize(14);
@@ -749,7 +731,6 @@ function drawZoomedMap() {
   text("The location is often approximate.", offsetX, currentY);
   pop();
 
-  // center coords
   let coordText = "(" + nf(bombData.latitude, 0, 2) + ", " + nf(bombData.longitude, 0, 2) + ")";
   let centerX = width / 2;
   let coordW = textWidth(coordText);
@@ -774,7 +755,6 @@ function drawZoomedMap() {
   text(coordText, 0, 0);
   pop();
 
-  // right hint
   push();
   textFont(myFont2);
   textSize(14);
@@ -826,7 +806,6 @@ function drawHiroshimaAnnotation() {
   strokeWeight(1);
   noFill();
 
-  // --- progress ---
   hDiagProgress = lerp(hDiagProgress, 1, 0.02);
   if (hDiagProgress > 0.6) {
     hHorizProgress = lerp(hHorizProgress, 1, 0.05);
@@ -868,7 +847,6 @@ function drawHiroshimaAnnotation() {
   textAlign(LEFT, CENTER);
   text(hText, textX, anchorY);
 
-// --- salva bounding box solo a fine animazione ---
 if (hHorizProgress > 0.95) {
   const padding = 10;
 
@@ -932,11 +910,10 @@ textSize(20);
 textAlign(RIGHT, CENTER);
 
 const nameW = textWidth(bombData.name);
-const nameH = 24; // approx per hitbox
+const nameH = 24; 
 const bx = textX - nameW;
 const by = anchorY - nameH / 2;
 
-// hitbox solo se è TSAR
 if (isTsar) {
   tsarNameBounds = { x: bx, y: by, w: nameW, h: nameH };
 
@@ -959,21 +936,18 @@ text(bombData.name, textX, anchorY);
 
 }
 
-// bottone CTA (solo ID 61053, 45002 e 45003)
-let ctaAlpha = 0; // fade-in dell'intero bottone
+let ctaAlpha = 0; 
 
 function drawCtaSection() {
-  // non mostrare se la mappa è aperta in zoom
   if (mapZoomed) return;
 
-  // fade-in graduale da subito
   ctaAlpha = lerp(ctaAlpha, 255, 0.06);
 
   ctaBtnW = 240;
   ctaBtnH = 30;
   ctaBtnX = offsetX;
 
-  let menuBtnCenterY = 25 + 60 / 2; // btnY + btnSize/2
+  let menuBtnCenterY = 25 + 60 / 2; 
   ctaBtnY = menuBtnCenterY - ctaBtnH / 2;
 
   let isHover =
@@ -993,7 +967,6 @@ function drawCtaSection() {
 }
 
 function mousePressed() {
-  // --- CLICK sul CTA button (solo se visibile e animazione completata) ---
   if (ctaBtnVisible && ctaAlpha > 50) {
     if (
       mouseX >= ctaBtnX &&
@@ -1005,7 +978,6 @@ function mousePressed() {
       if (bombID === "61053") {
         topic = "tsarbomba";
       } else {
-        // per 45002 (Little Boy) e 45003 (Fat Man) stesso topic
         topic = "hiroshima";
       }
       window.location.href = "insight.html?topic=" + topic;
@@ -1013,7 +985,6 @@ function mousePressed() {
     }
   }
 
-  // --- CLICK SU LITTLE BOY e FATMAN (solo a fine animazione) ---
 if (hiroshimaTextBounds) {
   const b = hiroshimaTextBounds;
 
@@ -1028,7 +999,6 @@ if (hiroshimaTextBounds) {
   }
 }
 
-// --- CLICK SU NOME TSAR (RDS-200) ---
 if (tsarNameBounds) {
   const b = tsarNameBounds;
   if (mouseX >= b.x && mouseX <= b.x + b.w && mouseY >= b.y && mouseY <= b.y + b.h) {
@@ -1037,16 +1007,13 @@ if (tsarNameBounds) {
   }
 }
 
-
-
-  // --- 2. 重置动画变量 (保持不变) ---
   animR = 0;
   animBlueR = 0;
   hDiagProgress = 0;
   hHorizProgress = 0;
   this.diagProgress = 0;
   this.horizProgress = 0;
-  ctaAlpha = 0; // reset anche il fade del CTA
+  ctaAlpha = 0;
 
   animPlaying = true;
 
@@ -1076,7 +1043,6 @@ if (tsarNameBounds) {
       mouseY >= currentY - 14 && // 14 是 textSize
       mouseY <= currentY;
 
-    // --- CLICK SUL PALLINO (stessa azione del testo) ---
     let px = lonToMapX(bombData.longitude);
     let py = latToMapY(bombData.latitude);
     let isPointClicked = dist(mouseX, mouseY, px, py) < 20;
@@ -1142,13 +1108,11 @@ function drawCtaButton(btnX, btnY, btnW, btnH, label, isHover) {
   const r = 8;
   const padX = 12;
 
-  // contenitore
   fill(20, 20, 20, 200);
   stroke(0, 255, 255, isHover ? 220 : 120);
   strokeWeight(isHover ? 1.5 : 1);
   rect(btnX, btnY, btnW, btnH, r);
 
-  // testo
   noStroke();
   fill(0, 255, 255, isHover ? 255 : 180);
   textAlign(LEFT, CENTER);
@@ -1156,7 +1120,6 @@ function drawCtaButton(btnX, btnY, btnW, btnH, label, isHover) {
   textSize(13);
   text(label, btnX + padX, btnY + btnH / 2 - 1);
 
-  // triangolo con animazione sull'hover
   let triSize = 5;
   let triX = btnX + btnW - 12;
   let triY = btnY + btnH / 2;

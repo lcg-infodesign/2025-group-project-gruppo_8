@@ -78,7 +78,7 @@ let insightSketch = function (p) {
         "images/1996.png",
         "images/96.jpeg",
         "images/961.jpeg",
-        "images/963.jpeg" // 第4张先用第3张
+        "images/963.jpeg" 
       ],
       thumbnails: [],
       bottomTexts: [],
@@ -103,11 +103,10 @@ let insightSketch = function (p) {
     }
   };
 
-  // Variabili layout
+  
   let scrollY = 0;
   let targetScrollY = 0;
 
-  // Snap
   let snapTargets = [];
   let currentStep = 0;
   let showScrollLabel = true;
@@ -118,7 +117,6 @@ let insightSketch = function (p) {
   let viewBombBtnBox = null;
   let overViewBombBtn = false;
 
-  // first page buttons (Hiroshima)
   let viewFatManBtnBox = null;
   let viewLittleBoyBtnBox = null;
 
@@ -254,7 +252,7 @@ let insightSketch = function (p) {
     let alpha1 = p.map(y1 - scrollY, p.height, 0, 0, 255, true);
     drawTextWithFloat(Text1, textX1, textY1, textW1, alpha1, -20, 20);
 
-    // ====== SECTION 2/3 (and 4 if exists) ======
+    // SECTION 2/3
     if (hasLongSections && img2) {
       let y2 = y1 + imgH + spacing;
 
@@ -289,7 +287,7 @@ let insightSketch = function (p) {
       let alpha3 = p.map(y3 - scrollY, p.height, 0, 0, 255, true);
       drawTextWithFloat(Text3, textX3, textY3, textW3, alpha3, -20, 20);
 
-      //  SECTION 4 (only for trattato96 / hasFourSections)
+      //  SECTION 4
       if (hasFourSections && img4) {
         let y4 = y3 + imgH + spacing;
 
@@ -317,10 +315,8 @@ let insightSketch = function (p) {
       }
     }
 
-    // Tsar button
     overViewBombBtn = drawViewBombButton();
 
-    // Scroll hint + first page buttons
     const overHint = drawScrollHintIfNeeded(hasLongSections);
     drawFirstBombButtons(hasThreeSections);
 
@@ -408,7 +404,6 @@ let insightSketch = function (p) {
     }
   }
 
-  //  base Ys now dynamic (3 or 4)
   function getSectionBaseYs() {
     let topTextW = p.width - topTextSideMargin * 2;
     let topTextH = estimateTextHeight(pageTitle, topTextW);
@@ -470,7 +465,6 @@ let insightSketch = function (p) {
     snapToStep(idx + (dir > 0 ? 1 : -1));
   }
 
-  // scroll hint for 3 or 4
   function drawScrollHintIfNeeded(hasLongSections) {
     if (!hasLongSections) return false;
     if (showPreview) return false;
@@ -538,7 +532,7 @@ let insightSketch = function (p) {
     return base - currentScrollY;
   }
 
-  // --- Tsar button ---
+  // Button
   function drawViewBombButton() {
     if (currentTopic !== "tsarbomba") {
       viewBombBtnBox = null;
@@ -610,7 +604,7 @@ let insightSketch = function (p) {
     return isHover;
   }
 
-  // --- Hiroshima two buttons ---
+  //Hiroshima buttons
   function drawFirstBombButtons(hasThreeSections) {
     if (currentTopic !== "hiroshima") {
       viewFatManBtnBox = null;
@@ -947,7 +941,6 @@ let insightSketch = function (p) {
       }
     }
 
-    //  click scroll hint (3 or 4)
     const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
     const hasLongSections = !!config.hasThreeSections || !!config.hasFourSections;
 
@@ -981,21 +974,14 @@ p.mouseWheel = function(event) {
   const config = contentConfig[currentTopic];
   const hasLongSections = !!config.hasThreeSections || !!config.hasFourSections;
   if (!hasLongSections) return false;
-
-  // ignoriamo i micro scroll del trackpad
   if (Math.abs(event.delta) < 6) return false;
-
-  // se stiamo già snapping, ignoriamo finché non finisce
   if (isSnapping) return false;
 
   rebuildSnapTargets();
 
-  // se non siamo in gallery, accumuliamo lo scroll
   if (!freeScrollMode) {
-    // accumulo per evitare che con una rotellina/trackpad salti
     wheelAccum += event.delta;
 
-    // solo quando superiamo una soglia, cambiamo sezione
     if (wheelAccum > 60) {
       wheelAccum = 0;
       stepScroll(+1);
@@ -1004,7 +990,6 @@ p.mouseWheel = function(event) {
       stepScroll(-1);
     }
   }
-  // se siamo in gallery, scroll libero
   else {
     targetScrollY += event.delta * 0.8;
 
