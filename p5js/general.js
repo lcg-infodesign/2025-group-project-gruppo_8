@@ -16,9 +16,6 @@ const countries = [
   "USSR"
 ];
 
-let lastBackAttemptMs = 0;
-const BACK_COOLDOWN = 600; // ms
-
 
 // Menu UI
 let menuOpen = false;
@@ -76,6 +73,9 @@ let introTargets = [];
 let snapping = false;
 let snapTarget = 0;
 
+let showScrollLabelPage1 = true; // label visibile solo sul primo testo; poi resta solo freccia
+
+
 // tweakables
 const INTRO_START_OFFSET = 120;
 const INTRO_STEP_FACTOR = 0.6;
@@ -113,12 +113,14 @@ let scrollDirection = 0;
 let scrollStep = 0.5;
 
 let page2BackScrollAcc = 0;
-const PAGE2_BACK_SCROLL_THRESHOLD = 5000; // regola a gusto
+const PAGE2_BACK_SCROLL_THRESHOLD = 950; // regola a gusto
 let backTransActive = false;
 let backTransT = 0;
-const BACK_TRANS_DURATION = 2.55; // secondi (regola a gusto)
+const BACK_TRANS_DURATION = 0.55; // secondi (regola a gusto)
 let page2Snapshot = null; // p5.Image
 
+let jumpedToPage2 = false;          // 是否通过 skip/overview 直接去过 page2
+const PAGE1_END_SPREAD = 650;       // “背景动画最终位置”强度（可微调 500~900）
 
 
 let UGTypes = [
@@ -154,7 +156,7 @@ let UGTypes = [
 // ===============================
 function goToOverview() {
 
-
+ jumpedToPage2 = true; 
   enteredPage2ByScroll = false;
   // Vai alla pagina 2 (grafico)
   page = 2;
@@ -298,32 +300,53 @@ function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   computeIntroTargets();
 }
+
 function syncIntroIndex() {
-  if (snapping) return; // 新增：如果正在自动对齐/跳转中，不重新计算索引
-  
-  let idx = 0;
+  // ✅ 关键：一开始必须是 -1，表示“还没到第一段”
+  let idx = -1;
+
   for (let i = 0; i < introTargets.length; i++) {
     if (scrollOffset >= introTargets[i] - 10) idx = i;
   }
+
   introIndex = idx;
 }
-function introNext() {
-  // syncIntroIndex(); // 注释掉或删除这一行，改用下面的逻辑
-  
-  // 如果是初始状态，确保从第一段开始
-  if (introIndex < 0) introIndex = 0; 
 
-  if (introIndex < 3) { // 限制在 0,1,2,3 范围内
+
+function snapTo(val) {
+  snapTarget = constrain(val, 0, maxScroll);
+  snapping = true;
+}
+/*
+function introNext() {
+  syncIntroIndex();
+  if (introIndex < 3) {
+    introIndex++;
     snapTo(introTargets[introIndex]);
-    spreadSpeed = 80;
-    introIndex++; // 先跳转再递增索引
   } else {
-    // 到达最后一段后的逻辑
-    snapTo(maxScroll + 1);
+    // oltre l'ultimo testo → avvia espansione
+    snapTo(maxScroll);
     if (!autoExpandStarted) autoExpandStarted = true;
-    spreadSpeed = 80;
   }
 }
+
+function introPrev() {
+  syncIntroIndex();
+  if (introIndex > 0) {
+    introIndex--;
+    snapTo(introTargets[introIndex]);
+  } else {
+    introTop();
+  }
+}
+
+function introTop() {
+  introIndex = 0;
+  autoExpandStarted = false;
+  centerCircleSize = 10;
+  snapTo(0);
+}*/
+
 
 function introPrev() {
   syncIntroIndex();
@@ -331,19 +354,23 @@ function introPrev() {
   if (introIndex > 0) {
     introIndex--;
     snapTo(introTargets[introIndex]);
-
-    // step 向后动画（完全对称）
-    spreadSpeed = -80;
-
   } else {
-    // 回到顶部 → 撤销扩展状态
     introTop();
-
-    autoExpandStarted = false;
-
-    spreadSpeed = -80;
   }
+
+  // se torno al primo testo, la label torna
+  if (introIndex <= 0) showScrollLabelPage1 = true;
 }
+
+function introTop() {
+  introIndex = 0;
+  showScrollLabelPage1 = true;
+
+  autoExpandStarted = false;
+  centerCircleSize = 10;
+  snapTo(0);
+}
+
 
 // ===============================
 // Se URL contiene #page2 → apri ovverview SUBITO
@@ -351,6 +378,7 @@ function introPrev() {
 
 function checkHashNavigation() {
   if (window.location.hash === "#page2") {
+      jumpedToPage2 = true;  
     page = 2;
 
     // IMPORTANT: abilita la logica "colonna per colonna"
@@ -576,7 +604,7 @@ function drawIntroBlockData(str, x, y, w) {
   text(str, x, y, w);
 }
 
-function drawScrollHintArrow() {
+/*function drawScrollHintArrow() {
   // Only show at the very start
   const visible = scrollOffset < 80;
   if (!visible) return;
@@ -596,20 +624,6 @@ function drawScrollHintArrow() {
   strokeWeight(2);
   noFill();
 
-  /*
-  // chevron only (no vertical stem)
-  line(cx - halfW, cy - h, cx, cy);
-  line(cx + halfW, cy - h, cx, cy);
-
-  // label above arrow
-  noStroke();
-  fill(200, alpha);
-  textFont(myFont2);
-  textSize(12);
-  textAlign(CENTER, BOTTOM);
-  text("SCROLL DOWN FOR MORE", cx, labelY);
-
-  */
 
   // label + side chevrons
   const label = "SCROLL DOWN FOR MORE";
@@ -649,9 +663,63 @@ function drawScrollHintArrow() {
 
   pop();
 
+}*/
 
+function drawScrollHintArrow() {
+  // CTA page 1:
+  // - all'inizio: label + UNA freccia sotto
+  // - dal primo step in poi: la label sparisce, ma la freccia resta
+  // (qui NON tocchiamo la logica di scroll/click: solo rendering)
+
+  const cx = width / 2;
+  const bob = sin(frameCount * 0.08) * 4;
+  const cy = height - 44 + bob;
+  const labelY = cy - 24; // baseline label (sopra la freccia)
+
+  const halfW = 10; // half width of the chevron
+  const h = 8;      // height of the chevron
+
+  // safety: se introTargets non è pronto, usa un fallback
+  const firstTarget = (introTargets && introTargets.length) ? introTargets[0] : 120;
+
+  // label visibile solo prima che il primo testo sia centrato
+  const showLabel = scrollOffset < firstTarget - 10;
+
+  // la freccia resta finché puoi ancora scendere (prima dell'espansione)
+  if (scrollOffset >= maxScroll - 2) return;
+
+  // fade label mentre ti avvicini al primo target
+  const labelAlpha = showLabel
+    ? map(scrollOffset, 0, max(1, firstTarget - 10), 255, 0, true)
+    : 0;
+
+  // freccia sempre visibile (fade leggero solo a fine pagina)
+  const fadeStart = maxScroll - 140;
+  const arrowAlpha = scrollOffset > fadeStart
+    ? map(scrollOffset, fadeStart, maxScroll, 255, 0, true)
+    : 255;
+
+  push();
+
+  // LABEL
+  if (showLabel) {
+    noStroke();
+    fill(200, labelAlpha);
+    textFont(myFont2);
+    textSize(12);
+    textAlign(CENTER, BOTTOM);
+    text("SCROLL DOWN FOR MORE", cx, labelY);
+  }
+
+  // UNA SOLA FRECCIA centrata sotto la label
+  stroke(200, arrowAlpha);
+  strokeWeight(2);
+  noFill();
+  line(cx - halfW, cy - h, cx, cy);
+  line(cx + halfW, cy - h, cx, cy);
+
+  pop();
 }
-
 
 
 
@@ -660,7 +728,7 @@ function drawScrollHintArrow() {
 function isOverDownHint(mx, my) {
   // hitbox generosa (include anche la label)
   const cx = width / 2;
-  const baseCy = height - 44;
+  const baseCy = height - 4;
   const hitW = 220;
   const hitH = 80;
 
@@ -672,7 +740,42 @@ function isOverDownHint(mx, my) {
   );
 }
 
+function snapTo(val) {
+  snapTarget = constrain(val, 0, maxScroll);
+  snapping = true;
+}
 
+function introNext() {
+  // ✅ 关键：每次点击前都先根据 scrollOffset 同步当前段落
+  syncIntroIndex();
+
+  // 第一个 click: porta str1 al centro
+  if (introIndex < 3) {
+    introIndex++;
+    snapTo(introTargets[introIndex]);
+  } else {
+    // 到最后一段时，直接“到达底部”
+    snapping = false;
+    scrollOffset = maxScroll;
+    snapTarget = maxScroll;
+
+    if (!autoExpandStarted) autoExpandStarted = true;
+  }
+}
+
+
+function introPrev() {
+  if (introIndex > 0) {
+    introIndex--;
+    snapTo(introTargets[introIndex]);
+  } else {
+    // torna all'inizio (prima di str1)
+    introIndex = -1;
+    autoExpandStarted = false;
+    centerCircleSize = 10;
+    snapTo(0);
+  }
+}
 
 
 // --------------------------------------------------DA CAPIRE DOVE POSIZIONARLO!!!!-------------------------------------------
@@ -1493,6 +1596,7 @@ function mouseWheel(event) {
     }
   } */
   if (page === 1) {
+    
     spreadSpeed += event.delta * 0.05;
 
     // 1) scroll SEMPRE bidirezionale (anche quando sei già a maxScroll)
@@ -1515,38 +1619,33 @@ function mouseWheel(event) {
       handleIntroScroll(event.delta);
       return false;
     }
-} else if (page === 2) {
+  } else if (page === 2) {
 
-  // 向下滚：timeline 前进
-  if (event.delta > 0) {
-    scrollDirection = 1;
-    return false;
-  }
+    if (event.delta > 0) {
+      page2BackScrollAcc = 0;
+      scrollDirection = 1;
+      return false;
+    }
 
-  // 向上滚：timeline 后退；如果已经退到最开头，再向上滚 -> 回 page1
-  if (event.delta < 0) {
+    // scroll up -> indietro nella timeline
+    if (event.delta < 0) {
+      scrollDirection = 0;
 
-    // ✅先让 timeline 倒退
-    scrollDirection = -1;
+      page2BackScrollAcc += abs(event.delta);
 
-    // ✅当 timeline 已经到最开始（或非常接近）时，继续往上滚就触发回退
-    const atStart = scrollProgress <= (startYear - 1 + 0.25);
-
-    if (atStart) {
-      // 冷却，防止触控板轻微抖动连续触发
-      const now = millis();
-      if (now - lastBackAttemptMs >= BACK_COOLDOWN) {
-        lastBackAttemptMs = now;
-        startBackTransition(); // 过渡结束后 drawPage2 会 goBackToIntroBottom()
+      if (page2BackScrollAcc >= PAGE2_BACK_SCROLL_THRESHOLD) {
+        page2BackScrollAcc = 0;
+        goBackToIntroBottom();
       }
+
+      startBackTransition();
+
+      return false;
     }
 
     return false;
+
   }
-
-  return false;
-}
-
 
   // fallback
   return false;
@@ -1672,31 +1771,73 @@ function mousePressed() {
   }
 }
 
+function applyIntroDelta(delta) {
+  // 走和滚轮一模一样的逻辑
+  handleIntroScroll(delta);
+}
+
+function kickSpreadToward(targetScroll) {
+  // scroll里：scrollOffset += delta * 0.5
+  // 反推：delta = (targetScroll - scrollOffset) / 0.5
+  const delta = (targetScroll - scrollOffset) / 0.5;
+
+  // scroll里：spreadSpeed += delta * 0.05
+  spreadSpeed += delta * 0.05;
+
+  // scroll里：往上滚会立刻停扩张（保持一致）
+  if (delta < 0) {
+    autoExpandStarted = false;
+    centerCircleSize = 10;
+  }
+}
+
+
 
 function keyPressed() {
-  // PAGE 1
+
+  // PAGE 1 controls
   if (page === 1) {
+
     if (keyCode === DOWN_ARROW) {
-      introNext(); // 同时控制背景动画
+      syncIntroIndex();
+
+      // 目标：下一段文字对应的 target（最后一步用 maxScroll）
+      const target = (introIndex < 3) ? introTargets[introIndex + 1] : maxScroll;
+
+      // ✅ 先给背景一个“像滚轮”的推力
+      kickSpreadToward(target);
+
+      // ✅ 再用你原来的 step 跳段逻辑（文字一按一段）
+      introNext();
       return false;
     }
+
     if (keyCode === UP_ARROW) {
+      syncIntroIndex();
+
+      // 目标：上一段文字对应的 target（回到最顶就是 0）
+      const target = (introIndex > 0) ? introTargets[introIndex - 1] : 0;
+
+      kickSpreadToward(target);
       introPrev();
       return false;
     }
+
     if (keyCode === HOME) {
       introTop();
       return false;
     }
   }
 
-  // PAGE 2
+  // Only on page2 and when menu is not open
   if (page !== 2 || menuOpen) return;
 
-  if (keyCode === RIGHT_ARROW && infoStep < 3) infoStep++;
-  else if (keyCode === LEFT_ARROW && infoStep > 0) infoStep--;
+  if (keyCode === RIGHT_ARROW && infoStep < 3) {
+    infoStep++;
+  } else if (keyCode === LEFT_ARROW && infoStep > 0) {
+    infoStep--;
+  }
 }
-
 
 // ===============================
 // particles in page1
@@ -1883,6 +2024,32 @@ function disegnaAsseEAnni() {
   }
 }
 
+function forcePage1AtBottom() {
+  // 文字滚动位置：直接到底
+  scrollOffset = maxScroll;
+  scrollOffset = constrain(scrollOffset, 0, maxScroll);
+
+  // 关掉任何吸附/扩张，防止回去就又自动跳页
+  snapping = false;
+  snapTarget = scrollOffset;
+
+  autoExpandStarted = false;
+  centerCircleSize = 10;
+
+  // UI：最后一段
+  introIndex = 3;
+  showScrollLabelPage1 = false;
+
+  // 背景粒子：直接设置到“最终展开态”
+  // 用每个粒子的 expandSpeed 做一个确定性的最终值（最省事、最稳）
+  for (let p of particles1) {
+    p.currentA = p.a + p.expandSpeed * PAGE1_END_SPREAD;
+    p.currentB = p.b + p.expandSpeed * PAGE1_END_SPREAD;
+  }
+
+  spreadSpeed = 0; // 避免回去还在继续飘
+}
+
 function goBackToIntroBottom() {
   page = 1;
   // pulisci l'hash così lo stato URL corrisponde alla pagina reale
@@ -1897,11 +2064,30 @@ function goBackToIntroBottom() {
   // IMPORTANTE per evitare rientro immediato in page2:
   // ti posiziona poco prima del fondo, così l’utente può scrollare su (smooth)
   // e per rientrare in page2 deve fare uno scroll down reale.
-  scrollOffset = maxScroll - 30;   // <- regola (20-80) a gusto
-  scrollOffset = constrain(scrollOffset, 0, maxScroll);
+function goBackToIntroBottom() {
+  page = 1;
+  history.replaceState(null, "", window.location.pathname);
 
-  // se avevi snapping o stati simili, qui li "spengi"
-  snapping = false;
+  scrollDirection = 0;
+  autoExpandStarted = false;
+  centerCircleSize = 10;
+
+  // ✅ 如果是从 skip/overview 进的 page2，回去就强制落在 page1 最后状态
+  if (jumpedToPage2) {
+    forcePage1AtBottom();
+  } else {
+    // 否则保留你原本的“回到接近底部”的行为（可选）
+    scrollOffset = maxScroll - 30;
+    scrollOffset = constrain(scrollOffset, 0, maxScroll);
+    snapping = false;
+  }
+
+  const backBtn = document.getElementById("backToTopBtn");
+  if (backBtn) backBtn.style.display = "none";
+
+  updateSkipVisibility();
+}
+
 
   // UI opzionale: gestisci bottoni
   const backBtn = document.getElementById("backToTopBtn");
@@ -2067,7 +2253,22 @@ function getDatasetCountryName(label) {
 }
 function checkExternalCountryFilter() {
   let params = new URLSearchParams(window.location.search);
-  let countryParam = params.get('country');
+  const countryParam = params.get("country");
+  const fromParam = params.get("from");
+
+  // --- back button (da "year") ---
+  const backBtn = document.getElementById("backFromYearBtn");
+  if (backBtn) {
+    const shouldShow = !!countryParam && fromParam === "year";
+    backBtn.style.display = shouldShow ? "block" : "none";
+
+    if (shouldShow) {
+      backBtn.onclick = () => {
+        const y = sessionStorage.getItem("lastYear");
+        window.location.href = y ? `year.html?year=${y}` : "year.html";
+      };
+    }
+  }
 
   if (countryParam) {
     // 将 URL 中的国家名赋值给你的全局变量
@@ -2111,6 +2312,3 @@ function drawYAxisGradient() {
 
   pop();
 }
-
-
-
