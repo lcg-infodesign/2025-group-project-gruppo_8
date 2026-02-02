@@ -8,7 +8,7 @@ let mushroomImg;
 let noTestYears = [1947, 1950, 1959, 1997];
 let noTestTexts = {
   1947: `No tests were conducted in 1947
-In 1947, no nuclear test launches are recorded because, in the immediate aftermath of Hiroshima and Nagasaki, nuclear powers entered a period of caution and reassessment. The United States, at the time the only country with nuclear weapons, faced no immediate military necessity and was shifting the role of nuclear arms toward deterrence rather than active testing. Additionally, nuclear tests were technically complex, costly, and politically sensitive in a rapidly emerging Cold War context.`,
+In 1947, no nuclear tests were conducted. After the atomic bombings of Hiroshima and Nagasaki, the United States, the only country with nuclear weapons at the time, undertook a strategic review of nuclear weapons policy. There was no immediate military need for further testing, and U.S. strategy increasingly emphasized deterrence over continued experimentation. Nuclear tests were also technically difficult, expensive, and politically sensitive as Cold War tensions were just beginning to emerge.`,
 
   1950: `No tests were conducted in 1950
 In 1950 the strategic competition between the United States and the Soviet Union entered a new phase. Situated between the first Soviet nuclear test in 1949 and the next one in 1951, the year was not marked by spectacular events. It’s precisely this apparent lack of dramatic turning points that gives it its historical significance. In 1950, the Soviet Union’s status as an atomic power was fully absorbed by the United States and its allies, resulting in an arms race characterized by increasingly intense technological and doctrinal competition.
@@ -554,7 +554,7 @@ function drawTestDots(yearData) {
   let gap = 7;
   let cols = 5;
   let lineY = height / 2 + 50;
-  let fixedSpacing = 150;
+  let fixedSpacing = 130;
 
   textFont(myFont2);
   fill(0, 255, 255);
