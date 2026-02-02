@@ -1,6 +1,6 @@
 let insightSketch = function (p) {
   // Variabili contenuto
-  let img1, img2, img3;
+  let img1, img2, img3, img4;
   let thumbs = [];
   let largeImages = [];
   let showPreview = false;
@@ -9,11 +9,10 @@ let insightSketch = function (p) {
   let currentTopic = "hiroshima";
   let pageTitle = "Insight";
   let contentTitle = "";
-  let Text1, Text2, Text3;
+  let Text1, Text2, Text3, Text4;
 
   const contentConfig = {
     "hiroshima": {
-      //title: "Hiroshima & Nagasaki",
       texts: [
         "The use of nuclear weapons in armed conflict has occurred only twice: when the United States detonated two atomic bombs over the Japanese cities of Hiroshima and Nagasaki, during World War II. On 6 th and 9 th of August 1945, these aerial attacks claimed the lives of 150,000 to 246,000 people, most of whom were civilians.",
         "The atomic bomb dropped on Hiroshima was named Little Boy, it was a uranium gun-type fission weapon developed by the Manhattan Project. It was dropped by the B-29 Enola Gay on Hiroshima on August 6, 1945, marking it the first use of a nuclear weapon in warfare. It exploded with an energy equivalent to approximately 15 kilotons of TNT, causing widespread devastation with an explosion radius of about 1.3 kilometers (0.81 mi).",
@@ -36,8 +35,8 @@ let insightSketch = function (p) {
       ],
       hasThreeSections: true
     },
+
     "moratoria58": {
-      //title: "Moratorium 1958",
       texts: [
         "The 1958 nuclear test moratorium was a unilateral suspension of nuclear weapons testing announced by the Soviet Union on March 31, 1958, and followed by the United States and United Kingdom.",
         "This moratorium lasted from November 1958 to September 1961, representing the first significant pause in nuclear testing since the beginning of the atomic age.",
@@ -45,49 +44,50 @@ let insightSketch = function (p) {
       ],
       imagePaths: [
         "images/insight_1958_img1.jpg",
-        "images/insight_img2.jpg",
-        "images/hiding_the_radiation_of_the_atomic_bombs_1050x700.avif"
+        "images/581.jpeg",
+        "images/582.jpeg"
       ],
       thumbnails: [],
       bottomTexts: [],
       hasThreeSections: true
     },
-    "trattato63": {
-      //title: "Test Ban Treaty 1963",
-texts: [
-  "Partial Test Ban Treaty – PTBT (1963): This was the first international agreement to effectively limit nuclear testing.",
-  "It entered into force in 1963 and prohibited nuclear explosions in the atmosphere, underwater, and in outer space, while still allowing underground testing—a compromise that enabled the US, USSR, and UK to continue their programs without formally violating the treaty.",
-  "The initial goal was to reduce global radioactive fallout; implicitly, it was not intended to slow down the arms race. Many states never ratified it, and in the decades that followed, testing simply shifted underground, becoming the dominant mode until the late 1990s."
-],
 
+    "trattato63": {
+      texts: [
+        "Partial Test Ban Treaty – PTBT (1963): This was the first international agreement to effectively limit nuclear testing.",
+        "It entered into force in 1963 and prohibited nuclear explosions in the atmosphere, underwater, and in outer space, while still allowing underground testing—a compromise that enabled the US, USSR, and UK to continue their programs without formally violating the treaty.",
+        "The initial goal was to reduce global radioactive fallout; implicitly, it was not intended to slow down the arms race. Many states never ratified it, and in the decades that followed, testing simply shifted underground, becoming the dominant mode until the late 1990s."
+      ],
       imagePaths: [
         "images/1963.png",
-        "images/insight_img2.jpg",
-        "images/hiding_the_radiation_of_the_atomic_bombs_1050x700.avif"
+        "images/63.jpeg",
+        "images/631.jpeg"
       ],
       thumbnails: [],
       bottomTexts: [],
       hasThreeSections: true
     },
-    "trattato96": {
-      //title: "Test Ban Treaty 1996",
-texts: [
-  "The Comprehensive Nuclear-Test-Ban Treaty (CTBT) is an international agreement that prohibits all nuclear explosions, aiming to prevent the proliferation of nuclear weapons and to limit the development of new or more advanced weapons. It was adopted by the UN General Assembly in 1996 and opened for signature in the same year.",
-  "A key distinction in international treaties is between signing and ratifying: signing shows a country’s intention to follow the rules, while ratification makes the treaty legally binding through formal approval. The CTBT has been signed by 185 countries, but not all major nuclear powers have ratified it. In the dataset, the United States, Russian Federation, and China signed the treaty but did not ratify it; India and Pakistan have neither signed nor ratified it; France and the United Kingdom have both signed and ratified it.",
-  "The treaty establishes a global verification system with seismic, hydroacoustic, infrasound, and radionuclide monitoring stations, as well as the possibility of on-site inspections. Although the CTBT has not yet entered into force due to the lack of ratification by some key countries, it has effectively limited nuclear testing, as most nuclear-armed states have observed a voluntary moratorium since the 1990s. Overall, the CTBT remains a crucial instrument for global security and nuclear non-proliferation, but its full effectiveness depends on the commitment of all major nuclear powers."
-],
 
+    "trattato96": {
+      texts: [
+        "The Comprehensive Nuclear-Test-Ban Treaty (CTBT) is an international agreement that prohibits all nuclear explosions, aiming to prevent the proliferation of nuclear weapons and to limit the development of new or more advanced weapons. It was adopted by the UN General Assembly in 1996 and opened for signature in the same year.",
+        "A key distinction in international treaties is between signing and ratifying: signing shows a country’s intention to follow the rules, while ratification makes the treaty legally binding through formal approval. The CTBT has been signed by 185 countries, but not all major nuclear powers have ratified it.",
+        "In the dataset, the United States, Russian Federation, and China signed the treaty but did not ratify it; India and Pakistan have neither signed nor ratified it; France and the United Kingdom have both signed and ratified it.",
+        "The treaty establishes a global verification system with seismic, hydroacoustic, infrasound, and radionuclide monitoring stations, as well as the possibility of on-site inspections. Although the CTBT has not yet entered into force due to the lack of ratification by some key countries, it has effectively limited nuclear testing since the 1990s."
+      ],
       imagePaths: [
         "images/1996.png",
-        "images/insight_img2.jpg",
-        "images/hiding_the_radiation_of_the_atomic_bombs_1050x700.avif"
+        "images/96.jpeg",
+        "images/961.jpeg",
+        "images/963.jpeg" // 第4张先用第3张
       ],
       thumbnails: [],
       bottomTexts: [],
-      hasThreeSections: true
+      hasThreeSections: false,
+      hasFourSections: true
     },
+
     "tsarbomba": {
-      //title: "Tsar Bomba - 50 MT",
       texts: [
         "The RDS-200, known as Tsar Bomba, was the most powerful nuclear weapon ever detonated, with a yield of 50 megatons of TNT, developed by the Soviet Union and tested on October 30, 1961.",
         "The bomb was originally designed for a 100-megaton yield, but was scaled down to reduce radioactive fallout. Even at half its potential yield, it was 3,800 times more powerful than the Hiroshima bomb.",
@@ -108,29 +108,25 @@ texts: [
   let scrollY = 0;
   let targetScrollY = 0;
 
-  // --- [ADD] Scroll hint + snap-to-section (solo per insight lunghi) ---
-  let snapTargets = [];          // targetScrollY per ogni sezione (centrata)
-  let currentStep = 0;           // 0..2
-  let showScrollLabel = true;    // al primo scroll diventa false
-  let lastStepMs = 0;            // throttle wheel
-  let isSnapping = false; // blocca wheel mentre stai ancora animando verso un target
-  let freeScrollMode = false; // 是否已经进入 gallery 自由滚动
+  // Snap
+  let snapTargets = [];
+  let currentStep = 0;
+  let showScrollLabel = true;
+  let lastStepMs = 0;
+  let isSnapping = false;
+  let freeScrollMode = false;
 
+  let viewBombBtnBox = null;
+  let overViewBombBtn = false;
 
-  let viewBombBtnBox = null;     // hitbox per click
-  let overViewBombBtn = false;   // hover state
-
-  // --- [ADD] first page buttons (Hiroshima) ---
+  // first page buttons (Hiroshima)
   let viewFatManBtnBox = null;
   let viewLittleBoyBtnBox = null;
 
-  // TODO: 用你 dataset 里对应条目的 id 替换
-  const FAT_MAN_ID = 45003;  
-  const LITTLE_BOY_ID = 45002;     
-
+  const FAT_MAN_ID = 45003;
+  const LITTLE_BOY_ID = 45002;
 
   let canvasHeight;
-
 
   let topMargin = 40;
   let sideMargin = 80;
@@ -149,14 +145,13 @@ texts: [
   let thumbSize = 120;
   let thumbGap = 30;
 
-  let myFont1, myFont2;
+  let myFont1, myFont2, myFont3;
 
   let fadeIn = 0;
   let floatOffset = 20;
-  let hoverClickable = false; // true quando sei sopra elementi cliccabili (thumbs / arrows)
+  let hoverClickable = false;
 
-  const imgAlpha = 100; // prova 200–220 (255 = pieno)
-
+  const imgAlpha = 100;
 
   p.preload = function () {
     myFont1 = p.loadFont("fonts/LexendZetta-Regular.ttf");
@@ -167,10 +162,13 @@ texts: [
     currentTopic = urlParams.get('topic') || 'hiroshima';
 
     const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
+    const hasThree = !!config.hasThreeSections;
+    const hasFour = !!config.hasFourSections;
 
     img1 = p.loadImage(config.imagePaths[0]);
-    img2 = config.hasThreeSections ? p.loadImage(config.imagePaths[1]) : null;
-    img3 = config.hasThreeSections ? p.loadImage(config.imagePaths[2]) : null;
+    img2 = (hasThree || hasFour) ? p.loadImage(config.imagePaths[1]) : null;
+    img3 = (hasThree || hasFour) ? p.loadImage(config.imagePaths[2]) : null;
+    img4 = hasFour ? p.loadImage(config.imagePaths[3]) : null;
 
     thumbs = [];
     largeImages = [];
@@ -183,9 +181,11 @@ texts: [
     }
 
     contentTitle = config.title;
-    Text1 = config.texts[0];
-    Text2 = config.hasThreeSections ? config.texts[1] : "";
-    Text3 = config.hasThreeSections ? config.texts[2] : "";
+
+    Text1 = config.texts[0] || "";
+    Text2 = (hasThree || hasFour) ? (config.texts[1] || "") : "";
+    Text3 = (hasThree || hasFour) ? (config.texts[2] || "") : "";
+    Text4 = hasFour ? (config.texts[3] || "") : "";
   };
 
   p.setup = function () {
@@ -207,11 +207,9 @@ texts: [
   p.draw = function () {
     p.background(20);
     p.fill(255);
-    hoverClickable = false; // reset ogni frame
-
+    hoverClickable = false;
 
     scrollY += (targetScrollY - scrollY) * 0.12;
-    // sblocca wheel quando sei praticamente arrivata
     if (isSnapping && Math.abs(targetScrollY - scrollY) < 0.6) {
       isSnapping = false;
     }
@@ -221,17 +219,15 @@ texts: [
     fadeIn = p.min(fadeIn + 3, 255);
     floatOffset = p.max(floatOffset - 0.55, 0);
 
-    // TITLE "Insight" REMOVED:
-    // la navbar HTML/CSS sopra al canvas sostituisce questo titolo.
-    // (teniamo comunque pageTitle per i calcoli di layout/canvasHeight)
     titleAlpha = p.map(scrollY, 0, 200, 255, 0, true);
-
 
     let topTextW = p.width - topTextSideMargin * 2;
     let topTextH = estimateTextHeight(pageTitle, topTextW);
 
     const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
-    const hasThreeSections = config.hasThreeSections;
+    const hasThreeSections = !!config.hasThreeSections;
+    const hasFourSections = !!config.hasFourSections;
+    const hasLongSections = hasThreeSections || hasFourSections;
 
     let y1 = topMargin + topTextH + 100 + floatOffset;
 
@@ -259,7 +255,8 @@ texts: [
     let alpha1 = p.map(y1 - scrollY, p.height, 0, 0, 255, true);
     drawTextWithFloat(Text1, textX1, textY1, textW1, alpha1, -20, 20);
 
-    if (hasThreeSections && img2) {
+    // ====== SECTION 2/3 (and 4 if exists) ======
+    if (hasLongSections && img2) {
       let y2 = y1 + imgH + spacing;
 
       let imgX2 = p.width - sideMargin - imgW;
@@ -293,6 +290,26 @@ texts: [
       let alpha3 = p.map(y3 - scrollY, p.height, 0, 0, 255, true);
       drawTextWithFloat(Text3, textX3, textY3, textW3, alpha3, -20, 20);
 
+      // ✅ SECTION 4 (only for trattato96 / hasFourSections)
+      if (hasFourSections && img4) {
+        let y4 = y3 + imgH + spacing;
+
+        let imgX4 = p.width - sideMargin - imgW;
+        p.tint(255, (fadeIn * imgAlpha) / 255);
+        p.image(img4, imgX4, y4 - scrollY * 0.9, imgW, imgH);
+        p.noTint();
+
+        let textX4 = sideMargin + 100;
+        let textW4 = maxTextWidth;
+
+        let textCenterY4 = y4 - scrollY * 0.9 + imgH / 2;
+        let textHeight4 = estimateTextHeight(Text4, textW4);
+        let textY4 = textCenterY4 - textHeight4 / 2;
+
+        let alpha4 = p.map(y4 - scrollY, p.height, 0, 0, 255, true);
+        drawTextWithFloat(Text4, textX4, textY4, textW4, alpha4, 20, -20);
+      }
+
       if (currentTopic === "hiroshima") {
         let thumbY = calculateThumbY(scrollY);
         if (thumbY < p.height + 200 && thumbs.length > 0) {
@@ -301,26 +318,19 @@ texts: [
       }
     }
 
-    // --- [ADD] Tsar button ---
+    // Tsar button
     overViewBombBtn = drawViewBombButton();
 
-    // --- [ADD] Scroll hint (solo per insight lunghi) ---
-    const overHint = drawScrollHintIfNeeded(hasThreeSections);
+    // Scroll hint + first page buttons
+    const overHint = drawScrollHintIfNeeded(hasLongSections);
     drawFirstBombButtons(hasThreeSections);
-
-
 
     if (showPreview && previewImg && currentTopic === "hiroshima") {
       drawPreviewOverlay();
     }
 
-    // Nasconde navbar/back quando la preview è aperta (solo su Hiroshima)
     document.body.classList.toggle("photo-open", showPreview && currentTopic === "hiroshima");
-
-
-    // Cursor globale per elementi cliccabili (thumbs + arrows)
     p.cursor(hoverClickable ? p.HAND : p.ARROW);
-
   };
 
   function drawTextWithFloat(txt, x, y, maxW, alpha, o1, o2) {
@@ -381,10 +391,10 @@ texts: [
     let topTextH = estimateTextHeight(pageTitle, topTextW);
 
     const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
-    const hasThreeSections = config.hasThreeSections;
+    const sectionsCount = config.hasFourSections ? 4 : (config.hasThreeSections ? 3 : 1);
 
-    if (hasThreeSections) {
-      let height = topMargin + topTextH + 140 + (spacing + imgH) * 3;
+    if (sectionsCount >= 3) {
+      let height = topMargin + topTextH + 140 + (spacing + imgH) * sectionsCount;
 
       if (currentTopic === "hiroshima") {
         height += 600;
@@ -399,25 +409,25 @@ texts: [
     }
   }
 
-  // --- [ADD] calcola y base delle 3 sezioni (senza scroll) ---
+  // ✅ base Ys now dynamic (3 or 4)
   function getSectionBaseYs() {
-    // Stessi calcoli del draw, ma senza floatOffset per avere targets stabili
     let topTextW = p.width - topTextSideMargin * 2;
     let topTextH = estimateTextHeight(pageTitle, topTextW);
 
-    let y1 = topMargin + topTextH + 100;          // come in draw (senza floatOffset)
-    let y2 = y1 + imgH + spacing;
-    let y3 = y2 + imgH + spacing;
-    return [y1, y2, y3];
+    const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
+    const sectionsCount = config.hasFourSections ? 4 : (config.hasThreeSections ? 3 : 1);
+
+    let y1 = topMargin + topTextH + 100;
+    let ys = [y1];
+    for (let i = 1; i < sectionsCount; i++) {
+      ys.push(ys[i - 1] + imgH + spacing);
+    }
+    return ys;
   }
 
-  // --- [ADD] costruisce targets scroll che centrano il testo (via centro immagine) ---
   function rebuildSnapTargets() {
     const ys = getSectionBaseYs();
     const centers = ys.map(y => y + imgH / 2);
-
-    // nel draw: centerY = (y - scrollY*0.9) + imgH/2
-    // voglio centerY == p.height/2  => scrollY = (center - p.height/2)/0.9
     snapTargets = centers.map(c => Math.max(0, (c - p.height / 2) / 0.9));
   }
 
@@ -438,24 +448,21 @@ texts: [
     targetScrollY = snapTargets[currentStep];
   }
 
-
   function stepScroll(dir) {
     if (isSnapping) return;
 
     rebuildSnapTargets();
     const idx = nearestStepIndex();
 
-// 到最后一个 section 往下：只有 Hiroshima 才进入 gallery 自由滚动
-if (dir > 0 && idx >= snapTargets.length - 1) {
-  if (currentTopic === "hiroshima") {
-    freeScrollMode = true;
-    showScrollLabel = false;
-  }
-  return;
-}
+    // 到最后一个 section 往下：只有 Hiroshima 才进入 gallery 自由滚动
+    if (dir > 0 && idx >= snapTargets.length - 1) {
+      if (currentTopic === "hiroshima") {
+        freeScrollMode = true;
+        showScrollLabel = false;
+      }
+      return;
+    }
 
-
-    // 往上回到 section 区 → 退出自由滚动
     if (dir < 0) {
       freeScrollMode = false;
     }
@@ -464,56 +471,42 @@ if (dir > 0 && idx >= snapTargets.length - 1) {
     snapToStep(idx + (dir > 0 ? 1 : -1));
   }
 
-
-
-  // --- CTA tipo page1: label + freccia. La label torna quando risali. A fine pagina sparisce tutto.
-  function drawScrollHintIfNeeded(hasThreeSections) {
-    if (!hasThreeSections) return false;
+  // ✅ scroll hint for 3 or 4
+  function drawScrollHintIfNeeded(hasLongSections) {
+    if (!hasLongSections) return false;
     if (showPreview) return false;
 
     rebuildSnapTargets();
     const idx = nearestStepIndex();
     const isLast = idx >= snapTargets.length - 1;
-
-    // A fine pagina: NON disegnare nulla
     if (isLast) return false;
 
     const cx = p.width / 2;
-
-    // FONDO PAGINA (più giù possibile senza tagliare)
     const baseCy = p.height - 34;
 
-    // bobbing condiviso: testo e freccia si muovono insieme
     const bob = p.sin(p.frameCount * 0.08) * 4;
     const cy = baseCy + bob;
-
-    // label sopra la freccia, e si muove con lei
     const labelY = cy - 24;
 
-    // hitbox generosa (include area label)
     const hitW = 240;
     const hitH = 60;
     const over =
       p.mouseX > cx - hitW / 2 && p.mouseX < cx + hitW / 2 &&
       p.mouseY > baseCy - hitH / 2 && p.mouseY < baseCy + hitH / 2;
 
-    // freccia “chevron”
     const halfW = 10;
     const h = 8;
 
     p.push();
     p.noFill();
 
-    // hover = più chiara
     const a = over ? 220 : 160;
     p.stroke(0, 255, 255, a);
     p.strokeWeight(over ? 2 : 1.6);
 
-    // chevron down
     p.line(cx - halfW, cy - h, cx, cy);
     p.line(cx + halfW, cy - h, cx, cy);
 
-    // label: font come page1, ma colore ciano richiesto
     if (idx === 0 && showScrollLabel) {
       p.noStroke();
       p.fill(0, 255, 255, over ? 255 : 200);
@@ -529,14 +522,11 @@ if (dir > 0 && idx >= snapTargets.length - 1) {
     return over;
   }
 
-
-
   function calculateThumbY(currentScrollY) {
     if (currentTopic !== "hiroshima") return -1000;
 
     const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
     const hasThreeSections = config.hasThreeSections;
-
     if (!hasThreeSections) return -1000;
 
     let topTextW = p.width - topTextSideMargin * 2;
@@ -549,9 +539,8 @@ if (dir > 0 && idx >= snapTargets.length - 1) {
     return base - currentScrollY;
   }
 
-  // --- [ADD] Button stile "VIEW HISTORIC INSIGHTS" ma con link alla bomba ---
+  // --- Tsar button ---
   function drawViewBombButton() {
-    // Solo su Tsar insight
     if (currentTopic !== "tsarbomba") {
       viewBombBtnBox = null;
       return false;
@@ -562,7 +551,6 @@ if (dir > 0 && idx >= snapTargets.length - 1) {
       return false;
     }
 
-    // MOSTRA SOLO ALLA FINE (ultimo step)
     rebuildSnapTargets();
     const idx = nearestStepIndex();
     const isLast = idx >= snapTargets.length - 1;
@@ -579,20 +567,17 @@ if (dir > 0 && idx >= snapTargets.length - 1) {
     p.push();
     p.textFont(myFont3);
     p.textSize(14);
-    const btnW = p.textWidth(label) + padX * 2 + 18; // + spazio freccetta
+    const btnW = p.textWidth(label) + padX * 2 + 18;
 
     const btnX = p.width / 2 - btnW / 2;
-    // lo metto "in basso" ma NON attaccato alla freccia scroll-hint (che sta più giù)
     const btnY = p.height - 74;
 
     const isHover =
       p.mouseX > btnX && p.mouseX < btnX + btnW &&
       p.mouseY > btnY && p.mouseY < btnY + btnH;
 
-    // salva hitbox per mousePressed
     viewBombBtnBox = { x: btnX, y: btnY, w: btnW, h: btnH };
 
-    // stile: dark fill + cyan stroke (come year)
     if (isHover) {
       p.fill(20, 20, 20, 200);
       p.stroke(0, 255, 255, 200);
@@ -605,13 +590,11 @@ if (dir > 0 && idx >= snapTargets.length - 1) {
     p.strokeWeight(1);
     p.rect(btnX, btnY, btnW, btnH, 8);
 
-    // testo
     p.noStroke();
     p.fill(0, 255, 255, isHover ? 255 : 180);
     p.textAlign(p.CENTER, p.CENTER);
     p.text(label, btnX + btnW / 2 - 6, btnY + btnH / 2 - 1);
 
-    // triangolino a destra (stesso linguaggio del bottone year)
     let triSize = 5;
     let triX = btnX + btnW - 12;
     let triY = btnY + btnH / 2;
@@ -628,80 +611,70 @@ if (dir > 0 && idx >= snapTargets.length - 1) {
     return isHover;
   }
 
-  // --- [ADD] Two buttons on first page (Hiroshima): VIEW FAT MAN / VIEW LITTLE BOY ---
- // --- [REPLACE] Two buttons for Hiroshima, same timing logic as last-page button ---
-// 出现时机：必须 scroll 到最后一个 section 再往下 → 进入 freeScrollMode(gallery) 才出现
-function drawFirstBombButtons(hasThreeSections) {
-  // 只在 Hiroshima
-  if (currentTopic !== "hiroshima") {
-    viewFatManBtnBox = null;
-    viewLittleBoyBtnBox = null;
-    return;
+  // --- Hiroshima two buttons ---
+  function drawFirstBombButtons(hasThreeSections) {
+    if (currentTopic !== "hiroshima") {
+      viewFatManBtnBox = null;
+      viewLittleBoyBtnBox = null;
+      return;
+    }
+
+    if (!hasThreeSections) return;
+
+    if (showPreview) {
+      viewFatManBtnBox = null;
+      viewLittleBoyBtnBox = null;
+      return;
+    }
+
+    if (!freeScrollMode) {
+      viewFatManBtnBox = null;
+      viewLittleBoyBtnBox = null;
+      return;
+    }
+
+    const btnH = 40;
+    const padX = 18;
+    const gap = 18;
+
+    const labelLeft = "VIEW FAT MAN";
+    const labelRight = "VIEW LITTLE BOY";
+
+    p.push();
+    p.textFont(myFont3);
+    p.textSize(14);
+
+    const wLeft = p.textWidth(labelLeft) + padX * 2 + 18;
+    const wRight = p.textWidth(labelRight) + padX * 2 + 18;
+
+    const totalW = wLeft + gap + wRight;
+    const groupX = p.width / 2 - totalW / 2;
+
+    const btnY = p.height - 74;
+
+    const leftX = groupX;
+    const rightX = groupX + wLeft + gap;
+
+    const hoverLeft =
+      p.mouseX > leftX && p.mouseX < leftX + wLeft &&
+      p.mouseY > btnY && p.mouseY < btnY + btnH;
+
+    const hoverRight =
+      p.mouseX > rightX && p.mouseX < rightX + wRight &&
+      p.mouseY > btnY && p.mouseY < btnY + btnH;
+
+    viewFatManBtnBox = { x: leftX, y: btnY, w: wLeft, h: btnH };
+    viewLittleBoyBtnBox = { x: rightX, y: btnY, w: wRight, h: btnH };
+
+    drawOneButton(leftX, btnY, wLeft, btnH, labelLeft, hoverLeft);
+    drawOneButton(rightX, btnY, wRight, btnH, labelRight, hoverRight);
+
+    if (hoverLeft || hoverRight) hoverClickable = true;
+
+    p.pop();
   }
 
-  if (!hasThreeSections) return;
-
-  // preview 开着就不显示
-  if (showPreview) {
-    viewFatManBtnBox = null;
-    viewLittleBoyBtnBox = null;
-    return;
-  }
-
-  // ✅ 关键：和最后一页一样，“滚到某个阶段才出现”
-  // 这里用你已有的 freeScrollMode：进入 gallery 才显示按钮
-  if (!freeScrollMode) {
-    viewFatManBtnBox = null;
-    viewLittleBoyBtnBox = null;
-    return;
-  }
-
-  const btnH = 40;
-  const padX = 18;
-  const gap = 18;
-
-  const labelLeft = "VIEW FAT MAN";
-  const labelRight = "VIEW LITTLE BOY";
-
-  p.push();
-  p.textFont(myFont3);
-  p.textSize(14);
-
-  const wLeft = p.textWidth(labelLeft) + padX * 2 + 18;   // + spazio freccetta
-  const wRight = p.textWidth(labelRight) + padX * 2 + 18;
-
-  const totalW = wLeft + gap + wRight;
-  const groupX = p.width / 2 - totalW / 2;
-
-  // 和最后一页按钮同位置
-  const btnY = p.height - 74;
-
-  const leftX = groupX;
-  const rightX = groupX + wLeft + gap;
-
-  const hoverLeft =
-    p.mouseX > leftX && p.mouseX < leftX + wLeft &&
-    p.mouseY > btnY && p.mouseY < btnY + btnH;
-
-  const hoverRight =
-    p.mouseX > rightX && p.mouseX < rightX + wRight &&
-    p.mouseY > btnY && p.mouseY < btnY + btnH;
-
-  viewFatManBtnBox = { x: leftX, y: btnY, w: wLeft, h: btnH };
-  viewLittleBoyBtnBox = { x: rightX, y: btnY, w: wRight, h: btnH };
-
-  drawOneButton(leftX, btnY, wLeft, btnH, labelLeft, hoverLeft);
-  drawOneButton(rightX, btnY, wRight, btnH, labelRight, hoverRight);
-
-  if (hoverLeft || hoverRight) hoverClickable = true;
-
-  p.pop();
-}
-
-
-  // helper：画一个按钮（完全复用“最后一页按钮”的视觉语言）
   function drawOneButton(btnX, btnY, btnW, btnH, label, isHover) {
-    // 背景 + 描边
     if (isHover) {
       p.fill(20, 20, 20, 200);
       p.stroke(0, 255, 255, 200);
@@ -713,13 +686,11 @@ function drawFirstBombButtons(hasThreeSections) {
     p.strokeWeight(1);
     p.rect(btnX, btnY, btnW, btnH, 8);
 
-    // 文本
     p.noStroke();
     p.fill(0, 255, 255, isHover ? 255 : 180);
     p.textAlign(p.CENTER, p.CENTER);
     p.text(label, btnX + btnW / 2 - 6, btnY + btnH / 2 - 1);
 
-    // 右侧小三角（hover 时轻微抖动）
     let triSize = 5;
     let triX = btnX + btnW - 12;
     let triY = btnY + btnH / 2;
@@ -733,15 +704,9 @@ function drawFirstBombButtons(hasThreeSections) {
     p.pop();
   }
 
-
   function drawThumbnails(y) {
-
-    // Se la preview è aperta, i thumbnails dietro NON devono influenzare hover/cursor
-    // (restano visivamente lì sotto, ma non “interagiscono”)
     if (showPreview) return;
-
     if (currentTopic !== "hiroshima") return;
-
     if (y < -100) return;
 
     let totalW = thumbs.length * thumbSize + (thumbs.length - 1) * thumbGap;
@@ -755,7 +720,6 @@ function drawFirstBombButtons(hasThreeSections) {
 
     let hoverLeftStripArrow = false;
     let hoverRightStripArrow = false;
-
 
     const visibleEnd = p.width - sideMargin;
     const initialStripStart = (p.width - totalW) / 2;
@@ -807,7 +771,6 @@ function drawFirstBombButtons(hasThreeSections) {
         }
       }
     }
-
 
     for (let i = 0; i < thumbs.length; i++) {
       let x = startX + i * (thumbSize + thumbGap);
@@ -952,7 +915,6 @@ function drawFirstBombButtons(hasThreeSections) {
       }
     }
 
-    // --- [ADD] click first-page buttons (Hiroshima) ---
     if (viewFatManBtnBox) {
       const overFat =
         p.mouseX >= viewFatManBtnBox.x && p.mouseX <= viewFatManBtnBox.x + viewFatManBtnBox.w &&
@@ -975,26 +937,22 @@ function drawFirstBombButtons(hasThreeSections) {
       }
     }
 
-
-    // --- [ADD] click "View the bomb" (RDS-200 / 1961) ---
     if (viewBombBtnBox) {
       const overBtn =
         p.mouseX >= viewBombBtnBox.x && p.mouseX <= viewBombBtnBox.x + viewBombBtnBox.w &&
         p.mouseY >= viewBombBtnBox.y && p.mouseY <= viewBombBtnBox.y + viewBombBtnBox.h;
 
       if (overBtn) {
-        // RDS-200 nel tuo dataset ha id_no = 61053
         window.location.href = "single.html?id=61053";
         return;
       }
     }
 
-    // --- [ADD] click sulla freccia/CTA: stesso comportamento dello scroll down ---
+    // ✅ click scroll hint (3 or 4)
     const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
-    const hasThreeSections = config.hasThreeSections;
+    const hasLongSections = !!config.hasThreeSections || !!config.hasFourSections;
 
-    if (hasThreeSections) {
-      // ricostruisco e verifico hover sulla stessa hitbox del draw
+    if (hasLongSections) {
       rebuildSnapTargets();
       const idx = nearestStepIndex();
       const isLast = idx >= snapTargets.length - 1;
@@ -1013,60 +971,49 @@ function drawFirstBombButtons(hasThreeSections) {
         return;
       }
     }
-
-
   };
 
   p.mouseWheel = function (event) {
-
     if (showPreview) return false;
 
     const config = contentConfig[currentTopic];
-    if (!config.hasThreeSections) return false;
+    const hasLongSections = !!config.hasThreeSections || !!config.hasFourSections;
+    if (!hasLongSections) return false;
 
     if (isSnapping) return false;
 
     rebuildSnapTargets();
 
-    // =========================
     // SECTION SNAP MODE
-    // =========================
     if (!freeScrollMode) {
-
       if (event.delta > 0) stepScroll(+1);
       else if (event.delta < 0) stepScroll(-1);
-
     }
-
-    // =========================
     // GALLERY FREE SCROLL MODE
-    // =========================
-else {
-  targetScrollY += event.delta * 0.8;
+    else {
+      targetScrollY += event.delta * 0.8;
 
-  const bottomMargin = 120;
-  const baseThumbY = calculateThumbY(0);
+      const bottomMargin = 120;
+      const baseThumbY = calculateThumbY(0);
 
-  const maxScrollY =
-    baseThumbY - (p.height - bottomMargin - thumbSize);
+      const maxScrollY =
+        baseThumbY - (p.height - bottomMargin - thumbSize);
 
-  const minScrollY = snapTargets[snapTargets.length - 1];
+      const minScrollY = snapTargets[snapTargets.length - 1];
 
-  targetScrollY = p.constrain(
-    targetScrollY,
-    minScrollY,
-    Math.max(minScrollY, maxScrollY)
-  );
+      targetScrollY = p.constrain(
+        targetScrollY,
+        minScrollY,
+        Math.max(minScrollY, maxScrollY)
+      );
 
-  // ✅关键修复：往上滚到 gallery 顶部时，退出自由滚动，回到 section snap
-  const eps = 0.8; // 容差，避免浮点抖动
-  if (event.delta < 0 && targetScrollY <= minScrollY + eps) {
-    targetScrollY = minScrollY;
-    freeScrollMode = false;
-    isSnapping = false; // 让下一次 wheel 能正常触发 stepScroll(-1)
-  }
-}
-
+      const eps = 0.8;
+      if (event.delta < 0 && targetScrollY <= minScrollY + eps) {
+        targetScrollY = minScrollY;
+        freeScrollMode = false;
+        isSnapping = false;
+      }
+    }
 
     return false;
   };
@@ -1078,4 +1025,3 @@ else {
 };
 
 new p5(insightSketch);
-
