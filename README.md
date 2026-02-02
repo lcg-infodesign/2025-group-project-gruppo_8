@@ -78,6 +78,7 @@ We used the following variables for the visualizations:
 - `yield_u`
 - `purpose`, `name`, `type`
 - `year` and formatted date (`date_DMY`)
+- `id`
 
 ---
 
