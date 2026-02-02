@@ -366,7 +366,6 @@ let menuSketch = function (p) {
 
       if (!hovering) continue;
 
-      // overview
       if (b.kind === "main" && b.label === "overview") {
         let onIndex =
           window.location.pathname.includes("index.html") ||
@@ -388,7 +387,6 @@ let menuSketch = function (p) {
   };
 };
 
-// CREA IL MENU UNA SOLA VOLTA
 if (!window.menuCreated) {
   new p5(menuSketch);
   window.menuCreated = true;
