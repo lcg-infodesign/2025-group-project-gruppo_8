@@ -291,75 +291,59 @@ function computeIntroTargets() {
   );
 
   // maxScroll = quando vuoi far partire l'espansione (subito dopo str4)
-   maxScroll = introTargets[3];
+  maxScroll = max(introTargets[3] + 40, introTargets[3]);
 }
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   computeIntroTargets();
 }
-
-
-
 function syncIntroIndex() {
-  // trova l'ultimo target "superato"
+  if (snapping) return; // 新增：如果正在自动对齐/跳转中，不重新计算索引
+  
   let idx = 0;
   for (let i = 0; i < introTargets.length; i++) {
     if (scrollOffset >= introTargets[i] - 10) idx = i;
   }
   introIndex = idx;
 }
-
-function snapTo(val) {
-  snapTarget = constrain(val, 0, maxScroll);
-  snapping = true;
-}
-
 function introNext() {
-  // ✅ 第一次触发：从空白进入第一段
-  if (introIndex < 0) {
-    introIndex = 0;
+  // syncIntroIndex(); // 注释掉或删除这一行，改用下面的逻辑
+  
+  // 如果是初始状态，确保从第一段开始
+  if (introIndex < 0) introIndex = 0; 
+
+  if (introIndex < 3) { // 限制在 0,1,2,3 范围内
     snapTo(introTargets[introIndex]);
     spreadSpeed = 80;
-    return;
-  }
-
-  // 之后才按 scrollOffset 同步
-  syncIntroIndex();
-
-  if (introIndex < 3) {
-    introIndex++;
-    snapTo(introTargets[introIndex]);
-    spreadSpeed = 80;
+    introIndex++; // 先跳转再递增索引
   } else {
+    // 到达最后一段后的逻辑
     snapTo(maxScroll + 1);
     if (!autoExpandStarted) autoExpandStarted = true;
     spreadSpeed = 80;
   }
 }
 
-
 function introPrev() {
-  // ✅ 如果当前在第一段（或刚开始），再按上就回到“空白主界面”
-  if (introIndex <= 0) {
-    introIndex = -1;      // 让文字全隐藏
-    snapTo(0);            // 回到顶部
-    snapping = true;
-
-    autoExpandStarted = false;
-    centerCircleSize = 10;
-    spreadSpeed = -80;
-    return;
-  }
-
-  // ✅ 其它情况：正常往前一步
   syncIntroIndex();
 
-  introIndex--;
-  snapTo(introTargets[introIndex]);
-  spreadSpeed = -80;
-}
+  if (introIndex > 0) {
+    introIndex--;
+    snapTo(introTargets[introIndex]);
 
+    // step 向后动画（完全对称）
+    spreadSpeed = -80;
+
+  } else {
+    // 回到顶部 → 撤销扩展状态
+    introTop();
+
+    autoExpandStarted = false;
+
+    spreadSpeed = -80;
+  }
+}
 
 // ===============================
 // Se URL contiene #page2 → apri ovverview SUBITO
@@ -410,6 +394,17 @@ function draw() {
 // ===============================
 function drawPage1() {
   background(20);
+  // drawGrid();
+  //imageMode(CENTER);
+  //tint(255, 180);
+  //image(img1, width / 2, height / 2, 1200, 900);
+
+  //textFont(myFont2);
+  //fill(150);
+  //textSize(16);
+  //textAlign(CENTER, BOTTOM);
+  //text("SCROLL DOWN FOR MORE", width / 2, height - 40);
+
 
   if (snapping) {
     scrollOffset = lerp(scrollOffset, snapTarget, SNAP_LERP);
@@ -418,6 +413,8 @@ function drawPage1() {
       snapping = false;
     }
   }
+
+
 
   // Title: vertically aligned with menu button, horizontally centered
   textFont(myFont1);
@@ -453,44 +450,32 @@ function drawPage1() {
   const introStartY = height + 120; // where the first text appears
   const introStepY = height * 0.6; // distance between blocks (smaller = closer)
 
- // Intro texts — progressive reveal by steps
-textAlign(LEFT, TOP);
-
-if (introIndex >= 0) {
+  textAlign(LEFT, TOP);
   drawIntroBlock(
     str1,
     leftX,
     introStartY + introStepY * 0 - scrollOffset,
     MAX_TEXT_W
   );
-}
 
-if (introIndex >= 1) {
   drawIntroBlock(
     str2,
     leftX,
     introStartY + introStepY * 1 - scrollOffset,
-    MAX_TEXT_W
-  );
-}
+    MAX_TEXT_W);
 
-if (introIndex >= 2) {
   drawIntroBlock(
     str3,
     leftX,
     introStartY + introStepY * 2 - scrollOffset,
     MAX_TEXT_W
   );
-}
-
-if (introIndex >= 3) {
   drawIntroBlockData(
     str4,
     rightX,
     introStartY + introStepY * 3 - scrollOffset,
     MAX_TEXT_W
   );
-}
 
 
   // Scroll hint arrow (bottom center) — hidden once the user scrolls a bit
@@ -1473,15 +1458,8 @@ function handleIntroScroll(delta) {
   spreadSpeed += delta * 0.05;
 
   // scroll bidirezionale
-  scrollOffset += delta * 0.1;
+  scrollOffset += delta * 0.5;
   scrollOffset = constrain(scrollOffset, 0, maxScroll);
-
-  // ✅ 新增：同步文字段落状态
-  if (scrollOffset < introTargets[0] - 10) {
-    introIndex = -1;
-  } else {
-    syncIntroIndex();
-  }
 
   // se scrolli su: spegni espansione
   if (delta < 0) {
@@ -1495,7 +1473,6 @@ function handleIntroScroll(delta) {
     expandStartFrame = frameCount;
   }
 }
-
 
 
 function mouseWheel(event) {
