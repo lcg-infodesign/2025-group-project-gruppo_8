@@ -8,12 +8,12 @@ let mushroomImg;
 let noTestYears = [1947, 1950, 1959, 1997];
 let noTestTexts = {
   1947: `No tests were conducted in 1947
-In 1947, no nuclear test launches are recorded because, in the immediate aftermath of Hiroshima and Nagasaki, nuclear powers entered a period of caution and reassessment. The United States, at the time the only country with nuclear weapons, faced no immediate military necessity and was shifting the role of nuclear arms toward deterrence rather than active testing. Additionally, nuclear tests were technically complex, costly, and politically sensitive in a rapidly emerging Cold War context.`,
+In 1947, no nuclear test launches are recorded because, in the immediate aftermath of Hiroshima and Nagasaki, nuclear powers entered a period of caution and reassessment. The United States, at the time the only country with nuclear weapons, faced no immediate military necessity and was shifting the role of nuclear arms toward deterrence rather than active testing. Additionally, nuclear tests were technically complex, costly, and politically sensitive in a rapidly emerging Cold War context.`,
 
   1950: `No tests were conducted in 1950
-In 1950, the strategic competition between the United States and the Soviet Union entered a qualitatively new phase. The year falls between the first Soviet nuclear test in 1949 and the next one in 1951, but it is precisely this apparent absence of spectacular events that determines its historical significance. In fact, 1950 represents the moment when the presence of the USSR as an atomic power became fully perceived by the United States and its allies, ushering in an arms race characterized by growing technological and doctrinal competition.
+In 1950 the strategic competition between the United States and the Soviet Union entered a new phase. Situated between the first Soviet nuclear test in 1949 and the next one in 1951, the year was not marked by spectacular events. It’s precisely this apparent lack of dramatic turning points that gives it its historical significance. In 1950, the Soviet Union’s status as an atomic power was fully absorbed by the United States and its allies, resulting in an arms race characterized by increasingly intense technological and doctrinal competition.
 The awareness that both superpowers possessed nuclear capabilities introduced the real risk of mutually assured destruction, laying the foundations for the concept of modern nuclear deterrence: international stability was no longer guaranteed by the superiority of a single power, but by the balance of a symmetrical threat. The absence of significant tests during the 1950s did not therefore reflect a period of stagnation, but rather the caution imposed by the fear of uncontrollable escalation.
-At the same time, this period was marked by intense research and development activity. In 1950, systematic studies began on more advanced weapons systems, including the hydrogen bomb, which was destined to exceed the power of previous weapons by orders of magnitude. In this sense, 1950 was a key year in the transformation of deterrence into a structural element of the international order of the Cold War.`,
+At the same time, this period was marked by intense research and development activity. In 1950, systematic studies began on more advanced weapons systems, including the hydrogen bomb, which was destined to exceed the power of previous weapons by orders of magnitude. Therefore, 1950 marked a pivotal moment in which deterrence evolved into a structural element of the Cold War international order.`,
 
   1959: `No tests were conducted in 1959
 The reason there were no tests in 1959 was that the Soviet Union, Great Britain, and the United States agreed to a moratorium on nuclear weapon tests in 1958. This moratorium lasted from November 1958 to August 1961. The Soviet Union resumed on 1 September, 1961, with the US following suit a couple of weeks later.
@@ -21,7 +21,9 @@ France, being on the verge of being a nuclear-capable nation in 1958, did not ta
 The 1958–1961 moratorium represented a rare moment of international cooperation during the Cold War, aiming to slow down the nuclear arms race and reduce atmospheric fallout. While the main powers paused testing, technological development and planning continued in secret. For countries like France, this period allowed them to finalize key technologies before conducting their first successful tests in 1960. The moratorium also highlighted the growing importance of diplomacy and negotiation in nuclear policy, setting a precedent for future treaties such as the Partial Test Ban Treaty of 1963.`,
 
   1997: `No tests were conducted in 1997
-In 1997 there were no nuclear launches because the international context was relatively stable and governed by the logic of deterrence. The Cold War had ended several years earlier, the Soviet Union no longer existed, and the direct ideological and military confrontation between superpowers had eased. The United States and Russia still possessed large nuclear arsenals, but they were constrained by arms control treaties such as the START agreements, which reduced the number of operational warheads and increased cooperation and transparency. Moreover, the awareness that any nuclear attack would lead to mutually assured destruction made such a launch irrational from a political and strategic perspective. In the absence of acute crises or serious incidents that could be interpreted as an imminent attack, and with more reliable communication and early-warning systems than in the past, the conditions that might have led to the use of nuclear weapons simply did not exist in 1997.`
+In 1997, no nuclear weapons tests were conducted because the international situation was relatively stable and shaped by post–Cold War arms control. The Cold War had ended, the Soviet Union no longer existed, and tensions between major powers had significantly decreased. During this period, the United States and Russia continued to possess nuclear arsenals, but their activities were increasingly regulated by arms control agreements, such as the START Agreements (Strategic Arms Reduction Treaties). Two treaties were negotiated: START I, which entered into force in 1994, and START II, which was signed but never fully implemented.
+The START Agreements were created to reduce the number of nuclear warheads and delivery systems possessed by the United States and Russia. They set specific limits and required both countries to share data and allow inspections, making nuclear forces more transparent and easier to monitor. By focusing on reducing existing weapons rather than developing new ones. The START Agreements helped move nuclear policy away from weapon development and testing toward arms reduction and long-term strategic stability.
+The principle of nuclear deterrence, based on the certainty that any nuclear attack would cause mutual destruction, made the use of such weapons highly unlikely. With no major crises and improved communication and early-warning systems, there were no conditions in 1997 that would have led to the use of nuclear weapons.`
 
 };
 
@@ -30,17 +32,16 @@ let countryTotalCounts = {};
 let margin = 80;
 let selectedCountry = null;
 
-// --- TSAR CTA (global hitbox) ---
-let tsarCtaBox = null; // {x,y,w,h}
+let tsarCtaBox = null;
 
-let yAxis; // 纵轴中心位置，需要在 setup() 中初始化，例如： yAxis = height / 2 + 70;
-const dashLength = 4;  // 虚线段长度
-const dashGap = 6;     // 虚线间隔
-const offset = 5;      // 虚线偏移
+let yAxis; 
+const dashLength = 4; 
+const dashGap = 6;  
+const offset = 5;
 let atmLabel = "Atmospheric";
 let undLabel = "Underground";
-let offsetX;  // 标签X起点，通常 = margin - 8
-let xBase;    // 竖轴起点，通常 = margin - 20 - 5
+let offsetX;
+let xBase; 
 
 
 function preload() {
@@ -88,12 +89,8 @@ function setup() {
 }
 
 function drawCtaButton(btnX, btnY, btnW, btnH, label, isHover) {
-  // Se “VIEW HISTORIC INSIGHTS” ha già una palette/alpha specifica,
-  // copia qui ESATTAMENTE quegli stessi valori.
   const r = 8;
   const padX = 14;
-
-  // stroke/hover come il bottone esistente
   stroke(0, 255, 255, isHover ? 220 : 120);
   strokeWeight(isHover ? 1.5 : 1);
 
@@ -107,13 +104,9 @@ function drawCtaButton(btnX, btnY, btnW, btnH, label, isHover) {
   textSize(13);
   textAlign(LEFT, CENTER);
   text(label, btnX + padX, btnY + btnH / 2 - 1);
-
-  // freccetta laterale (stessa logica che vuoi)
   const ax = btnX + btnW - padX;
   const ay = btnY + btnH / 2;
 
-  // Se vuoi proprio la stessa freccia del bottone “historic”,
-  // copia il suo disegno. Qui ti do una freccia “che sta bene”.
   stroke(0, 255, 255, isHover ? 255 : 180);
   strokeWeight(isHover ? 2 : 1.5);
   line(ax - 10, ay, ax, ay);
@@ -127,19 +120,16 @@ function drawCtaButton(btnX, btnY, btnW, btnH, label, isHover) {
 function draw() {
   background(20);
 
-  // Fungo atomico come sfondo
   if (mushroomImg) {
     push();
     tint(40);
     imageMode(CENTER);
-    // Adatta l'immagine in altezza mantenendo le proporzioni
     let imgH = 0.9 * height;
     let imgW = 1.2 * height * (mushroomImg.width / mushroomImg.height);
     image(mushroomImg, width / 2, height / 2, imgW, imgH);
     pop();
   }
 
-  // Controllo se i dati sono caricati
   if (years.length === 0) {
     fill(255);
     textAlign(CENTER, CENTER);
@@ -148,36 +138,29 @@ function draw() {
     return;
   }
 
-  // === Dati correnti dell'anno ===
-  const currentYear = years[currentYearIndex];  // Dichiarazione una sola volta
+  const currentYear = years[currentYearIndex]; 
   const yearData = testsByYear[currentYear];
 
-  // === Contenuto sempre visibile ===
   textFont(myFont1);
   noStroke();
   fill(200);
   textSize(20);
   textAlign(CENTER, TOP);
-  //text("NUCLEAR TEST EACH YEAR", width / 2, 30);
 
-  // Visualizza l'anno e le frecce di navigazione
   drawYearNavigation(currentYear);
-  // Visualizza il totale delle bombe
   drawBottomInfo(yearData);
 
   drawTimeline();
 
-  // === Gestione anni senza test nucleari ===
+  //anni senza test nucleari
   if (noTestYears.includes(currentYear)) {
-    drawNoTestBox(currentYear);   // Mostra il riquadro con testo centrale
-    return;                       // Non disegnare bombe, etichette ATM/UN, nomi Paesi, legenda Yield o messaggio Click
+    drawNoTestBox(currentYear);
+    return;
   }
 
-  // === Anni con test nucleari: disegna bombe e legenda ===
-  drawTestDots(yearData);          // Disegna bombe, etichette ATM/UN e nomi dei paesi
-  drawLegend();                    // Disegna legenda Yield e messaggio "Click a bomb to see more"
+  drawTestDots(yearData);
+  drawLegend();
 
-  // === Logica cursore per frecce e bombe ===
   let overArrow =
     (currentYearIndex > 0 && mouseX > width / 2 - 150 && mouseX < width / 2 - 90 && mouseY > 120 && mouseY < 170) ||
     (currentYearIndex < years.length - 1 && mouseX > width / 2 + 90 && mouseX < width / 2 + 150 && mouseY > 120 && mouseY < 170);
@@ -220,16 +203,11 @@ function draw() {
   const legendY = height - margin - 80;
 
   const overLegendInfo =
-    hoverOnAtmospheric(legendX, 80) || // qui margin locale in drawTestDots è 80
-    hoverOnUnderground(legendX, height - 80) || // coerente col tuo hoverOnUnderground
+    hoverOnAtmospheric(legendX, 80) || 
+    hoverOnUnderground(legendX, height - 80) || 
     hoverOnYieldYear(legendX, legendY);
 
-
-  /*cursor(overArrow || overDot || overCountry || overTimelineYear || overLegendInfo ? HAND : ARROW);
- 
-   drawColumnCTA(); // Disegna il messaggio "Click a column to see more"*/
-
-  const overTsarCTA = drawColumnCTA(); // <-- spostata qui per ottenere hover
+  const overTsarCTA = drawColumnCTA();
 
   cursor(
     overArrow || overDot || overCountry || overTimelineYear || overLegendInfo || overTsarCTA
@@ -237,9 +215,6 @@ function draw() {
       : ARROW
   );
 
-
-  // btn insight page
-// ... 在 draw() 函数内部 ...
 let checkYear = Number(currentYear);
 if (checkYear === 1958 || checkYear === 1959 || checkYear === 1963 || checkYear === 1996) {
 
@@ -269,7 +244,6 @@ if (checkYear === 1958 || checkYear === 1959 || checkYear === 1963 || checkYear 
     textSize(13); // 统一字号
     text("VIEW HISTORIC INSIGHTS", btnX + padX, btnY + btnH / 2 - 1);
 
-    // 绘制三角形
     let triSize = 5; 
     let triX = btnX + btnW - 12;
     let triY = btnY + btnH / 2;
@@ -284,10 +258,8 @@ if (checkYear === 1958 || checkYear === 1959 || checkYear === 1963 || checkYear 
     pop();
     pop();
 }
-  // tooltip bomba
   drawBombTooltip();
 
-  //drawColumnCTA();
   drawAxes();
   drawAtmosUndLabels();
 
@@ -300,8 +272,8 @@ function drawTimeline() {
 
   // disegna gli anni 
   const historicYears = [1947, 1950, 1958, 1959, 1963, 1996, 1997];
-  const insightColor = [0, 255, 255]; //  orangeRGB
-  const cyanColor = [255, 255, 255];    // 
+  const insightColor = [0, 255, 255];
+  const cyanColor = [255, 255, 255];     
 
   push();
   for (let i = 0; i < years.length; i++) {
@@ -328,7 +300,6 @@ function drawTimeline() {
         textAlign(CENTER, BOTTOM);
         text(years[i], x, ty - 20);
       } else {
-        // --- altri year color ---
         stroke(rgb[0], rgb[1], rgb[2], opacity * 0.8);
         strokeWeight(1);
         line(x, ty - 8, x, ty);
@@ -345,30 +316,25 @@ function drawTimeline() {
   pop();
 }
 
-
-// === text box per anni senza test ===
 function drawNoTestBox(year) {
-  let boxW = width * 0.6; // Aumentato per ospitare due colonne
+  let boxW = width * 0.6;
   let boxX = width / 2 - boxW / 2;
   let padding = 30;
-  let gap = 50; // Spazio tra le due colonne
+  let gap = 50;
   let colW = (boxW - 2 * padding - gap) / 2;
 
-  // Calcolo altezza riga
   textFont(myFont2);
   textSize(14);
   let lineHeight = textAscent() + textDescent() + 4;
   textAlign(LEFT, TOP);
   textWrap(WORD);
 
-  // Split dei paragrafi e gestione righe
   let paragraphs = noTestTexts[year].split('\n');
   let allLines = [];
   let titleLine = "";
 
   for (let p = 0; p < paragraphs.length; p++) {
     let line = paragraphs[p];
-    // Estrae il titolo "No tests were conducted..."
     if (line.startsWith("No tests were conducted")) {
       titleLine = line;
       continue;
@@ -378,7 +344,6 @@ function drawNoTestBox(year) {
     let currentLine = "";
     for (let i = 0; i < words.length; i++) {
       let testLine = currentLine + (currentLine ? " " : "") + words[i];
-      // Calcolo a capo basato sulla larghezza della singola colonna
       if (textWidth(testLine) > colW) {
         allLines.push(currentLine);
         currentLine = words[i];
@@ -387,25 +352,21 @@ function drawNoTestBox(year) {
       }
     }
     if (currentLine) allLines.push(currentLine);
-    allLines.push(""); // Spazio tra paragrafi
+    allLines.push(""); 
   }
 
-  // Divisione delle righe in due colonne
   let midPoint = Math.ceil(allLines.length / 2);
   let leftColumn = allLines.slice(0, midPoint);
   let rightColumn = allLines.slice(midPoint);
 
-  // Calcolo altezza dinamica del box
   let boxH = Math.max(leftColumn.length, rightColumn.length) * lineHeight + padding * 2 + 40;
   let boxY = height / 2 - boxH / 2 + 40;
 
-  // Disegno del box di sfondo
   stroke(0, 255, 255, 150);
   strokeWeight(1);
   fill(0, 255, 255, 10);
   rect(boxX, boxY, boxW, boxH);
 
-  // Disegno del titolo centrato
   noStroke();
   fill(0, 255, 255);
   textFont(myFont3);
@@ -413,20 +374,16 @@ function drawNoTestBox(year) {
   textAlign(CENTER, TOP);
   text(titleLine, width / 2, boxY + padding);
 
-  // Disegno delle due colonne di testo
   textFont(myFont2);
   textSize(14);
   fill(200);
   textAlign(LEFT, TOP);
 
   let textStartY = boxY + padding + 50;
-
-  // Colonna Sinistra
   for (let i = 0; i < leftColumn.length; i++) {
     text(leftColumn[i], boxX + padding, textStartY + i * lineHeight);
   }
 
-  // Colonna Destra
   for (let i = 0; i < rightColumn.length; i++) {
     text(rightColumn[i], boxX + padding + colW + gap, textStartY + i * lineHeight);
   }
@@ -443,14 +400,13 @@ function processData() {
     let country = table.getString(i, "country");
     let bName = table.getString(i, "name");
 
-    // --- cambiare PAKIST ---
+    // conversione PAKIST
     if (country) {
       country = country.trim();
       if (country.toUpperCase() === "PAKIST") {
         country = "PAKISTAN";
       }
     }
-    // -----------------------
 
     let yield_u = parseFloat(table.getString(i, "yield_u"));
     let type = table.getString(i, "type");
@@ -470,7 +426,6 @@ function processData() {
         bombName: bName || "N/A",
         yield: isNaN(yield_u) || yield_u < 0 ? 0 : yield_u,
         type: type || "ATMOSPH",
-        // --- bombData ---
         region: region || "N/A",
         latitude: isNaN(latitude) ? 0 : latitude,
         longitude: isNaN(longitude) ? 0 : longitude
@@ -565,7 +520,7 @@ function drawYearNavigation(currentYear) {
   const alphaBase = 200;
   const pulse = sin(frameCount * 0.08) * 55;
   const activeAlpha = constrain(alphaBase + pulse, 80, 255);
-  const disabledAlpha = 0; // feccia trasparente per frecce disabilitate
+  const disabledAlpha = 0; 
 
   const halfW = 12;
   const h = 10;
@@ -574,9 +529,6 @@ function drawYearNavigation(currentYear) {
   strokeWeight(4);
   noFill();
 
-  // ====================
-  // FRECCIA SINISTRA
-  // ====================
   let isFirstYear = (currentYearIndex === 0);
   let hoverLeft = !isFirstYear &&
     mouseX > width / 2 - 150 && mouseX < width / 2 - 90 &&
@@ -589,9 +541,6 @@ function drawYearNavigation(currentYear) {
   line(cxL + halfW, cyL - h, cxL, cyL);
   line(cxL + halfW, cyL + h, cxL, cyL);
 
-  // ====================
-  // FRECCIA DESTRA 
-  // ====================
   let isLastYear = (currentYearIndex === years.length - 1);
   let hoverRight = !isLastYear &&
     mouseX > width / 2 + 90 && mouseX < width / 2 + 150 &&
@@ -628,7 +577,6 @@ function drawTestDots(yearData) {
     let tests = yearData[country] || [];
     let x = width / 2 + (idx - (countries.length - 1) / 2) * fixedSpacing;
 
-    // --- Dynamic hover area check ---
     textFont(myFont2);
     textSize(14);
     let nameW = textWidth(country);
@@ -642,7 +590,7 @@ let isNameHovered = (
 
 
 
-    // --- (drawGroup) ---
+    // underground type
     const undergroundTypes = ["UG", "SHAFT", "TUNNEL", "GALLERY", "MINE", "SHAFT/GR", "SHAFT/LG"];
     let sottTests = tests.filter(t => undergroundTypes.includes(t.type));
     let atmTests = tests.filter(t => !undergroundTypes.includes(t.type));
@@ -650,9 +598,9 @@ let isNameHovered = (
     sottTests.sort((a, b) => getColorLevel(a.yield) - getColorLevel(b.yield));
 
    function drawGroup(testArray, isAtmosph) {
-  let numCols = Math.max(1, Math.min(cols, testArray.length));
-  let colWidth = (numCols - 1) * (cellSize + gap);
-  testArray.forEach((test, i) => {
+    let numCols = Math.max(1, Math.min(cols, testArray.length));
+    let colWidth = (numCols - 1) * (cellSize + gap);
+    testArray.forEach((test, i) => {
     let col = i % cols;
     let row = Math.floor(i / cols);
     let cx = x - colWidth / 2 + col * (cellSize + gap);
@@ -672,7 +620,6 @@ let isNameHovered = (
     push();
     fill(getYieldColor(test.yield));
 
-    // === HIGHLIGHT RDS-200 (1961) ===
 const currentYear = years[currentYearIndex];
 const isRDS200 =
   currentYear === 1961 &&
@@ -681,15 +628,15 @@ const isRDS200 =
 
 if (isRDS200) {
   push();
-  noFill();// rettangolo ciano attorno alla bomba
+  noFill();
   stroke(0, 255, 255);
   strokeWeight(2);
   rectMode(CENTER);
   circle(cx, cy, cellSize + 9);
-  stroke(0, 255, 255);// linea verso sinistra
+  stroke(0, 255, 255);
   strokeWeight(2);
   line(cx - (cellSize -4) / 2, cy-10, cx - 300, cy -10 );
-  noStroke();// testo sopra la linea
+  noStroke();
   textFont(myFont3);
   textSize(13);
   fill(0, 255, 255);
@@ -719,7 +666,6 @@ if (isRDS200) {
     drawGroup(atmTests, true);
     drawGroup(sottTests, false);
 
-    //  country name and total
   push();
   translate(x, yAxis); 
   textAlign(CENTER, CENTER);
@@ -790,7 +736,7 @@ function drawBottomInfo(yearData) {
 
 function drawLegend() {
 
-  let offsetX = margin - 8; // usa lo stesso margin del grafico
+  let offsetX = margin - 8;
   let offsetY = height - margin - 80;
 
   textFont(myFont2);
@@ -821,7 +767,6 @@ function drawLegend() {
     let boxW = 180;
     let boxH = padding * 4 + lineHeight * 3.5;
 
-    // accanto alla legenda: leggermente sopra/sinistra va bene
     let boxX = offsetX;
     let boxY = 138;
 
@@ -856,41 +801,26 @@ function drawLegend() {
   });
 }
 
-
-// === mouse wheel per cambiare anno ===
 let lastScrollTime = 0;
 let scrollVelocity = 0;
 
-// 在函数外部定义一个变量，用来存储滚动的累积量
 let scrollAccumulator = 0; 
-// 设定灵敏度阈值：数字越小越灵敏（滚一点就动），数字越大越迟钝
 const SCROLL_THRESHOLD = 80; 
 
 function mouseWheel(event) {
 
-
-  // 区域限制逻辑保持不变
   if (mouseY < height - 100) return;
 
   const oldIndex = currentYearIndex;
-
-  // 获取当前滚动的距离（取横向或纵向中较大的那个）
   const currentDelta = abs(event.deltaX) > abs(event.deltaY) ? event.deltaX : event.deltaY;
-
-  // 1. 将本次滚动的距离加入累加器
   scrollAccumulator += currentDelta;
 
-  // 2. 只要累加器超过了阈值，就进行年份切换（使用 while 循环支持一次滚多页）
   while (abs(scrollAccumulator) >= SCROLL_THRESHOLD) {
     if (scrollAccumulator > 0) {
-      // 向下滚 / 向右滚 -> 年份增加
       if (currentYearIndex < years.length - 1) currentYearIndex++; 
-        // 消费掉阈值
         scrollAccumulator -= SCROLL_THRESHOLD;
       } else {
-      // 向上滚 / 向左滚 -> 年份减少
       if (currentYearIndex > 0) currentYearIndex--;
-      // 消费掉阈值
       scrollAccumulator += SCROLL_THRESHOLD;
     }
     
@@ -906,12 +836,10 @@ function mouseWheel(event) {
     setYearInURL(years[currentYearIndex]);
   }
 
-  // 阻止默认网页滚动
   event.preventDefault();
   return false;
 }
 
-// blocca lo scroll per un certo tempo
 function lockScroll(time) {
   isScrollingLocked = true;
   setTimeout(() => {
@@ -937,31 +865,15 @@ function mousePressed() {
     }
   }
 
-  // --- TSAR CTA click ---
-  // --- TSAR CTA click ---
   if (tsarCtaBox) {
     const overTsar =
     mouseX >= tsarCtaBox.x && mouseX <= tsarCtaBox.x + tsarCtaBox.w &&
     mouseY >= tsarCtaBox.y && mouseY <= tsarCtaBox.y + tsarCtaBox.h;
 
-  /*if (overTsar) {
-    // 1. 寻找 1961 年在数据中的位置
-    const targetYear = 1961;
-    const targetIndex = years.indexOf(targetYear);
-
-    if (targetIndex !== -1) {
-      // 2. 如果找到了，更新当前索引
-      currentYearIndex = targetIndex;
-      saveLastYear(years[currentYearIndex]);
-
-    } 
-    return; // 结束处理，防止触发下方的其他点击逻辑
-  }*/
-
     if (overTsar) {
   const currentYear = Number(years[currentYearIndex]);
 
-  // se sei già nel 1961 → vai all'insight Tsar Bomba
+  // 1961 to insight Tsar Bomba
   if (currentYear === 1961) {
     saveLastYear(years[currentYearIndex]);
     setYearInURL(years[currentYearIndex]);
@@ -969,7 +881,6 @@ function mousePressed() {
     return;
   }
 
-  // altrimenti → jump interno al 1961
   const targetYear = 1961;
   const targetIndex = years.indexOf(targetYear);
   if (targetIndex !== -1) {
@@ -981,9 +892,6 @@ function mousePressed() {
 }
 
 }
-
-
-  // index button 1958， 1963， 1996 
   let activeYear = Number(years[currentYearIndex]);
   saveLastYear(years[currentYearIndex]);
 
@@ -991,7 +899,7 @@ function mousePressed() {
     let btnW = 240;
     let btnH = 40;
     let btnX = width / 2 - btnW / 2;
-    let btnY = height - margin - 65; // 确保 Y 坐标与 draw() 中绘制的位置一致
+    let btnY = height - margin - 65; 
 
     if (mouseX > btnX && mouseX < btnX + btnW &&
       mouseY > btnY && mouseY < btnY + btnH) {
@@ -1031,16 +939,15 @@ function mousePressed() {
       saveLastYear(years[currentYearIndex]);
       setYearInURL(years[currentYearIndex]);
 
-window.location.href = `single.html?id=${d.id}&from=year&year=${year}`;
+    window.location.href = `single.html?id=${d.id}&from=year&year=${year}`;
 
       return;
     }
   }
-  // year_bombe.html
-  const fixedSpacing = 150; // 
+
+  const fixedSpacing = 150;
   const lineY = height / 2 + 50;
 
-  //  Seleziona solo i paesi visibili se un paese è selezionato
   countries.forEach((country, idx) => {
     let x = width / 2 + (idx - (countries.length - 1) / 2) * fixedSpacing;
     let areaSinistra = 40;
@@ -1054,7 +961,7 @@ window.location.href = `single.html?id=${d.id}&from=year&year=${year}`;
       mouseY < yAxis + areaAltezza
     ) {
 
-      saveLastYear(years[currentYearIndex]); // salva l'anno corrente prima di lasciare la pagina
+      saveLastYear(years[currentYearIndex]);
       setYearInURL(years[currentYearIndex]); 
       window.location.href = `index.html?country=${country}&from=year#page2`;
 
@@ -1082,29 +989,6 @@ function keyPressed() {
   }
 }
 
-/*function drawColumnCTA() {
-  const msg = "Click a bomb or a country to see more";
-
-  const x = width - margin;
-  const y = height - margin;
-
-  // pulsazione automatica
-  const pulse = (sin(frameCount * 0.08) + 1) / 2; // 0..1
-  const a = 80 + pulse * 175; // alpha
-
-  textFont(myFont2);
-  textSize(14);
-  textAlign(RIGHT, BOTTOM);
-
-  // "glow" finto: 2 passate morbide + 1 netta
-  noStroke();
-  fill(0, 255, 255, a * 0.25);
-  text(msg, x + 1, y + 1);
-  text(msg, x - 1, y - 1);
-
-  fill(0, 255, 255, a);
-  text(msg, x, y);
-}*/
 
 function drawColumnCTA() { 
   const msg = "Click a bomb or a country to see more";
@@ -1222,14 +1106,12 @@ function drawBombTooltip() {
       textSize(12);
       textFont(myFont2);
 
-      // --- left (Labels) ---
       textAlign(LEFT, TOP);
       fill(0, 255, 255);
       text("Click the bomb for more information", boxX + padding, boxY + padding)
       text("Bomb Name:", boxX + padding, boxY + padding+ lineHeight);
       text("Yield (kt):", boxX + padding, boxY + padding + lineHeight+ lineHeight);
 
-      // --- right (Values) ---
       textAlign(RIGHT, TOP);
       fill(0, 255, 255);
       const valueX = boxX + boxW - padding;
@@ -1245,13 +1127,12 @@ function drawBombTooltip() {
 function drawInfoIcon(cx, cy, r = 7) {
   push();
 
-  // badge
   stroke(0, 255, 255, 220);
   strokeWeight(1.6);
   fill(18, 210);
   circle(cx, cy, r * 2);
 
-  // "i" leggibile: contorno scuro + fill cyan
+  // "i" 
   textAlign(CENTER, CENTER);
   textFont("system-ui");
   textSize(r * 1.8);
@@ -1281,25 +1162,21 @@ function hoverOnYieldYear(offsetX, offsetY) {
 }
 
 
-// atmospheric text hover detection
-// 修改 Atmospheric 的检测 (现在是垂直排列在左侧)
 function hoverOnAtmospheric(offsetX, dummy) {
-  let x = offsetX - 65; // 旋转后的 X 范围
-  let y = yAxis - 180;  // 向上延伸的长度
+  let x = offsetX - 65; 
+  let y = yAxis - 180;  
   let w = 40;
   let h = 150;
   return (mouseX > x && mouseX < x + w && mouseY > y && mouseY < y);
 }
 
-// 修改 Underground 的检测
 function hoverOnUnderground(offsetX, dummy) {
   let x = offsetX - 65;
-  let y = yAxis + 30;   // 向下延伸
+  let y = yAxis + 30; 
   let w = 40;
   let h = 150;
   return (mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h);
 }
-
 
 
 window.addEventListener("load", () => {
@@ -1310,7 +1187,7 @@ window.addEventListener("load", () => {
 
 function onCountryClick(countryName) {
   saveLastYear(years[currentYearIndex]);
-  setYearInURL(years[currentYearIndex]); // opzionale
+  setYearInURL(years[currentYearIndex]); 
   indow.location.href = `index.html?country=${countryName}&from=year#page2`;
 
 }
@@ -1320,25 +1197,20 @@ function drawAxes() {
   stroke(200, 160);
   strokeWeight(1.5);
 
-  // 横轴上方
+  
   line(xBase, yAxis - 25, width - margin + 10, yAxis - 25);
-  // 上方竖轴（实线）
   line(xBase, yAxis - 25, xBase, yAxis - 25 - 144);
-  // 上方竖轴虚线
   for (let y = yAxis - 25 - 144 - offset; y >= yAxis - 25 - 144 - offset - 40; y -= dashLength + dashGap) {
     line(xBase, y, xBase, y - dashLength);
   }
 
-  // 横轴下方
+  
   line(xBase, yAxis + 25, width - margin + 10, yAxis + 25);
-  // 下方竖轴（实线）
   line(xBase, yAxis + 25, xBase, yAxis + 25 + 144);
-  // 下方竖轴虚线
   for (let y = yAxis + 25 + 144 + offset; y <= yAxis + 25 + 144 + offset + 40; y += dashLength + dashGap) {
     line(xBase, y, xBase, y + dashLength);
   }
 
-  // 右边横轴虚线
   const xRight = width - margin + 10;
   for (let y = yAxis - 25; y >= yAxis - 25 - 40; y -= dashLength + dashGap) {
     line(xRight, y, xRight, y - dashLength);
@@ -1350,9 +1222,6 @@ function drawAxes() {
   pop();
 }
 
-// -------------------------------
-// 绘制 Atmospheric 和 Underground 标签及图标
-// -------------------------------
 function drawAtmosUndLabels() {
   // Atmospheric
   push();
@@ -1435,7 +1304,6 @@ function saveLastYear(year) {
 function setYearInURL(year) {
   const url = new URL(window.location.href);
   url.searchParams.set("year", year);
-  // preserva eventuale hash (#...) e altri parametri
   history.replaceState(null, "", url.toString());
 }
 

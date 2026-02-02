@@ -1,8 +1,8 @@
 html, body {
   margin: 0;
   padding: 0;
-  body { background-color: rgb(20,20,20); } /* oppure #141414 */
-  color: #ffffff;             /* opzionale, così il testo di default è bianco */
+  body { background-color: rgb(20,20,20); } 
+  color: #ffffff;
 }
 
 
@@ -35,7 +35,7 @@ body.menu-pointer canvas {
   font-display: swap;
 }
 
-/* variabili globali, così non ripeti font-family ovunque */
+
 :root{
   --font-1: "LexendZetta", system-ui, -apple-system, sans-serif;
   --font-2: "LibreFranklin", system-ui, -apple-system, sans-serif;
@@ -48,9 +48,6 @@ canvas {
 }
 
 
-
-
-/* SKIP come main CTA (stile Year button) */
 .skip-intro{
   position: fixed;
   right: 60px;
@@ -110,8 +107,6 @@ body.show-skip #skipIntroWrap {
   pointer-events: auto;
 }
 
-
-/* BACK BUTTON — minimal, bianco → azzurrino all'hover */
 .back-btn {
   position: fixed;
   left: 24px;
@@ -124,7 +119,7 @@ body.show-skip #skipIntroWrap {
   letter-spacing: 0.15em;
   text-transform: uppercase;
 
-  color: #ffffff;              /* bianco di default */
+  color: #ffffff;
   background: none;
   border: none;
   cursor: pointer;
@@ -132,9 +127,9 @@ body.show-skip #skipIntroWrap {
   transition: color 0.25s ease, text-shadow 0.25s ease, transform 0.25s ease;
 }
 
-/* Hover: diventa azzurrino + leggero glow */
+
 .back-btn:hover {
-  color: #7fefff;              /* azzurrino brillante */
+  color: #7fefff;
   text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
   transform: translateY(-50%) translateX(3px);
 }
@@ -143,20 +138,9 @@ body.show-skip #skipIntroWrap {
   display: none;
 }
 
-
-/* =========================
-   INSIGHT NAVBAR (HTML/CSS)
-   stile: stroke cyan, strokeWeight 2, radius 6, fill cyan hover/active
-   centered like GENERAL title
-   ========================= */
-
-
 .insight-tabs-wrap{
   position: fixed;
 
-  /* allineamento verticale al bottone menu:
-     btnY=25, btnSize=60 (menu.js) => centro = 55
-     BTN_H=30 => top = 55 - 15 = 40 */
   top: 40px;
 
   left: 0;
@@ -164,7 +148,6 @@ body.show-skip #skipIntroWrap {
   z-index:  10050;
   pointer-events: auto;
 
-  /* centra orizzontalmente la navbar */
   display: flex;
   justify-content: center;
 }
@@ -175,7 +158,6 @@ body.show-skip #skipIntroWrap {
   display: inline-flex;
   gap: 10px;
 
-  /* niente translateX: ora è centrata dal flex wrapper */
   transform-origin: center center;
   transform: scale(var(--insight-tabs-scale));
 
@@ -185,16 +167,16 @@ body.show-skip #skipIntroWrap {
 
 .insight-tab{
   pointer-events: auto;
-  height: 30px;                       /* BTN_H = 30 */
+  height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  padding: 0 15px;                    /* circa textWidth + 30 del p5 */
-  border: 2px solid rgb(0, 255, 255); /* stroke(cyan) + strokeWeight(2) */
-  border-radius: 6px;                 /* RADIUS = 6 */
+  padding: 0 15px;
+  border: 2px solid rgb(0, 255, 255);
+  border-radius: 6px;
 
-  background: rgba(20, 20, 20, 0.86); /* darkFill (20, 220) ~ “scuro trasparente” */
+  background: rgba(20, 20, 20, 0.86);
   color: rgb(0, 255, 255);
 
   font-family: system-ui, -apple-system, sans-serif;
@@ -209,7 +191,7 @@ body.show-skip #skipIntroWrap {
 .insight-tab:hover,
 .insight-tab.is-active{
   background: rgb(0, 255, 255);
-  color: rgb(20, 20, 20); /* testo scuro quando attivo/hover */
+  color: rgb(20, 20, 20);
 }
 
 .insight-tab:focus-visible{
@@ -217,17 +199,15 @@ body.show-skip #skipIntroWrap {
   box-shadow: 0 0 0 2px rgba(0,255,255,0.35);
 }
 
-/* Fade overlay: attenua i contenuti quando passano sotto la navbar */
 .insight-top-fade{
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 150px;                 /* regola se vuoi più/meno “fade” */
-  z-index: 9000;                /* sotto navbar (10050), sopra canvas (1) */
+  height: 150px;
+  z-index: 9000; 
   pointer-events: none;
 
-  /* background uguale al tuo bg (#161616 / 20) */
   background: linear-gradient(
     to bottom,
     rgba(22, 22, 22, 1) 0%,
@@ -236,29 +216,19 @@ body.show-skip #skipIntroWrap {
   );
 }
 
-/* Quando la preview foto è aperta, nascondi navbar + back */
 body.photo-open .insight-tabs-wrap,
 body.photo-open .back-btn{
   opacity: 0;
   pointer-events: none;
 }
 
-/* =========================
-   ABOUT — top navbar (pills)
-   ========================= */
-
 :root{
-  /* se serve micro-tuning, cambi solo questo */
   --about-nav-y: 50%;
 }
 
-/* =========================
-   ABOUT — top navbar (EXACT MATCH WITH INSIGHT)
-   ========================= */
-/* About Navbar Wrapper — 固定顶部 + 居中 */
 .about-tabs-wrap {
   position: fixed;
-  top: 40px;          /* 与 insight 一致 */
+  top: 40px; 
   left: 0;
   width: 100%;
   z-index: 99999;
@@ -267,18 +237,16 @@ body.photo-open .back-btn{
   pointer-events: auto;
 }
 
-/* About Tabs 容器 — inline-flex + gap */
 .about-tabs {
   --about-tabs-scale: 1;
   display: inline-flex;
-  gap: 10px;          /* 与 insight gap 一致 */
+  gap: 10px;
   transform-origin: center center;
   transform: scale(var(--about-tabs-scale));
 
   pointer-events: auto;
 }
 
-/* 每个 Tab 按钮 — 边框 + 圆角 + 背景透明 + 文本蓝色 */
 .about-tab {
   pointer-events: auto;
   display: inline-flex;
@@ -288,10 +256,10 @@ body.photo-open .back-btn{
   height: 30px; 
   padding: 0 15px; 
 
-  border: 2px solid rgb(0, 255, 255); /* cyan stroke */
-  border-radius: 6px;                  /* radius 6 */
+  border: 2px solid rgb(0, 255, 255); 
+  border-radius: 6px;
 
-  background: rgba(20, 20, 20, 0.86);  /* 半透明背景，和 insight 一样 */
+  background: rgba(20, 20, 20, 0.86);
   color: rgb(0, 255, 255);
 
   font-family: system-ui, -apple-system, sans-serif;
@@ -304,51 +272,42 @@ body.photo-open .back-btn{
   transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
 }
 
-/* Hover / Active — 背景 cyan，文字深色 */
 .about-tab:hover,
 .about-tab.is-active {
   background: rgb(0, 255, 255);
   color: rgb(20, 20, 20);
 }
 
-/* 焦点可见状态 — glow */
 .about-tab:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px rgba(0,255,255,0.35);
 }
 
-/* =========================
-   ABOUT — content layout
-   ========================= */
-
 .about-content{
   max-width: 860px;
   margin: 0 auto;
-  padding: 160px 24px 80px; /* spazio sopra per non finire sotto la navbar */
+  padding: 160px 24px 80px; 
 }
 
 .about-title{
   margin: 0 0 16px;
-  font-family: var(--font-1); /* oppure --font-1 */
+  font-family: var(--font-1); 
   font-size: 21px;
   letter-spacing: 0.02em;
 }
 
 .about-text{
   margin: 0;
-  font-family: var(--font-2); /* oppure --font-1 */
+  font-family: var(--font-2); 
   font-size: 21px;
   line-height: 1.6;
   color: rgba(220,220,220,1);
 }
 
-/* =========================
-   CTA — stile “year button”
-   ========================= */
 
 .about-cta-row{
   position: relative;
-  z-index: 20000; /* sopra a tutto (menu canvas incluso) */
+  z-index: 20000; 
   margin-top: 28px;
   display: flex;
   gap: 14px;
@@ -379,11 +338,8 @@ body.photo-open .back-btn{
   cursor: pointer;
   user-select: none;
 
-  /* evita “zone morte” dovute a line-height/inline layout */
   line-height: 1;
   white-space: nowrap;
-
-  /* se vuoi, tieni questa o eliminala: */
   width: max-content;
 }
 
@@ -401,25 +357,18 @@ body.photo-open .back-btn{
   display: inline-block;
 }
 
-
-/* 方法 A：移动整个 div */
 #about-us-canvas {
-  position: relative;  /* 或 absolute，根据需要 */
+  position: relative; 
   top: -100px;    
-  z-index:1;      /* 上移 50px */
+  z-index:1; 
 }
 
-/* 方法 B：直接移动 canvas */
 #about-us-canvas canvas {
   display: block;
   position: relative;
-  top: -50px;          /* 上移 50px */
+  top: -50px; 
 }
 
-
-
-
-/* ABOUT FOOTER */
 .about-footer {
   width: 100%;
   background: #0b0b0b;
@@ -429,24 +378,22 @@ body.photo-open .back-btn{
   font-family: system-ui, -apple-system, sans-serif;
 }
 
-/* ROW: 3 COLONNE */
 .footer-row {
   display: flex;
   justify-content: space-between;
-  gap: 18px; /* generale */
+  gap: 18px; 
   max-width: 1200px;
   margin: 0 auto;
   align-items: flex-start;
 }
 
-/* CREA UNA SEPARAZIONE SPECIFICA TRA COLONNE */
 .footer-row .footer-block:nth-child(1),
 .footer-row .footer-block:nth-child(2) {
-  margin-right: 8px;  /* avvicina 1 e 2 */
+  margin-right: 8px;
 }
 
 .footer-row .footer-block:nth-child(2) {
-  margin-right: 32px; /* più spazio verso la colonna 3 */
+  margin-right: 32px;
 }
 
 .footer-block {
@@ -454,7 +401,6 @@ body.photo-open .back-btn{
   min-width: 200px;
 }
 
-/* TITOLI */
 .footer-title {
   font-weight: 700;
   font-size: 12px;
@@ -463,7 +409,6 @@ body.photo-open .back-btn{
   margin: 0 0 8px 0;
 }
 
-/* LISTE */
 .footer-list {
   margin: 0;
   padding-left: 0;
@@ -480,7 +425,6 @@ body.photo-open .back-btn{
   margin-bottom: 4px;
 }
 
-/* TESTO */
 .footer-text {
   margin: 0;
   font-size: 13px;
@@ -488,7 +432,6 @@ body.photo-open .back-btn{
   opacity: 0.85;
 }
 
-/* LOGHI ORIZZONTALI */
 .footer-logos-row {
   display: flex;
   gap: 14px;
@@ -501,7 +444,6 @@ body.photo-open .back-btn{
   height: auto;
 }
 
-/* BOTTOM TEXT */
 .footer-bottom {
   max-width: 1200px;
   margin: 16px auto 0;
@@ -521,7 +463,6 @@ body.photo-open .back-btn{
   text-decoration: underline;
 }
 
-/* Responsive */
 @media (max-width: 980px) {
   .footer-row {
     flex-direction: column;
@@ -536,10 +477,6 @@ body.photo-open .back-btn{
   box-sizing: border-box;
 }
 
-/* spazio visivo prima del footer */
 #about-us-canvas {
   margin-bottom: 160px;
 }
-
-
-

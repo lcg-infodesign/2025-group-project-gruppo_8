@@ -1,6 +1,5 @@
-let insightSketch = function(p) {
-  // Variabili contenuto
-  let img1, img2, img3;
+let insightSketch = function (p) {
+  let img1, img2, img3, img4;
   let thumbs = [];
   let largeImages = [];
   let showPreview = false;
@@ -9,11 +8,10 @@ let insightSketch = function(p) {
   let currentTopic = "hiroshima";
   let pageTitle = "Insight";
   let contentTitle = "";
-  let Text1, Text2, Text3;
+  let Text1, Text2, Text3, Text4;
 
   const contentConfig = {
     "hiroshima": {
-      //title: "Hiroshima & Nagasaki",
       texts: [
         "The use of nuclear weapons in armed conflict has occurred only twice: when the United States detonated two atomic bombs over the Japanese cities of Hiroshima and Nagasaki, during World War II. On 6 th and 9 th of August 1945, these aerial attacks claimed the lives of 150,000 to 246,000 people, most of whom were civilians.",
         "The atomic bomb dropped on Hiroshima was named Little Boy, it was a uranium gun-type fission weapon developed by the Manhattan Project. It was dropped by the B-29 Enola Gay on Hiroshima on August 6, 1945, marking it the first use of a nuclear weapon in warfare. It exploded with an energy equivalent to approximately 15 kilotons of TNT, causing widespread devastation with an explosion radius of about 1.3 kilometers (0.81 mi).",
@@ -36,8 +34,8 @@ let insightSketch = function(p) {
       ],
       hasThreeSections: true
     },
+
     "moratoria58": {
-      //title: "Moratorium 1958",
       texts: [
         "The 1958 nuclear test moratorium was a unilateral suspension of nuclear weapons testing announced by the Soviet Union on March 31, 1958, and followed by the United States and United Kingdom.",
         "This moratorium lasted from November 1958 to September 1961, representing the first significant pause in nuclear testing since the beginning of the atomic age.",
@@ -45,49 +43,52 @@ let insightSketch = function(p) {
       ],
       imagePaths: [
         "images/insight_1958_img1.jpg",
-        "images/insight_img2.jpg",
-        "images/hiding_the_radiation_of_the_atomic_bombs_1050x700.avif"
+        "images/581.jpeg",
+        "images/582.jpeg"
       ],
       thumbnails: [],
       bottomTexts: [],
-      hasThreeSections: false
+      hasThreeSections: true
     },
+
     "trattato63": {
-      //title: "Test Ban Treaty 1963",
       texts: [
-        "The Partial Test Ban Treaty (PTBT), also known as the Limited Test Ban Treaty, was signed on August 5, 1963, by the United States, United Kingdom, and Soviet Union.",
-        "The treaty prohibited all test detonations of nuclear weapons except for those conducted underground, effectively banning nuclear weapons tests in the atmosphere, underwater, and in outer space.",
-        "The treaty was a response to growing international concern about radioactive fallout from atmospheric tests and represented a first step toward nuclear arms control."
+        "Partial Test Ban Treaty – PTBT (1963): This was the first international agreement to effectively limit nuclear testing.",
+        "It entered into force in 1963 and prohibited nuclear explosions in the atmosphere, underwater, and in outer space, while still allowing underground testing—a compromise that enabled the US, USSR, and UK to continue their programs without formally violating the treaty.",
+        "The initial goal was to reduce global radioactive fallout; implicitly, it was not intended to slow down the arms race. Many states never ratified it, and in the decades that followed, testing simply shifted underground, becoming the dominant mode until the late 1990s."
       ],
       imagePaths: [
         "images/1963.png",
-        "images/insight_img2.jpg",
-        "images/hiding_the_radiation_of_the_atomic_bombs_1050x700.avif"
+        "images/63.jpeg",
+        "images/631.jpeg"
       ],
       thumbnails: [],
       bottomTexts: [],
-      hasThreeSections: false
+      hasThreeSections: true
     },
+
     "trattato96": {
-      //title: "Test Ban Treaty 1996",
       texts: [
-        "The Comprehensive Nuclear-Test-Ban Treaty (CTBT) is a multilateral treaty that bans all nuclear explosions, for both civilian and military purposes, in all environments.",
-        "Adopted by the United Nations General Assembly on September 10, 1996, the treaty has been signed by 185 nations and ratified by 170, but has not entered into force due to the non-ratification by eight specific nuclear technology holder countries.",
-        "The treaty established the Comprehensive Nuclear-Test-Ban Treaty Organization (CTBTO) to monitor compliance through a global network of monitoring stations."
+        "The Comprehensive Nuclear-Test-Ban Treaty (CTBT) is an international agreement that prohibits all nuclear explosions, aiming to prevent the proliferation of nuclear weapons and to limit the development of new or more advanced weapons. It was adopted by the UN General Assembly in 1996 and opened for signature in the same year.",
+        "A key distinction in international treaties is between signing and ratifying: signing shows a country’s intention to follow the rules, while ratification makes the treaty legally binding through formal approval. The CTBT has been signed by 185 countries, but not all major nuclear powers have ratified it.",
+        "In the dataset, the United States, Russian Federation, and China signed the treaty but did not ratify it; India and Pakistan have neither signed nor ratified it; France and the United Kingdom have both signed and ratified it.",
+        "The treaty establishes a global verification system with seismic, hydroacoustic, infrasound, and radionuclide monitoring stations, as well as the possibility of on-site inspections. Although the CTBT has not yet entered into force due to the lack of ratification by some key countries, it has effectively limited nuclear testing since the 1990s."
       ],
       imagePaths: [
         "images/1996.png",
-        "images/insight_img2.jpg",
-        "images/hiding_the_radiation_of_the_atomic_bombs_1050x700.avif"
+        "images/96.jpeg",
+        "images/961.jpeg",
+        "images/963.jpeg" 
       ],
       thumbnails: [],
       bottomTexts: [],
-      hasThreeSections: false
+      hasThreeSections: false,
+      hasFourSections: true
     },
+
     "tsarbomba": {
-      //title: "Tsar Bomba - 50 MT",
       texts: [
-        "The Tsar Bomba was the most powerful nuclear weapon ever detonated, with a yield of 50 megatons of TNT, developed by the Soviet Union and tested on October 30, 1961.",
+        "The RDS-200, known as Tsar Bomba, was the most powerful nuclear weapon ever detonated, with a yield of 50 megatons of TNT, developed by the Soviet Union and tested on October 30, 1961.",
         "The bomb was originally designed for a 100-megaton yield, but was scaled down to reduce radioactive fallout. Even at half its potential yield, it was 3,800 times more powerful than the Hiroshima bomb.",
         "The fireball was about 8 kilometers (5.0 mi) in diameter and the mushroom cloud reached a height of 67 km (42 mi). The heat from the explosion could have caused third-degree burns 100 km (62 mi) away."
       ],
@@ -102,23 +103,27 @@ let insightSketch = function(p) {
     }
   };
 
-  // Variabili layout
+  
   let scrollY = 0;
   let targetScrollY = 0;
 
-    // --- [ADD] Scroll hint + snap-to-section (solo per insight lunghi) ---
-  let snapTargets = [];          // targetScrollY per ogni sezione (centrata)
-  let currentStep = 0;           // 0..2
-  let showScrollLabel = true;    // al primo scroll diventa false
-  let lastStepMs = 0;            // throttle wheel
-  let isSnapping = false; // blocca wheel mentre stai ancora animando verso un target
+  let snapTargets = [];
+  let currentStep = 0;
+  let showScrollLabel = true;
+  let lastStepMs = 0;
+  let isSnapping = false;
+  let freeScrollMode = false;
 
+  let viewBombBtnBox = null;
+  let overViewBombBtn = false;
 
-  let viewBombBtnBox = null;     // hitbox per click
-  let overViewBombBtn = false;   // hover state
+  let viewFatManBtnBox = null;
+  let viewLittleBoyBtnBox = null;
+
+  const FAT_MAN_ID = 45003;
+  const LITTLE_BOY_ID = 45002;
 
   let canvasHeight;
-  
 
   let topMargin = 40;
   let sideMargin = 80;
@@ -137,29 +142,31 @@ let insightSketch = function(p) {
   let thumbSize = 120;
   let thumbGap = 30;
 
-  let myFont1, myFont2;
+  let myFont1, myFont2, myFont3;
 
   let fadeIn = 0;
   let floatOffset = 20;
-  let hoverClickable = false; // true quando sei sopra elementi cliccabili (thumbs / arrows)
+  let hoverClickable = false;
 
-  const imgAlpha = 100; // prova 200–220 (255 = pieno)
+  const imgAlpha = 100;
 
-
-  p.preload = function() {
+  p.preload = function () {
     myFont1 = p.loadFont("fonts/LexendZetta-Regular.ttf");
     myFont2 = p.loadFont("fonts/LibreFranklin-Regular.otf");
     myFont3 = p.loadFont("fonts/LoRes9PlusOTWide-Regular.ttf");
 
     const urlParams = new URLSearchParams(window.location.search);
     currentTopic = urlParams.get('topic') || 'hiroshima';
-    
+
     const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
-    
+    const hasThree = !!config.hasThreeSections;
+    const hasFour = !!config.hasFourSections;
+
     img1 = p.loadImage(config.imagePaths[0]);
-    img2 = config.hasThreeSections ? p.loadImage(config.imagePaths[1]) : null;
-    img3 = config.hasThreeSections ? p.loadImage(config.imagePaths[2]) : null;
-    
+    img2 = (hasThree || hasFour) ? p.loadImage(config.imagePaths[1]) : null;
+    img3 = (hasThree || hasFour) ? p.loadImage(config.imagePaths[2]) : null;
+    img4 = hasFour ? p.loadImage(config.imagePaths[3]) : null;
+
     thumbs = [];
     largeImages = [];
     if (currentTopic === "hiroshima") {
@@ -169,14 +176,16 @@ let insightSketch = function(p) {
         largeImages.push(t);
       });
     }
-    
+
     contentTitle = config.title;
-    Text1 = config.texts[0];
-    Text2 = config.hasThreeSections ? config.texts[1] : "";
-    Text3 = config.hasThreeSections ? config.texts[2] : "";
+
+    Text1 = config.texts[0] || "";
+    Text2 = (hasThree || hasFour) ? (config.texts[1] || "") : "";
+    Text3 = (hasThree || hasFour) ? (config.texts[2] || "") : "";
+    Text4 = hasFour ? (config.texts[3] || "") : "";
   };
 
-  p.setup = function() {
+  p.setup = function () {
     calculateCanvasHeight();
     let c = p.createCanvas(p.windowWidth, p.windowHeight);
     c.style("position", "fixed");
@@ -187,49 +196,45 @@ let insightSketch = function(p) {
     p.textSize(22);
     imgW = p.windowWidth * 0.62;
     imgH = imgW * 800 / 1200;
-    
+
     fadeIn = 0;
     floatOffset = 20;
   };
 
-  p.draw = function() {
+  p.draw = function () {
     p.background(20);
     p.fill(255);
-    hoverClickable = false; // reset ogni frame
-
+    hoverClickable = false;
 
     scrollY += (targetScrollY - scrollY) * 0.12;
-    // sblocca wheel quando sei praticamente arrivata
     if (isSnapping && Math.abs(targetScrollY - scrollY) < 0.6) {
       isSnapping = false;
     }
 
     thumbOffset += (targetThumbOffset - thumbOffset) * 0.18;
-    
+
     fadeIn = p.min(fadeIn + 3, 255);
     floatOffset = p.max(floatOffset - 0.55, 0);
 
-    // TITLE "Insight" REMOVED:
-    // la navbar HTML/CSS sopra al canvas sostituisce questo titolo.
-    // (teniamo comunque pageTitle per i calcoli di layout/canvasHeight)
     titleAlpha = p.map(scrollY, 0, 200, 255, 0, true);
-
 
     let topTextW = p.width - topTextSideMargin * 2;
     let topTextH = estimateTextHeight(pageTitle, topTextW);
 
     const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
-    const hasThreeSections = config.hasThreeSections;
+    const hasThreeSections = !!config.hasThreeSections;
+    const hasFourSections = !!config.hasFourSections;
+    const hasLongSections = hasThreeSections || hasFourSections;
 
     let y1 = topMargin + topTextH + 100 + floatOffset;
-    
+
     p.tint(255, (fadeIn * imgAlpha) / 255);
     p.image(img1, sideMargin, y1 - scrollY * 0.9, imgW, imgH);
     p.noTint();
 
     let titleX = sideMargin + imgW + textGap + maxTextWidth + 180;
     let titleY = y1 - scrollY * 0.9 + 0;
-    
+
     p.textAlign(p.RIGHT, p.TOP);
     p.textFont(myFont1);
     p.noStroke();
@@ -239,17 +244,18 @@ let insightSketch = function(p) {
 
     let textX1 = sideMargin + imgW + textGap;
     let textW1 = maxTextWidth;
-    
+
     let textCenterY = y1 - scrollY * 0.9 + imgH / 2;
     let textHeight1 = estimateTextHeight(Text1, textW1);
     let textY1 = textCenterY - textHeight1 / 2;
-    
+
     let alpha1 = p.map(y1 - scrollY, p.height, 0, 0, 255, true);
     drawTextWithFloat(Text1, textX1, textY1, textW1, alpha1, -20, 20);
 
-    if (hasThreeSections && img2) {
+    // SECTION 2/3
+    if (hasLongSections && img2) {
       let y2 = y1 + imgH + spacing;
-      
+
       let imgX2 = p.width - sideMargin - imgW;
       p.tint(255, (fadeIn * imgAlpha) / 255);
       p.image(img2, imgX2, y2 - scrollY * 0.9, imgW, imgH);
@@ -257,29 +263,49 @@ let insightSketch = function(p) {
 
       let textX2 = sideMargin + 100;
       let textW2 = maxTextWidth;
-      
+
       let textCenterY2 = y2 - scrollY * 0.9 + imgH / 2;
       let textHeight2 = estimateTextHeight(Text2, textW2);
       let textY2 = textCenterY2 - textHeight2 / 2;
-      
+
       let alpha2 = p.map(y2 - scrollY, p.height, 0, 0, 255, true);
       drawTextWithFloat(Text2, textX2, textY2, textW2, alpha2, 20, -20);
 
       let y3 = y2 + imgH + spacing;
-      
+
       p.tint(255, (fadeIn * imgAlpha) / 255);
       p.image(img3, sideMargin, y3 - scrollY * 0.9, imgW, imgH);
       p.noTint();
 
       let textX3 = sideMargin + imgW + textGap;
       let textW3 = maxTextWidth;
-      
+
       let textCenterY3 = y3 - scrollY * 0.9 + imgH / 2;
       let textHeight3 = estimateTextHeight(Text3, textW3);
       let textY3 = textCenterY3 - textHeight3 / 2;
-      
+
       let alpha3 = p.map(y3 - scrollY, p.height, 0, 0, 255, true);
       drawTextWithFloat(Text3, textX3, textY3, textW3, alpha3, -20, 20);
+
+      //  SECTION 4
+      if (hasFourSections && img4) {
+        let y4 = y3 + imgH + spacing;
+
+        let imgX4 = p.width - sideMargin - imgW;
+        p.tint(255, (fadeIn * imgAlpha) / 255);
+        p.image(img4, imgX4, y4 - scrollY * 0.9, imgW, imgH);
+        p.noTint();
+
+        let textX4 = sideMargin + 100;
+        let textW4 = maxTextWidth;
+
+        let textCenterY4 = y4 - scrollY * 0.9 + imgH / 2;
+        let textHeight4 = estimateTextHeight(Text4, textW4);
+        let textY4 = textCenterY4 - textHeight4 / 2;
+
+        let alpha4 = p.map(y4 - scrollY, p.height, 0, 0, 255, true);
+        drawTextWithFloat(Text4, textX4, textY4, textW4, alpha4, 20, -20);
+      }
 
       if (currentTopic === "hiroshima") {
         let thumbY = calculateThumbY(scrollY);
@@ -289,36 +315,28 @@ let insightSketch = function(p) {
       }
     }
 
-        // --- [ADD] Tsar button ---
     overViewBombBtn = drawViewBombButton();
 
-        // --- [ADD] Scroll hint (solo per insight lunghi) ---
-    const overHint = drawScrollHintIfNeeded(hasThreeSections);
-
-
+    const overHint = drawScrollHintIfNeeded(hasLongSections);
+    drawFirstBombButtons(hasThreeSections);
 
     if (showPreview && previewImg && currentTopic === "hiroshima") {
       drawPreviewOverlay();
     }
 
-    // Nasconde navbar/back quando la preview è aperta (solo su Hiroshima)
     document.body.classList.toggle("photo-open", showPreview && currentTopic === "hiroshima");
-
-
-      // Cursor globale per elementi cliccabili (thumbs + arrows)
     p.cursor(hoverClickable ? p.HAND : p.ARROW);
-
   };
 
   function drawTextWithFloat(txt, x, y, maxW, alpha, o1, o2) {
     p.push();
     let finalAlpha = p.min(alpha, fadeIn);
     p.fill(255, finalAlpha);
-    
+
     let offsetY = floatOffset * (1 - fadeIn / 255);
     let offset = p.map(finalAlpha, 0, 255, o1, o2);
     p.translate(offset, offsetY);
-    
+
     p.textSize(21);
     p.textFont(myFont2);
     p.textAlign(p.LEFT, p.TOP);
@@ -368,17 +386,17 @@ let insightSketch = function(p) {
     let topTextH = estimateTextHeight(pageTitle, topTextW);
 
     const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
-    const hasThreeSections = config.hasThreeSections;
+    const sectionsCount = config.hasFourSections ? 4 : (config.hasThreeSections ? 3 : 1);
 
-    if (hasThreeSections) {
-      let height = topMargin + topTextH + 140 + (spacing + imgH) * 3;
-      
+    if (sectionsCount >= 3) {
+      let height = topMargin + topTextH + 140 + (spacing + imgH) * sectionsCount;
+
       if (currentTopic === "hiroshima") {
         height += 600;
       } else {
         height += 200;
       }
-      
+
       canvasHeight = height;
     } else {
       let contentHeight = topMargin + topTextH + 140 + imgH + 100;
@@ -386,25 +404,24 @@ let insightSketch = function(p) {
     }
   }
 
-    // --- [ADD] calcola y base delle 3 sezioni (senza scroll) ---
   function getSectionBaseYs() {
-    // Stessi calcoli del draw, ma senza floatOffset per avere targets stabili
     let topTextW = p.width - topTextSideMargin * 2;
     let topTextH = estimateTextHeight(pageTitle, topTextW);
 
-    let y1 = topMargin + topTextH + 100;          // come in draw (senza floatOffset)
-    let y2 = y1 + imgH + spacing;
-    let y3 = y2 + imgH + spacing;
-    return [y1, y2, y3];
+    const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
+    const sectionsCount = config.hasFourSections ? 4 : (config.hasThreeSections ? 3 : 1);
+
+    let y1 = topMargin + topTextH + 100;
+    let ys = [y1];
+    for (let i = 1; i < sectionsCount; i++) {
+      ys.push(ys[i - 1] + imgH + spacing);
+    }
+    return ys;
   }
 
-  // --- [ADD] costruisce targets scroll che centrano il testo (via centro immagine) ---
   function rebuildSnapTargets() {
     const ys = getSectionBaseYs();
     const centers = ys.map(y => y + imgH / 2);
-
-    // nel draw: centerY = (y - scrollY*0.9) + imgH/2
-    // voglio centerY == p.height/2  => scrollY = (center - p.height/2)/0.9
     snapTargets = centers.map(c => Math.max(0, (c - p.height / 2) / 0.9));
   }
 
@@ -426,103 +443,83 @@ let insightSketch = function(p) {
   }
 
   function stepScroll(dir) {
-
-    if (isSnapping) return;   // se stai già andando verso un target, ignora
-    isSnapping = true;        // da qui in poi 1 wheel = 1 step
-
-    // se torno indietro, ri-mostro la label
-    if (dir < 0) showScrollLabel = true;
-
-    // se vado giù, la nascondo (ma SOLO dopo che l'utente ha iniziato a scendere)
-    if (dir > 0) showScrollLabel = false;
-
-
-
-    // dir: +1 down, -1 up
-    const now = p.millis();
-    if (now - lastStepMs < 220) return; // evita 5 step con una wheel
-    lastStepMs = now;
-
-    if (dir > 0) showScrollLabel = false;
-    if (dir < 0 && nearestStepIndex() === 0) showScrollLabel = true;
-
+    if (isSnapping) return;
 
     rebuildSnapTargets();
     const idx = nearestStepIndex();
+
+    // 到最后一个 section 往下：只有 Hiroshima 才进入 gallery 自由滚动
+    if (dir > 0 && idx >= snapTargets.length - 1) {
+      if (currentTopic === "hiroshima") {
+        freeScrollMode = true;
+        showScrollLabel = false;
+      }
+      return;
+    }
+
+    if (dir < 0) {
+      freeScrollMode = false;
+    }
+
+    isSnapping = true;
     snapToStep(idx + (dir > 0 ? 1 : -1));
   }
 
-// --- CTA tipo page1: label + freccia. La label torna quando risali. A fine pagina sparisce tutto.
-function drawScrollHintIfNeeded(hasThreeSections) {
-  if (!hasThreeSections) return false;
-  if (showPreview) return false;
+  function drawScrollHintIfNeeded(hasLongSections) {
+    if (!hasLongSections) return false;
+    if (showPreview) return false;
 
-  rebuildSnapTargets();
-  const idx = nearestStepIndex();
-  const isLast = idx >= snapTargets.length - 1;
+    rebuildSnapTargets();
+    const idx = nearestStepIndex();
+    const isLast = idx >= snapTargets.length - 1;
+    if (isLast) return false;
 
-  // A fine pagina: NON disegnare nulla
-  if (isLast) return false;
+    const cx = p.width / 2;
+    const baseCy = p.height - 34;
 
-  const cx = p.width / 2;
+    const bob = p.sin(p.frameCount * 0.08) * 4;
+    const cy = baseCy + bob;
+    const labelY = cy - 24;
 
-  // FONDO PAGINA (più giù possibile senza tagliare)
-  const baseCy = p.height - 34;
+    const hitW = 240;
+    const hitH = 60;
+    const over =
+      p.mouseX > cx - hitW / 2 && p.mouseX < cx + hitW / 2 &&
+      p.mouseY > baseCy - hitH / 2 && p.mouseY < baseCy + hitH / 2;
 
-  // bobbing condiviso: testo e freccia si muovono insieme
-  const bob = p.sin(p.frameCount * 0.08) * 4;
-  const cy = baseCy + bob;
+    const halfW = 10;
+    const h = 8;
 
-  // label sopra la freccia, e si muove con lei
-  const labelY = cy - 24;
+    p.push();
+    p.noFill();
 
-  // hitbox generosa (include area label)
-  const hitW = 240;
-  const hitH = 60;
-  const over =
-    p.mouseX > cx - hitW / 2 && p.mouseX < cx + hitW / 2 &&
-    p.mouseY > baseCy - hitH / 2 && p.mouseY < baseCy + hitH / 2;
+    const a = over ? 220 : 160;
+    p.stroke(0, 255, 255, a);
+    p.strokeWeight(over ? 2 : 1.6);
 
-  // freccia “chevron”
-  const halfW = 10;
-  const h = 8;
+    p.line(cx - halfW, cy - h, cx, cy);
+    p.line(cx + halfW, cy - h, cx, cy);
 
-  p.push();
-  p.noFill();
+    if (idx === 0 && showScrollLabel) {
+      p.noStroke();
+      p.fill(0, 255, 255, over ? 255 : 200);
+      p.textFont(myFont2);
+      p.textSize(12);
+      p.textAlign(p.CENTER, p.BOTTOM);
+      p.text("SCROLL DOWN FOR MORE", cx, labelY);
+    }
 
-  // hover = più chiara
-  const a = over ? 220 : 160;
-  p.stroke(0, 255, 255, a);
-  p.strokeWeight(over ? 2 : 1.6);
+    p.pop();
 
-  // chevron down
-  p.line(cx - halfW, cy - h, cx, cy);
-  p.line(cx + halfW, cy - h, cx, cy);
-
-  // label: font come page1, ma colore ciano richiesto
-  if (idx === 0 && showScrollLabel) {
-    p.noStroke();
-    p.fill(0, 255, 255, over ? 255 : 200);
-    p.textFont(myFont2);
-    p.textSize(12);
-    p.textAlign(p.CENTER, p.BOTTOM);
-    p.text("SCROLL DOWN FOR MORE", cx, labelY);
+    if (over) hoverClickable = true;
+    return over;
   }
-
-  p.pop();
-
-  if (over) hoverClickable = true;
-  return over;
-}
-
-
 
   function calculateThumbY(currentScrollY) {
     if (currentTopic !== "hiroshima") return -1000;
 
     const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
     const hasThreeSections = config.hasThreeSections;
-    
     if (!hasThreeSections) return -1000;
 
     let topTextW = p.width - topTextSideMargin * 2;
@@ -535,20 +532,18 @@ function drawScrollHintIfNeeded(hasThreeSections) {
     return base - currentScrollY;
   }
 
-  // --- [ADD] Button stile "VIEW HISTORIC INSIGHTS" ma con link alla bomba ---
+  // Button
   function drawViewBombButton() {
-    // Solo su Tsar insight
     if (currentTopic !== "tsarbomba") {
       viewBombBtnBox = null;
       return false;
     }
-  
+
     if (showPreview) {
       viewBombBtnBox = null;
       return false;
     }
 
-    // MOSTRA SOLO ALLA FINE (ultimo step)
     rebuildSnapTargets();
     const idx = nearestStepIndex();
     const isLast = idx >= snapTargets.length - 1;
@@ -565,20 +560,17 @@ function drawScrollHintIfNeeded(hasThreeSections) {
     p.push();
     p.textFont(myFont3);
     p.textSize(14);
-    const btnW = p.textWidth(label) + padX * 2 + 18; // + spazio freccetta
+    const btnW = p.textWidth(label) + padX * 2 + 18;
 
     const btnX = p.width / 2 - btnW / 2;
-    // lo metto "in basso" ma NON attaccato alla freccia scroll-hint (che sta più giù)
     const btnY = p.height - 74;
 
     const isHover =
       p.mouseX > btnX && p.mouseX < btnX + btnW &&
       p.mouseY > btnY && p.mouseY < btnY + btnH;
 
-    // salva hitbox per mousePressed
     viewBombBtnBox = { x: btnX, y: btnY, w: btnW, h: btnH };
 
-    // stile: dark fill + cyan stroke (come year)
     if (isHover) {
       p.fill(20, 20, 20, 200);
       p.stroke(0, 255, 255, 200);
@@ -591,13 +583,11 @@ function drawScrollHintIfNeeded(hasThreeSections) {
     p.strokeWeight(1);
     p.rect(btnX, btnY, btnW, btnH, 8);
 
-    // testo
     p.noStroke();
     p.fill(0, 255, 255, isHover ? 255 : 180);
     p.textAlign(p.CENTER, p.CENTER);
     p.text(label, btnX + btnW / 2 - 6, btnY + btnH / 2 - 1);
 
-    // triangolino a destra (stesso linguaggio del bottone year)
     let triSize = 5;
     let triX = btnX + btnW - 12;
     let triY = btnY + btnH / 2;
@@ -614,16 +604,102 @@ function drawScrollHintIfNeeded(hasThreeSections) {
     return isHover;
   }
 
+  //Hiroshima buttons
+  function drawFirstBombButtons(hasThreeSections) {
+    if (currentTopic !== "hiroshima") {
+      viewFatManBtnBox = null;
+      viewLittleBoyBtnBox = null;
+      return;
+    }
 
+    if (!hasThreeSections) return;
+
+    if (showPreview) {
+      viewFatManBtnBox = null;
+      viewLittleBoyBtnBox = null;
+      return;
+    }
+
+    if (!freeScrollMode) {
+      viewFatManBtnBox = null;
+      viewLittleBoyBtnBox = null;
+      return;
+    }
+
+    const btnH = 40;
+    const padX = 18;
+    const gap = 18;
+
+    const labelLeft = "VIEW FAT MAN";
+    const labelRight = "VIEW LITTLE BOY";
+
+    p.push();
+    p.textFont(myFont3);
+    p.textSize(14);
+
+    const wLeft = p.textWidth(labelLeft) + padX * 2 + 18;
+    const wRight = p.textWidth(labelRight) + padX * 2 + 18;
+
+    const totalW = wLeft + gap + wRight;
+    const groupX = p.width / 2 - totalW / 2;
+
+    const btnY = p.height - 74;
+
+    const leftX = groupX;
+    const rightX = groupX + wLeft + gap;
+
+    const hoverLeft =
+      p.mouseX > leftX && p.mouseX < leftX + wLeft &&
+      p.mouseY > btnY && p.mouseY < btnY + btnH;
+
+    const hoverRight =
+      p.mouseX > rightX && p.mouseX < rightX + wRight &&
+      p.mouseY > btnY && p.mouseY < btnY + btnH;
+
+    viewFatManBtnBox = { x: leftX, y: btnY, w: wLeft, h: btnH };
+    viewLittleBoyBtnBox = { x: rightX, y: btnY, w: wRight, h: btnH };
+
+    drawOneButton(leftX, btnY, wLeft, btnH, labelLeft, hoverLeft);
+    drawOneButton(rightX, btnY, wRight, btnH, labelRight, hoverRight);
+
+    if (hoverLeft || hoverRight) hoverClickable = true;
+
+    p.pop();
+  }
+
+  function drawOneButton(btnX, btnY, btnW, btnH, label, isHover) {
+    if (isHover) {
+      p.fill(20, 20, 20, 200);
+      p.stroke(0, 255, 255, 200);
+    } else {
+      p.fill(20, 20, 20, 200);
+      p.stroke(0, 255, 255, 120);
+    }
+
+    p.strokeWeight(1);
+    p.rect(btnX, btnY, btnW, btnH, 8);
+
+    p.noStroke();
+    p.fill(0, 255, 255, isHover ? 255 : 180);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text(label, btnX + btnW / 2 - 6, btnY + btnH / 2 - 1);
+
+    let triSize = 5;
+    let triX = btnX + btnW - 12;
+    let triY = btnY + btnH / 2;
+    if (isHover) triX += p.sin(p.frameCount * 0.2) * 2;
+
+    p.push();
+    p.translate(triX, triY);
+    p.noStroke();
+    p.fill(0, 255, 255, isHover ? 255 : 180);
+    p.triangle(-triSize, -triSize, -triSize, triSize, triSize, 0);
+    p.pop();
+  }
 
   function drawThumbnails(y) {
-
-    // Se la preview è aperta, i thumbnails dietro NON devono influenzare hover/cursor
-    // (restano visivamente lì sotto, ma non “interagiscono”)
     if (showPreview) return;
-  
     if (currentTopic !== "hiroshima") return;
-    
     if (y < -100) return;
 
     let totalW = thumbs.length * thumbSize + (thumbs.length - 1) * thumbGap;
@@ -638,7 +714,6 @@ function drawScrollHintIfNeeded(hasThreeSections) {
     let hoverLeftStripArrow = false;
     let hoverRightStripArrow = false;
 
-
     const visibleEnd = p.width - sideMargin;
     const initialStripStart = (p.width - totalW) / 2;
     const maxScrollNegative = visibleEnd - (initialStripStart + totalW);
@@ -650,7 +725,7 @@ function drawScrollHintIfNeeded(hasThreeSections) {
       hoverLeftStripArrow =
         p.mouseX > x && p.mouseX < x + arrowW &&
         p.mouseY > arrowY && p.mouseY < arrowY + arrowH;
-      
+
       if (hoverLeftStripArrow) {
         p.fill(110, 133, 219, 150);
         p.rect(x, arrowY, arrowW, arrowH, 0);
@@ -658,7 +733,7 @@ function drawScrollHintIfNeeded(hasThreeSections) {
       }
       p.noStroke();
       p.fill(255);
-      p.triangle(x + 15, arrowY + arrowH/2, x + arrowW - 15, arrowY + 20, x + arrowW - 15, arrowY + arrowH - 20);
+      p.triangle(x + 15, arrowY + arrowH / 2, x + arrowW - 15, arrowY + 20, x + arrowW - 15, arrowY + arrowH - 20);
     }
 
     if (thumbOffset > maxScroll + 5) {
@@ -675,7 +750,7 @@ function drawScrollHintIfNeeded(hasThreeSections) {
       }
       p.noStroke();
       p.fill(255);
-      p.triangle(x - 15, arrowY + arrowH/2, x - arrowW + 15, arrowY + 20, x - arrowW + 15, arrowY + arrowH - 20);
+      p.triangle(x - 15, arrowY + arrowH / 2, x - arrowW + 15, arrowY + 20, x - arrowW + 15, arrowY + arrowH - 20);
     }
 
     let hoveredIndex = -1;
@@ -689,7 +764,6 @@ function drawScrollHintIfNeeded(hasThreeSections) {
         }
       }
     }
-
 
     for (let i = 0; i < thumbs.length; i++) {
       let x = startX + i * (thumbSize + thumbGap);
@@ -729,10 +803,10 @@ function drawScrollHintIfNeeded(hasThreeSections) {
         }
       }
     }
-    
-if (hoveredIndex !== -1 || hoverLeftStripArrow || hoverRightStripArrow) {
-          hoverClickable = true;
-        }
+
+    if (hoveredIndex !== -1 || hoverLeftStripArrow || hoverRightStripArrow) {
+      hoverClickable = true;
+    }
 
     p.noStroke();
   }
@@ -757,7 +831,7 @@ if (hoveredIndex !== -1 || hoverLeftStripArrow || hoverRightStripArrow) {
 
     let lx = 100;
     let leftHover = p.mouseX > lx && p.mouseX < lx + previewArrowSize &&
-                  p.mouseY > midY - previewArrowSize && p.mouseY < midY + previewArrowSize;
+      p.mouseY > midY - previewArrowSize && p.mouseY < midY + previewArrowSize;
     p.fill(leftHover ? p.color(255, 255, 255) : p.color(255, 150));
     p.triangle(
       lx, midY,
@@ -767,12 +841,12 @@ if (hoveredIndex !== -1 || hoverLeftStripArrow || hoverRightStripArrow) {
 
     let rx = p.width - 100 - previewArrowSize;
     let rightHover = p.mouseX > rx && p.mouseX < rx + previewArrowSize &&
-                   p.mouseY > midY - previewArrowSize && p.mouseY < midY + previewArrowSize;
+      p.mouseY > midY - previewArrowSize && p.mouseY < midY + previewArrowSize;
 
     if (leftHover || rightHover) {
       hoverClickable = true;
     }
-               
+
     p.fill(rightHover ? p.color(255, 255, 255) : p.color(255, 150));
     p.triangle(
       rx + previewArrowSize, midY,
@@ -790,25 +864,25 @@ if (hoveredIndex !== -1 || hoverLeftStripArrow || hoverRightStripArrow) {
     p.pop();
   }
 
-  p.mousePressed = function() {
+  p.mousePressed = function () {
     if (currentTopic === "hiroshima" && showPreview && previewImg) {
       let leftX = 100;
       let arrowY1 = p.height / 2 - previewArrowSize;
       let arrowY2 = p.height / 2 + previewArrowSize;
-      
+
       if (p.mouseX > leftX && p.mouseX < leftX + previewArrowSize &&
-          p.mouseY > arrowY1 && p.mouseY < arrowY2) {
-          previewIndex = (previewIndex - 1 + largeImages.length) % largeImages.length;
-          previewImg = largeImages[previewIndex];
-          return;
+        p.mouseY > arrowY1 && p.mouseY < arrowY2) {
+        previewIndex = (previewIndex - 1 + largeImages.length) % largeImages.length;
+        previewImg = largeImages[previewIndex];
+        return;
       }
 
       let rightX = p.width - 100 - previewArrowSize;
       if (p.mouseX > rightX && p.mouseX < rightX + previewArrowSize &&
-          p.mouseY > arrowY1 && p.mouseY < arrowY2) {
-          previewIndex = (previewIndex + 1) % largeImages.length;
-          previewImg = largeImages[previewIndex];
-          return;
+        p.mouseY > arrowY1 && p.mouseY < arrowY2) {
+        previewIndex = (previewIndex + 1) % largeImages.length;
+        previewImg = largeImages[previewIndex];
+        return;
       }
 
       showPreview = false;
@@ -820,11 +894,11 @@ if (hoveredIndex !== -1 || hoverLeftStripArrow || hoverRightStripArrow) {
       if (thumbY > -thumbSize && thumbY < p.height) {
         let totalW = thumbs.length * thumbSize + (thumbs.length - 1) * thumbGap;
         let startX = (p.width - totalW) / 2 + thumbOffset;
-        
+
         for (let i = 0; i < thumbs.length; i++) {
           let x = startX + i * (thumbSize + thumbGap);
           if (p.mouseX > x && p.mouseX < x + thumbSize &&
-              p.mouseY > thumbY && p.mouseY < thumbY + thumbSize) {
+            p.mouseY > thumbY && p.mouseY < thumbY + thumbSize) {
             previewIndex = i;
             previewImg = largeImages[previewIndex];
             showPreview = true;
@@ -834,25 +908,43 @@ if (hoveredIndex !== -1 || hoverLeftStripArrow || hoverRightStripArrow) {
       }
     }
 
-        // --- [ADD] click "View the bomb" (RDS-200 / 1961) ---
+    if (viewFatManBtnBox) {
+      const overFat =
+        p.mouseX >= viewFatManBtnBox.x && p.mouseX <= viewFatManBtnBox.x + viewFatManBtnBox.w &&
+        p.mouseY >= viewFatManBtnBox.y && p.mouseY <= viewFatManBtnBox.y + viewFatManBtnBox.h;
+
+      if (overFat) {
+        if (FAT_MAN_ID) window.location.href = `single.html?id=${FAT_MAN_ID}`;
+        return;
+      }
+    }
+
+    if (viewLittleBoyBtnBox) {
+      const overLB =
+        p.mouseX >= viewLittleBoyBtnBox.x && p.mouseX <= viewLittleBoyBtnBox.x + viewLittleBoyBtnBox.w &&
+        p.mouseY >= viewLittleBoyBtnBox.y && p.mouseY <= viewLittleBoyBtnBox.y + viewLittleBoyBtnBox.h;
+
+      if (overLB) {
+        if (LITTLE_BOY_ID) window.location.href = `single.html?id=${LITTLE_BOY_ID}`;
+        return;
+      }
+    }
+
     if (viewBombBtnBox) {
       const overBtn =
         p.mouseX >= viewBombBtnBox.x && p.mouseX <= viewBombBtnBox.x + viewBombBtnBox.w &&
         p.mouseY >= viewBombBtnBox.y && p.mouseY <= viewBombBtnBox.y + viewBombBtnBox.h;
 
       if (overBtn) {
-        // RDS-200 nel tuo dataset ha id_no = 61053
         window.location.href = "single.html?id=61053";
         return;
       }
     }
 
-        // --- [ADD] click sulla freccia/CTA: stesso comportamento dello scroll down ---
     const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
-    const hasThreeSections = config.hasThreeSections;
+    const hasLongSections = !!config.hasThreeSections || !!config.hasFourSections;
 
-    if (hasThreeSections) {
-      // ricostruisco e verifico hover sulla stessa hitbox del draw
+    if (hasLongSections) {
       rebuildSnapTargets();
       const idx = nearestStepIndex();
       const isLast = idx >= snapTargets.length - 1;
@@ -863,55 +955,69 @@ if (hoveredIndex !== -1 || hoverLeftStripArrow || hoverRightStripArrow) {
       const hitH = 60;
 
       const overHint =
-        p.mouseX > cx - hitW/2 && p.mouseX < cx + hitW/2 &&
-        p.mouseY > baseCy - hitH/2 && p.mouseY < baseCy + hitH/2;
+        p.mouseX > cx - hitW / 2 && p.mouseX < cx + hitW / 2 &&
+        p.mouseY > baseCy - hitH / 2 && p.mouseY < baseCy + hitH / 2;
 
       if (overHint && !isLast) {
         stepScroll(+1);
         return;
       }
     }
-
-
   };
 
-  p.mouseWheel = function(event) {
-    if (showPreview) return false;
-    
-    const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
-    const hasThreeSections = config.hasThreeSections;
-    
-    if (!hasThreeSections) {
-      targetScrollY = 0;
-      return false;
+let wheelAccum = 0;
+let lastWheel = 0;
+
+p.mouseWheel = function(event) {
+  if (showPreview) return false;
+
+  const config = contentConfig[currentTopic];
+  const hasLongSections = !!config.hasThreeSections || !!config.hasFourSections;
+  if (!hasLongSections) return false;
+  if (Math.abs(event.delta) < 6) return false;
+  if (isSnapping) return false;
+
+  rebuildSnapTargets();
+
+  if (!freeScrollMode) {
+    wheelAccum += event.delta;
+
+    if (wheelAccum > 60) {
+      wheelAccum = 0;
+      stepScroll(+1);
+    } else if (wheelAccum < -60) {
+      wheelAccum = 0;
+      stepScroll(-1);
     }
+  }
+  else {
+    targetScrollY += event.delta * 0.8;
 
-    if (isSnapping) return false;
+    const bottomMargin = 120;
+    const baseThumbY = calculateThumbY(0);
 
-    
-    /*targetScrollY += event.delta;
-    
-    if (currentTopic === "hiroshima") {
-      targetScrollY = p.constrain(targetScrollY, 0, p.max(0, canvasHeight - p.height));
-    } else {
-      let maxScrollY = topMargin + estimateTextHeight(pageTitle, p.width - topTextSideMargin * 2) + 140 + (spacing + imgH) * 3 + 200 - p.height;
-      targetScrollY = p.constrain(targetScrollY, 0, p.max(0, maxScrollY));
+    const maxScrollY =
+      baseThumbY - (p.height - bottomMargin - thumbSize);
+
+    const minScrollY = snapTargets[snapTargets.length - 1];
+
+    targetScrollY = p.constrain(
+      targetScrollY,
+      minScrollY,
+      Math.max(minScrollY, maxScrollY)
+    );
+
+    const eps = 0.8;
+    if (event.delta < 0 && targetScrollY <= minScrollY + eps) {
+      targetScrollY = minScrollY;
+      freeScrollMode = false;
+      isSnapping = false;
     }
-    
-    return false;*/
+  }
 
-        // --- [REPLACE] scroll a step: centra automaticamente la sezione successiva/precedente ---
-    if (event.delta > 0) stepScroll(+1);
-    else if (event.delta < 0) stepScroll(-1);
+  return false;
+};
 
-    return false;
-
-  };
-
-  p.windowResized = function() {
-    p.resizeCanvas(p.windowWidth, p.windowHeight);
-    calculateCanvasHeight();
-  };
 };
 
 new p5(insightSketch);
