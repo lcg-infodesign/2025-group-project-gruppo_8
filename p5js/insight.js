@@ -1,5 +1,4 @@
 let insightSketch = function (p) {
-  // Variabili contenuto
   let img1, img2, img3, img4;
   let thumbs = [];
   let largeImages = [];
@@ -290,7 +289,7 @@ let insightSketch = function (p) {
       let alpha3 = p.map(y3 - scrollY, p.height, 0, 0, 255, true);
       drawTextWithFloat(Text3, textX3, textY3, textW3, alpha3, -20, 20);
 
-      // ✅ SECTION 4 (only for trattato96 / hasFourSections)
+      //  SECTION 4 (only for trattato96 / hasFourSections)
       if (hasFourSections && img4) {
         let y4 = y3 + imgH + spacing;
 
@@ -409,7 +408,7 @@ let insightSketch = function (p) {
     }
   }
 
-  // ✅ base Ys now dynamic (3 or 4)
+  //  base Ys now dynamic (3 or 4)
   function getSectionBaseYs() {
     let topTextW = p.width - topTextSideMargin * 2;
     let topTextH = estimateTextHeight(pageTitle, topTextW);
@@ -471,7 +470,7 @@ let insightSketch = function (p) {
     snapToStep(idx + (dir > 0 ? 1 : -1));
   }
 
-  // ✅ scroll hint for 3 or 4
+  // scroll hint for 3 or 4
   function drawScrollHintIfNeeded(hasLongSections) {
     if (!hasLongSections) return false;
     if (showPreview) return false;
@@ -948,7 +947,7 @@ let insightSketch = function (p) {
       }
     }
 
-    // ✅ click scroll hint (3 or 4)
+    //  click scroll hint (3 or 4)
     const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
     const hasLongSections = !!config.hasThreeSections || !!config.hasFourSections;
 
@@ -973,55 +972,67 @@ let insightSketch = function (p) {
     }
   };
 
-  p.mouseWheel = function (event) {
-    if (showPreview) return false;
+let wheelAccum = 0;
+let lastWheel = 0;
 
-    const config = contentConfig[currentTopic];
-    const hasLongSections = !!config.hasThreeSections || !!config.hasFourSections;
-    if (!hasLongSections) return false;
+p.mouseWheel = function(event) {
+  if (showPreview) return false;
 
-    if (isSnapping) return false;
+  const config = contentConfig[currentTopic];
+  const hasLongSections = !!config.hasThreeSections || !!config.hasFourSections;
+  if (!hasLongSections) return false;
 
-    rebuildSnapTargets();
+  // ignoriamo i micro scroll del trackpad
+  if (Math.abs(event.delta) < 6) return false;
 
-    // SECTION SNAP MODE
-    if (!freeScrollMode) {
-      if (event.delta > 0) stepScroll(+1);
-      else if (event.delta < 0) stepScroll(-1);
+  // se stiamo già snapping, ignoriamo finché non finisce
+  if (isSnapping) return false;
+
+  rebuildSnapTargets();
+
+  // se non siamo in gallery, accumuliamo lo scroll
+  if (!freeScrollMode) {
+    // accumulo per evitare che con una rotellina/trackpad salti
+    wheelAccum += event.delta;
+
+    // solo quando superiamo una soglia, cambiamo sezione
+    if (wheelAccum > 60) {
+      wheelAccum = 0;
+      stepScroll(+1);
+    } else if (wheelAccum < -60) {
+      wheelAccum = 0;
+      stepScroll(-1);
     }
-    // GALLERY FREE SCROLL MODE
-    else {
-      targetScrollY += event.delta * 0.8;
+  }
+  // se siamo in gallery, scroll libero
+  else {
+    targetScrollY += event.delta * 0.8;
 
-      const bottomMargin = 120;
-      const baseThumbY = calculateThumbY(0);
+    const bottomMargin = 120;
+    const baseThumbY = calculateThumbY(0);
 
-      const maxScrollY =
-        baseThumbY - (p.height - bottomMargin - thumbSize);
+    const maxScrollY =
+      baseThumbY - (p.height - bottomMargin - thumbSize);
 
-      const minScrollY = snapTargets[snapTargets.length - 1];
+    const minScrollY = snapTargets[snapTargets.length - 1];
 
-      targetScrollY = p.constrain(
-        targetScrollY,
-        minScrollY,
-        Math.max(minScrollY, maxScrollY)
-      );
+    targetScrollY = p.constrain(
+      targetScrollY,
+      minScrollY,
+      Math.max(minScrollY, maxScrollY)
+    );
 
-      const eps = 0.8;
-      if (event.delta < 0 && targetScrollY <= minScrollY + eps) {
-        targetScrollY = minScrollY;
-        freeScrollMode = false;
-        isSnapping = false;
-      }
+    const eps = 0.8;
+    if (event.delta < 0 && targetScrollY <= minScrollY + eps) {
+      targetScrollY = minScrollY;
+      freeScrollMode = false;
+      isSnapping = false;
     }
+  }
 
-    return false;
-  };
+  return false;
+};
 
-  p.windowResized = function () {
-    p.resizeCanvas(p.windowWidth, p.windowHeight);
-    calculateCanvasHeight();
-  };
 };
 
 new p5(insightSketch);
