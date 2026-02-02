@@ -149,6 +149,26 @@ let UGTypes = [
   }
 })();*/
 
+// Page1 hold before jumping
+let page1HoldActive = false;
+let page1HoldStartMs = 0;
+const PAGE1_HOLD_MS = 2000;
+
+function startPage1Hold() {
+  if (page1HoldActive || autoExpandStarted) return;
+  page1HoldActive = true;
+  page1HoldStartMs = millis();
+}
+
+function onEnterLastIntroStep() {
+  // 只要 introIndex 到 3，就立刻把 scrollOffset 锁到 maxScroll，避免 lerp 没到位
+  scrollOffset = maxScroll;
+  snapping = false;
+
+  // 开始2秒等待（之后自动 expand -> goNextPage）
+  startPage1Hold();
+}
+
 
 // NUOVA FUNZIONE — vai alla overview
 // ===============================
@@ -291,7 +311,7 @@ function computeIntroTargets() {
   );
 
   // maxScroll = quando vuoi far partire l'espansione (subito dopo str4)
-  maxScroll = max(introTargets[3] + 40, introTargets[3]);
+   maxScroll = introTargets[3];
 }
 
 function windowResized() {
@@ -316,41 +336,53 @@ function snapTo(val) {
 }
 
 function introNext() {
+  // ✅ 第一次触发：从空白进入第一段
+  if (introIndex < 0) {
+    introIndex = 0;
+    snapTo(introTargets[introIndex]);
+    spreadSpeed = 80;
+    return;
+  }
+
+  // 之后才按 scrollOffset 同步
   syncIntroIndex();
 
-  if (introIndex < 2) {
+  if (introIndex < 3) {
     introIndex++;
     snapTo(introTargets[introIndex]);
-
-    // 增大动画提示幅度，让按键效果更明显
-    spreadSpeed = 80;       // 原来是 100，可以调大
-  } else {
-    // 到最后一段 → 全部展开
-    snapTo(maxScroll+1);
-    if (!autoExpandStarted) autoExpandStarted = true;
-    spreadSpeed = 80; 
-  }
+    spreadSpeed = 80;
+} else {
+  // 已经在最后一段，再按↓也不要要求“再滚一点”
+  introIndex = 3;
+  onEnterLastIntroStep();
+  spreadSpeed = 80;
 }
+
+
+}
+
 
 function introPrev() {
-  syncIntroIndex();
-
-  if (introIndex > 0) {
-    introIndex--;
-    snapTo(introTargets[introIndex]);
-
-    // step 向后动画（完全对称）
-    spreadSpeed = -80;
-
-  } else {
-    // 回到顶部 → 撤销扩展状态
-    introTop();
+  // ✅ 如果当前在第一段（或刚开始），再按上就回到“空白主界面”
+  if (introIndex <= 0) {
+    introIndex = -1;      // 让文字全隐藏
+    snapTo(0);            // 回到顶部
+    snapping = true;
 
     autoExpandStarted = false;
-
+    centerCircleSize = 10;
     spreadSpeed = -80;
+    return;
   }
+
+  // ✅ 其它情况：正常往前一步
+  syncIntroIndex();
+
+  introIndex--;
+  snapTo(introTargets[introIndex]);
+  spreadSpeed = -80;
 }
+
 
 // ===============================
 // Se URL contiene #page2 → apri ovverview SUBITO
@@ -401,17 +433,6 @@ function draw() {
 // ===============================
 function drawPage1() {
   background(20);
-  // drawGrid();
-  //imageMode(CENTER);
-  //tint(255, 180);
-  //image(img1, width / 2, height / 2, 1200, 900);
-
-  //textFont(myFont2);
-  //fill(150);
-  //textSize(16);
-  //textAlign(CENTER, BOTTOM);
-  //text("SCROLL DOWN FOR MORE", width / 2, height - 40);
-
 
   if (snapping) {
     scrollOffset = lerp(scrollOffset, snapTarget, SNAP_LERP);
@@ -420,8 +441,6 @@ function drawPage1() {
       snapping = false;
     }
   }
-
-
 
   // Title: vertically aligned with menu button, horizontally centered
   textFont(myFont1);
@@ -457,32 +476,44 @@ function drawPage1() {
   const introStartY = height + 120; // where the first text appears
   const introStepY = height * 0.6; // distance between blocks (smaller = closer)
 
-  textAlign(LEFT, TOP);
+ // Intro texts — progressive reveal by steps
+textAlign(LEFT, TOP);
+
+if (introIndex >= 0) {
   drawIntroBlock(
     str1,
     leftX,
     introStartY + introStepY * 0 - scrollOffset,
     MAX_TEXT_W
   );
+}
 
+if (introIndex >= 1) {
   drawIntroBlock(
     str2,
     leftX,
     introStartY + introStepY * 1 - scrollOffset,
-    MAX_TEXT_W);
+    MAX_TEXT_W
+  );
+}
 
+if (introIndex >= 2) {
   drawIntroBlock(
     str3,
     leftX,
     introStartY + introStepY * 2 - scrollOffset,
     MAX_TEXT_W
   );
+}
+
+if (introIndex >= 3) {
   drawIntroBlockData(
     str4,
     rightX,
     introStartY + introStepY * 3 - scrollOffset,
     MAX_TEXT_W
   );
+}
 
 
   // Scroll hint arrow (bottom center) — hidden once the user scrolls a bit
@@ -517,6 +548,20 @@ function drawPage1() {
       goNextPage();
     }
   }*/
+// --- Hold 2s at the last intro text before expanding ---
+if (page1HoldActive) {
+  // 如果用户往上滚/离开底部，就取消等待
+  if (scrollOffset < maxScroll - 2) {
+    page1HoldActive = false;
+  } else {
+    // 到点后才允许开始扩张
+    if (millis() - page1HoldStartMs >= PAGE1_HOLD_MS) {
+      page1HoldActive = false;
+      autoExpandStarted = true;
+      expandStartFrame = frameCount;
+    }
+  }
+}
 
   // --- Automatic circle expansion after full scroll ---
   if (autoExpandStarted) {
@@ -1462,66 +1507,54 @@ function drawGlowingChevronLeft(cx, cy, halfW, h) {
 }
 
 function handleIntroScroll(delta) {
-  spreadSpeed += delta * 0.05;
+  spreadSpeed += delta * 0.01;
 
-  // scroll bidirezionale
-  scrollOffset += delta * 0.5;
+  // 使用相同的灵敏度系数
+  const scrollSensitivity = 0.25;
+  scrollOffset += delta * scrollSensitivity;
   scrollOffset = constrain(scrollOffset, 0, maxScroll);
 
-  // se scrolli su: spegni espansione
+  if (scrollOffset < introTargets[0] - 10) {
+    introIndex = -1;
+  } else {
+    syncIntroIndex();
+  }
+
   if (delta < 0) {
     autoExpandStarted = false;
     centerCircleSize = 10;
   }
 
-  // espansione solo se sei al fondo e spingi giù
-  if (scrollOffset >= maxScroll && delta > 0 && !autoExpandStarted) {
-    autoExpandStarted = true;
-    expandStartFrame = frameCount;
-  }
+if (scrollOffset >= maxScroll && delta > 0 && !autoExpandStarted) {
+  startPage1Hold();   // ✅ 先等2秒
+}
+
 }
 
 
 function mouseWheel(event) {
   if (backTransActive) return false;
 
-  /*if (page === 1) {
-    spreadSpeed += event.delta * 0.05;
-
-    if (scrollOffset < maxScroll) {
-      scrollOffset += event.delta * 0.5;
-      scrollOffset = constrain(scrollOffset, 0, maxScroll);
-    } else {
-      // Start automatic animation once max scroll reached
-      if (!autoExpandStarted) {
-        autoExpandStarted = true;
-        expandStartFrame = frameCount;
-      }
-    }
-  } */
   if (page === 1) {
     spreadSpeed += event.delta * 0.05;
 
-    // 1) scroll SEMPRE bidirezionale (anche quando sei già a maxScroll)
-    scrollOffset += event.delta * 0.5;
+    // 减小滚动灵敏度
+    const scrollSensitivity = 0.25; // 从 0.5 改为 0.25
+    scrollOffset += event.delta * scrollSensitivity;
     scrollOffset = constrain(scrollOffset, 0, maxScroll);
 
-    // 2) se stai scrollando SU, l'espansione deve essere disattivata subito
     if (event.delta < 0) {
       autoExpandStarted = false;
-      centerCircleSize = 10; // reset se era già partito qualcosa
+      centerCircleSize = 10;
     }
 
-    // 3) l'espansione parte SOLO se sei in fondo E stai spingendo GIÙ
-    if (scrollOffset >= maxScroll && event.delta > 0 && !autoExpandStarted) {
-      autoExpandStarted = true;
-      expandStartFrame = frameCount;
-    }
+if (scrollOffset >= maxScroll && event.delta > 0 && !autoExpandStarted) {
+  startPage1Hold();
+}
 
-    {
-      handleIntroScroll(event.delta);
-      return false;
-    }
+    
+    handleIntroScroll(event.delta);
+    return false;
 } else if (page === 2) {
 
   // 向下滚：timeline 前进
@@ -1538,6 +1571,9 @@ function mouseWheel(event) {
 
     // ✅当 timeline 已经到最开始（或非常接近）时，继续往上滚就触发回退
     const atStart = scrollProgress <= (startYear - 1 + 0.25);
+  page1HoldActive = false;
+  autoExpandStarted = false;
+  centerCircleSize = 10;
 
     if (atStart) {
       // 冷却，防止触控板轻微抖动连续触发
@@ -1682,20 +1718,43 @@ function mousePressed() {
 
 function keyPressed() {
   // PAGE 1
-  if (page === 1) {
-    if (keyCode === DOWN_ARROW) {
-      introNext(); // 同时控制背景动画
-      return false;
-    }
-    if (keyCode === UP_ARROW) {
-      introPrev();
-      return false;
-    }
-    if (keyCode === HOME) {
-      introTop();
-      return false;
-    }
+if (page === 1) {
+  if (keyCode === DOWN_ARROW) {
+    // 不依赖scrollOffset判断，直接推进step
+    if (introIndex < 0) introIndex = 0;
+    else introIndex = min(introIndex + 1, 3);
+
+    // 每一步直接跳到目标位置（不用lerp）
+    scrollOffset = introTargets[introIndex];
+    snapping = false;
+
+    // 到最后一步：开始2秒等待
+    if (introIndex === 3) onEnterLastIntroStep();
+
+    spreadSpeed = 80;
+    return false;
   }
+
+  if (keyCode === UP_ARROW) {
+    // 同理：直接回退step（也不用lerp）
+    page1HoldActive = false;
+    autoExpandStarted = false;
+    centerCircleSize = 10;
+
+    if (introIndex <= 0) {
+      introIndex = -1;
+      scrollOffset = 0;
+    } else {
+      introIndex--;
+      scrollOffset = introTargets[introIndex];
+    }
+    snapping = false;
+
+    spreadSpeed = -80;
+    return false;
+  }
+}
+
 
   // PAGE 2
   if (page !== 2 || menuOpen) return;
