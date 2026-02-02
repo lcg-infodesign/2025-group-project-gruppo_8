@@ -16,6 +16,9 @@ const countries = [
   "USSR"
 ];
 
+let lastBackAttemptMs = 0;
+const BACK_COOLDOWN = 600; // ms
+
 
 // Menu UI
 let menuOpen = false;
@@ -110,7 +113,7 @@ let scrollDirection = 0;
 let scrollStep = 0.5;
 
 let page2BackScrollAcc = 0;
-const PAGE2_BACK_SCROLL_THRESHOLD = 450; // regola a gusto
+const PAGE2_BACK_SCROLL_THRESHOLD = 1200; // regola a gusto
 let backTransActive = false;
 let backTransT = 0;
 const BACK_TRANS_DURATION = 0.55; // secondi (regola a gusto)
@@ -314,31 +317,39 @@ function snapTo(val) {
 
 function introNext() {
   syncIntroIndex();
-  if (introIndex < 3) {
+
+  if (introIndex < 2) {
     introIndex++;
     snapTo(introTargets[introIndex]);
+
+    // 增大动画提示幅度，让按键效果更明显
+    spreadSpeed = 80;       // 原来是 100，可以调大
   } else {
-    // oltre l'ultimo testo → avvia espansione
-    snapTo(maxScroll);
+    // 到最后一段 → 全部展开
+    snapTo(maxScroll+1);
     if (!autoExpandStarted) autoExpandStarted = true;
+    spreadSpeed = 80; 
   }
 }
 
 function introPrev() {
   syncIntroIndex();
+
   if (introIndex > 0) {
     introIndex--;
     snapTo(introTargets[introIndex]);
-  } else {
-    introTop();
-  }
-}
 
-function introTop() {
-  introIndex = 0;
-  autoExpandStarted = false;
-  centerCircleSize = 10;
-  snapTo(0);
+    // step 向后动画（完全对称）
+    spreadSpeed = -80;
+
+  } else {
+    // 回到顶部 → 撤销扩展状态
+    introTop();
+
+    autoExpandStarted = false;
+
+    spreadSpeed = -80;
+  }
 }
 
 // ===============================
@@ -1511,33 +1522,38 @@ function mouseWheel(event) {
       handleIntroScroll(event.delta);
       return false;
     }
-  } else if (page === 2) {
+} else if (page === 2) {
 
-    if (event.delta > 0) {
-      page2BackScrollAcc = 0;
-      scrollDirection = 1;
-      return false;
-    }
+  // 向下滚：timeline 前进
+  if (event.delta > 0) {
+    scrollDirection = 1;
+    return false;
+  }
 
-    // scroll up -> indietro nella timeline
-    if (event.delta < 0) {
-      scrollDirection = 0;
+  // 向上滚：timeline 后退；如果已经退到最开头，再向上滚 -> 回 page1
+  if (event.delta < 0) {
 
-      page2BackScrollAcc += abs(event.delta);
+    // ✅先让 timeline 倒退
+    scrollDirection = -1;
 
-      if (page2BackScrollAcc >= PAGE2_BACK_SCROLL_THRESHOLD) {
-        page2BackScrollAcc = 0;
-        goBackToIntroBottom();
+    // ✅当 timeline 已经到最开始（或非常接近）时，继续往上滚就触发回退
+    const atStart = scrollProgress <= (startYear - 1 + 0.25);
+
+    if (atStart) {
+      // 冷却，防止触控板轻微抖动连续触发
+      const now = millis();
+      if (now - lastBackAttemptMs >= BACK_COOLDOWN) {
+        lastBackAttemptMs = now;
+        startBackTransition(); // 过渡结束后 drawPage2 会 goBackToIntroBottom()
       }
-
-      startBackTransition();
-
-      return false;
     }
 
     return false;
-
   }
+
+  return false;
+}
+
 
   // fallback
   return false;
@@ -1665,35 +1681,28 @@ function mousePressed() {
 
 
 function keyPressed() {
-
-  // PAGE 1 controls
+  // PAGE 1
   if (page === 1) {
-    if (keyCode === DOWN_ARROW) { // 32 = SPACE
-      introNext();
-      return;
+    if (keyCode === DOWN_ARROW) {
+      introNext(); // 同时控制背景动画
+      return false;
     }
     if (keyCode === UP_ARROW) {
       introPrev();
-      return;
+      return false;
     }
     if (keyCode === HOME) {
       introTop();
-      return;
+      return false;
     }
   }
 
-
-  // Only on page2 and when menu is not open
+  // PAGE 2
   if (page !== 2 || menuOpen) return;
 
-  if (keyCode === RIGHT_ARROW && infoStep < 3) {
-    infoStep++;
-  } else if (keyCode === LEFT_ARROW && infoStep > 0) {
-    infoStep--;
-  }
+  if (keyCode === RIGHT_ARROW && infoStep < 3) infoStep++;
+  else if (keyCode === LEFT_ARROW && infoStep > 0) infoStep--;
 }
-
-
 
 
 // ===============================
