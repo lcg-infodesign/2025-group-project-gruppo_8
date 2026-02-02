@@ -119,6 +119,8 @@ let backTransT = 0;
 const BACK_TRANS_DURATION = 0.55; // secondi (regola a gusto)
 let page2Snapshot = null; // p5.Image
 
+let jumpedToPage2 = false;          // 是否通过 skip/overview 直接去过 page2
+const PAGE1_END_SPREAD = 650;       // “背景动画最终位置”强度（可微调 500~900）
 
 
 let UGTypes = [
@@ -154,7 +156,7 @@ let UGTypes = [
 // ===============================
 function goToOverview() {
 
-
+ jumpedToPage2 = true; 
   enteredPage2ByScroll = false;
   // Vai alla pagina 2 (grafico)
   page = 2;
@@ -376,6 +378,7 @@ function introTop() {
 
 function checkHashNavigation() {
   if (window.location.hash === "#page2") {
+      jumpedToPage2 = true;  
     page = 2;
 
     // IMPORTANT: abilita la logica "colonna per colonna"
@@ -2021,6 +2024,32 @@ function disegnaAsseEAnni() {
   }
 }
 
+function forcePage1AtBottom() {
+  // 文字滚动位置：直接到底
+  scrollOffset = maxScroll;
+  scrollOffset = constrain(scrollOffset, 0, maxScroll);
+
+  // 关掉任何吸附/扩张，防止回去就又自动跳页
+  snapping = false;
+  snapTarget = scrollOffset;
+
+  autoExpandStarted = false;
+  centerCircleSize = 10;
+
+  // UI：最后一段
+  introIndex = 3;
+  showScrollLabelPage1 = false;
+
+  // 背景粒子：直接设置到“最终展开态”
+  // 用每个粒子的 expandSpeed 做一个确定性的最终值（最省事、最稳）
+  for (let p of particles1) {
+    p.currentA = p.a + p.expandSpeed * PAGE1_END_SPREAD;
+    p.currentB = p.b + p.expandSpeed * PAGE1_END_SPREAD;
+  }
+
+  spreadSpeed = 0; // 避免回去还在继续飘
+}
+
 function goBackToIntroBottom() {
   page = 1;
   // pulisci l'hash così lo stato URL corrisponde alla pagina reale
@@ -2035,11 +2064,30 @@ function goBackToIntroBottom() {
   // IMPORTANTE per evitare rientro immediato in page2:
   // ti posiziona poco prima del fondo, così l’utente può scrollare su (smooth)
   // e per rientrare in page2 deve fare uno scroll down reale.
-  scrollOffset = maxScroll - 30;   // <- regola (20-80) a gusto
-  scrollOffset = constrain(scrollOffset, 0, maxScroll);
+function goBackToIntroBottom() {
+  page = 1;
+  history.replaceState(null, "", window.location.pathname);
 
-  // se avevi snapping o stati simili, qui li "spengi"
-  snapping = false;
+  scrollDirection = 0;
+  autoExpandStarted = false;
+  centerCircleSize = 10;
+
+  // ✅ 如果是从 skip/overview 进的 page2，回去就强制落在 page1 最后状态
+  if (jumpedToPage2) {
+    forcePage1AtBottom();
+  } else {
+    // 否则保留你原本的“回到接近底部”的行为（可选）
+    scrollOffset = maxScroll - 30;
+    scrollOffset = constrain(scrollOffset, 0, maxScroll);
+    snapping = false;
+  }
+
+  const backBtn = document.getElementById("backToTopBtn");
+  if (backBtn) backBtn.style.display = "none";
+
+  updateSkipVisibility();
+}
+
 
   // UI opzionale: gestisci bottoni
   const backBtn = document.getElementById("backToTopBtn");
