@@ -32,17 +32,16 @@ let countryTotalCounts = {};
 let margin = 80;
 let selectedCountry = null;
 
-// --- TSAR CTA (global hitbox) ---
-let tsarCtaBox = null; // {x,y,w,h}
+let tsarCtaBox = null;
 
-let yAxis; // 纵轴中心位置，需要在 setup() 中初始化，例如： yAxis = height / 2 + 70;
-const dashLength = 4;  // 虚线段长度
-const dashGap = 6;     // 虚线间隔
-const offset = 5;      // 虚线偏移
+let yAxis; 
+const dashLength = 4; 
+const dashGap = 6;  
+const offset = 5;
 let atmLabel = "Atmospheric";
 let undLabel = "Underground";
-let offsetX;  // 标签X起点，通常 = margin - 8
-let xBase;    // 竖轴起点，通常 = margin - 20 - 5
+let offsetX;
+let xBase; 
 
 
 function preload() {
@@ -90,12 +89,8 @@ function setup() {
 }
 
 function drawCtaButton(btnX, btnY, btnW, btnH, label, isHover) {
-  // Se “VIEW HISTORIC INSIGHTS” ha già una palette/alpha specifica,
-  // copia qui ESATTAMENTE quegli stessi valori.
   const r = 8;
   const padX = 14;
-
-  // stroke/hover come il bottone esistente
   stroke(0, 255, 255, isHover ? 220 : 120);
   strokeWeight(isHover ? 1.5 : 1);
 
@@ -109,13 +104,9 @@ function drawCtaButton(btnX, btnY, btnW, btnH, label, isHover) {
   textSize(13);
   textAlign(LEFT, CENTER);
   text(label, btnX + padX, btnY + btnH / 2 - 1);
-
-  // freccetta laterale (stessa logica che vuoi)
   const ax = btnX + btnW - padX;
   const ay = btnY + btnH / 2;
 
-  // Se vuoi proprio la stessa freccia del bottone “historic”,
-  // copia il suo disegno. Qui ti do una freccia “che sta bene”.
   stroke(0, 255, 255, isHover ? 255 : 180);
   strokeWeight(isHover ? 2 : 1.5);
   line(ax - 10, ay, ax, ay);
@@ -129,19 +120,16 @@ function drawCtaButton(btnX, btnY, btnW, btnH, label, isHover) {
 function draw() {
   background(20);
 
-  // Fungo atomico come sfondo
   if (mushroomImg) {
     push();
     tint(40);
     imageMode(CENTER);
-    // Adatta l'immagine in altezza mantenendo le proporzioni
     let imgH = 0.9 * height;
     let imgW = 1.2 * height * (mushroomImg.width / mushroomImg.height);
     image(mushroomImg, width / 2, height / 2, imgW, imgH);
     pop();
   }
 
-  // Controllo se i dati sono caricati
   if (years.length === 0) {
     fill(255);
     textAlign(CENTER, CENTER);
@@ -150,36 +138,29 @@ function draw() {
     return;
   }
 
-  // === Dati correnti dell'anno ===
-  const currentYear = years[currentYearIndex];  // Dichiarazione una sola volta
+  const currentYear = years[currentYearIndex]; 
   const yearData = testsByYear[currentYear];
 
-  // === Contenuto sempre visibile ===
   textFont(myFont1);
   noStroke();
   fill(200);
   textSize(20);
   textAlign(CENTER, TOP);
-  //text("NUCLEAR TEST EACH YEAR", width / 2, 30);
 
-  // Visualizza l'anno e le frecce di navigazione
   drawYearNavigation(currentYear);
-  // Visualizza il totale delle bombe
   drawBottomInfo(yearData);
 
   drawTimeline();
 
-  // === Gestione anni senza test nucleari ===
+  //anni senza test nucleari
   if (noTestYears.includes(currentYear)) {
-    drawNoTestBox(currentYear);   // Mostra il riquadro con testo centrale
-    return;                       // Non disegnare bombe, etichette ATM/UN, nomi Paesi, legenda Yield o messaggio Click
+    drawNoTestBox(currentYear);
+    return;
   }
 
-  // === Anni con test nucleari: disegna bombe e legenda ===
-  drawTestDots(yearData);          // Disegna bombe, etichette ATM/UN e nomi dei paesi
-  drawLegend();                    // Disegna legenda Yield e messaggio "Click a bomb to see more"
+  drawTestDots(yearData);
+  drawLegend();
 
-  // === Logica cursore per frecce e bombe ===
   let overArrow =
     (currentYearIndex > 0 && mouseX > width / 2 - 150 && mouseX < width / 2 - 90 && mouseY > 120 && mouseY < 170) ||
     (currentYearIndex < years.length - 1 && mouseX > width / 2 + 90 && mouseX < width / 2 + 150 && mouseY > 120 && mouseY < 170);
@@ -222,16 +203,11 @@ function draw() {
   const legendY = height - margin - 80;
 
   const overLegendInfo =
-    hoverOnAtmospheric(legendX, 80) || // qui margin locale in drawTestDots è 80
-    hoverOnUnderground(legendX, height - 80) || // coerente col tuo hoverOnUnderground
+    hoverOnAtmospheric(legendX, 80) || 
+    hoverOnUnderground(legendX, height - 80) || 
     hoverOnYieldYear(legendX, legendY);
 
-
-  /*cursor(overArrow || overDot || overCountry || overTimelineYear || overLegendInfo ? HAND : ARROW);
- 
-   drawColumnCTA(); // Disegna il messaggio "Click a column to see more"*/
-
-  const overTsarCTA = drawColumnCTA(); // <-- spostata qui per ottenere hover
+  const overTsarCTA = drawColumnCTA();
 
   cursor(
     overArrow || overDot || overCountry || overTimelineYear || overLegendInfo || overTsarCTA
@@ -239,9 +215,6 @@ function draw() {
       : ARROW
   );
 
-
-  // btn insight page
-// ... 在 draw() 函数内部 ...
 let checkYear = Number(currentYear);
 if (checkYear === 1958 || checkYear === 1959 || checkYear === 1963 || checkYear === 1996) {
 
@@ -271,7 +244,6 @@ if (checkYear === 1958 || checkYear === 1959 || checkYear === 1963 || checkYear 
     textSize(13); // 统一字号
     text("VIEW HISTORIC INSIGHTS", btnX + padX, btnY + btnH / 2 - 1);
 
-    // 绘制三角形
     let triSize = 5; 
     let triX = btnX + btnW - 12;
     let triY = btnY + btnH / 2;
@@ -286,10 +258,8 @@ if (checkYear === 1958 || checkYear === 1959 || checkYear === 1963 || checkYear 
     pop();
     pop();
 }
-  // tooltip bomba
   drawBombTooltip();
 
-  //drawColumnCTA();
   drawAxes();
   drawAtmosUndLabels();
 
@@ -302,8 +272,8 @@ function drawTimeline() {
 
   // disegna gli anni 
   const historicYears = [1947, 1950, 1958, 1959, 1963, 1996, 1997];
-  const insightColor = [0, 255, 255]; //  orangeRGB
-  const cyanColor = [255, 255, 255];    // 
+  const insightColor = [0, 255, 255];
+  const cyanColor = [255, 255, 255];     
 
   push();
   for (let i = 0; i < years.length; i++) {
@@ -330,7 +300,6 @@ function drawTimeline() {
         textAlign(CENTER, BOTTOM);
         text(years[i], x, ty - 20);
       } else {
-        // --- altri year color ---
         stroke(rgb[0], rgb[1], rgb[2], opacity * 0.8);
         strokeWeight(1);
         line(x, ty - 8, x, ty);
@@ -347,30 +316,25 @@ function drawTimeline() {
   pop();
 }
 
-
-// === text box per anni senza test ===
 function drawNoTestBox(year) {
-  let boxW = width * 0.6; // Aumentato per ospitare due colonne
+  let boxW = width * 0.6;
   let boxX = width / 2 - boxW / 2;
   let padding = 30;
-  let gap = 50; // Spazio tra le due colonne
+  let gap = 50;
   let colW = (boxW - 2 * padding - gap) / 2;
 
-  // Calcolo altezza riga
   textFont(myFont2);
   textSize(14);
   let lineHeight = textAscent() + textDescent() + 4;
   textAlign(LEFT, TOP);
   textWrap(WORD);
 
-  // Split dei paragrafi e gestione righe
   let paragraphs = noTestTexts[year].split('\n');
   let allLines = [];
   let titleLine = "";
 
   for (let p = 0; p < paragraphs.length; p++) {
     let line = paragraphs[p];
-    // Estrae il titolo "No tests were conducted..."
     if (line.startsWith("No tests were conducted")) {
       titleLine = line;
       continue;
@@ -380,7 +344,6 @@ function drawNoTestBox(year) {
     let currentLine = "";
     for (let i = 0; i < words.length; i++) {
       let testLine = currentLine + (currentLine ? " " : "") + words[i];
-      // Calcolo a capo basato sulla larghezza della singola colonna
       if (textWidth(testLine) > colW) {
         allLines.push(currentLine);
         currentLine = words[i];
@@ -389,25 +352,21 @@ function drawNoTestBox(year) {
       }
     }
     if (currentLine) allLines.push(currentLine);
-    allLines.push(""); // Spazio tra paragrafi
+    allLines.push(""); 
   }
 
-  // Divisione delle righe in due colonne
   let midPoint = Math.ceil(allLines.length / 2);
   let leftColumn = allLines.slice(0, midPoint);
   let rightColumn = allLines.slice(midPoint);
 
-  // Calcolo altezza dinamica del box
   let boxH = Math.max(leftColumn.length, rightColumn.length) * lineHeight + padding * 2 + 40;
   let boxY = height / 2 - boxH / 2 + 40;
 
-  // Disegno del box di sfondo
   stroke(0, 255, 255, 150);
   strokeWeight(1);
   fill(0, 255, 255, 10);
   rect(boxX, boxY, boxW, boxH);
 
-  // Disegno del titolo centrato
   noStroke();
   fill(0, 255, 255);
   textFont(myFont3);
@@ -415,20 +374,16 @@ function drawNoTestBox(year) {
   textAlign(CENTER, TOP);
   text(titleLine, width / 2, boxY + padding);
 
-  // Disegno delle due colonne di testo
   textFont(myFont2);
   textSize(14);
   fill(200);
   textAlign(LEFT, TOP);
 
   let textStartY = boxY + padding + 50;
-
-  // Colonna Sinistra
   for (let i = 0; i < leftColumn.length; i++) {
     text(leftColumn[i], boxX + padding, textStartY + i * lineHeight);
   }
 
-  // Colonna Destra
   for (let i = 0; i < rightColumn.length; i++) {
     text(rightColumn[i], boxX + padding + colW + gap, textStartY + i * lineHeight);
   }
@@ -445,14 +400,13 @@ function processData() {
     let country = table.getString(i, "country");
     let bName = table.getString(i, "name");
 
-    // --- cambiare PAKIST ---
+    // conversione PAKIST
     if (country) {
       country = country.trim();
       if (country.toUpperCase() === "PAKIST") {
         country = "PAKISTAN";
       }
     }
-    // -----------------------
 
     let yield_u = parseFloat(table.getString(i, "yield_u"));
     let type = table.getString(i, "type");
@@ -472,7 +426,6 @@ function processData() {
         bombName: bName || "N/A",
         yield: isNaN(yield_u) || yield_u < 0 ? 0 : yield_u,
         type: type || "ATMOSPH",
-        // --- bombData ---
         region: region || "N/A",
         latitude: isNaN(latitude) ? 0 : latitude,
         longitude: isNaN(longitude) ? 0 : longitude
