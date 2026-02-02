@@ -116,7 +116,6 @@ function goToOverview() {
   // Vai alla pagina 2 (grafico)
   page = 2;
 
-  // Porta subito la timeline alla fine: grafico "attivo"
   scrollProgress = endYear;
 
   // Attiva tutte le particelle (bombe) in page 2
@@ -293,7 +292,7 @@ function startBackTransition() {
   page2Snapshot = get();   
 }
 
-// Ciclo principale
+
 function draw() {
   if (page === 1) drawPage1();
   else if (page === 2) drawPage2();
@@ -464,7 +463,6 @@ function drawScrollHintArrow() {
 
   push();
 
-  // LABEL
   if (showLabel) {
     noStroke();
     fill(200, labelAlpha);
@@ -562,7 +560,6 @@ function isOverUpHint(mx, my) {
   return mx >= cx - w / 2 && mx <= cx + w / 2 && my >= cy - 20 && my <= cy + h;
 }
 
-// pagina2draw
 function drawPage2() {
 
   if (backTransActive && page2Snapshot) {
@@ -589,7 +586,7 @@ function drawPage2() {
   drawCountryMenu();
   updateHoverPage2();
 
-  // LEGENDA POTENZA
+  // LEGENDA 
   let offsetX = margin - 8; 
   let offsetY = height - margin - 80; 
 
@@ -644,7 +641,6 @@ function drawPage2() {
   textFont(myFont2);
   textSize(14);
   textAlign(LEFT, TOP);
-  // Separation lines between years and particles
   push();
   stroke(200, 160);
   strokeWeight(1.5);
@@ -1142,7 +1138,7 @@ function drawTopRightInfoCarousel() {
   line(lineX, topY, lineX, boxY + boxH + 38);
   pop();
 
-  // Text block
+  
   push();
   noStroke();
   textFont(myFont2);
@@ -1158,11 +1154,10 @@ function drawTopRightInfoCarousel() {
   const chevronW = 10;
   const chevronH = 8;
 
-  // right arrow under-right
   if (infoStep < 3) {
     drawGlowingChevronRight(boxX + boxW - 4, arrowsY, chevronW, chevronH);
   }
-  // left arrow under-left
+  
   if (infoStep > 0) {
     drawGlowingChevronLeft(boxX + 4, arrowsY, chevronW, chevronH);
   }
@@ -1254,7 +1249,7 @@ function mouseWheel(event) {
       return false;
     }
 
-    // scroll up -> indietro nella timeline
+    // scroll up  indietro nella timeline
     if (event.delta < 0) {
       scrollDirection = 0;
 
@@ -1724,7 +1719,7 @@ function isMouseInMenuArea(mainX, mainY) {
   );
 }
 
-// LISTENER MENU → CAMBIO PAGINA
+// LISTENER MENU x CAMBIO PAGINA
 window.addEventListener("changePage", (e) => {
   if (e.detail.page === 2) {
     goToOverview();
