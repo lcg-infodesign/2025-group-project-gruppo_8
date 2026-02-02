@@ -248,7 +248,7 @@ function setup() {
   }
 
   // --- determina se il CTA deve essere visibile ---
-  ctaBtnVisible = (bombID === "61053" || bombID === "45002");
+  ctaBtnVisible = (bombID === "61053" || bombID === "45002" || bombID === "45003");
 
   calculateMapDimensions();
 }
@@ -979,33 +979,33 @@ text(bombData.name, textX, anchorY);
 
 }
 
-// bottone CTA (solo ID 61053 e 45002)
+// bottone CTA (solo ID 61053, 45002 e 45003)
 let ctaAlpha = 0; // fade-in dell'intero bottone
 
 function drawCtaSection() {
+  // non mostrare se la mappa è aperta in zoom
   if (mapZoomed) return;
-  
+
   // fade-in graduale da subito
   ctaAlpha = lerp(ctaAlpha, 255, 0.06);
-  
+
   ctaBtnW = 240;
   ctaBtnH = 30;
-  
   ctaBtnX = offsetX;
-  
+
   let menuBtnCenterY = 25 + 60 / 2; // btnY + btnSize/2
   ctaBtnY = menuBtnCenterY - ctaBtnH / 2;
-  
+
   let isHover =
     mouseX >= ctaBtnX &&
     mouseX <= ctaBtnX + ctaBtnW &&
     mouseY >= ctaBtnY &&
     mouseY <= ctaBtnY + ctaBtnH;
-  
+
   if (isHover) {
     isHandCursor = true;
   }
-  
+
   push();
   drawingContext.globalAlpha = ctaAlpha / 255;
   drawCtaButton(ctaBtnX, ctaBtnY, ctaBtnW, ctaBtnH, "VIEW HISTORIC INSIGHTS", isHover);
@@ -1021,13 +1021,19 @@ function mousePressed() {
       mouseY >= ctaBtnY &&
       mouseY <= ctaBtnY + ctaBtnH
     ) {
-      let topic = (bombID === "61053") ? "tsarbomba" : "hiroshima";
+      let topic;
+      if (bombID === "61053") {
+        topic = "tsarbomba";
+      } else {
+        // per 45002 (Little Boy) e 45003 (Fat Man) stesso topic
+        topic = "hiroshima";
+      }
       window.location.href = "insight.html?topic=" + topic;
       return;
     }
   }
 
-  // --- CLICK SU LITTLE BOY (solo a fine animazione) ---
+  // --- CLICK SU LITTLE BOY e FATMAN (solo a fine animazione) ---
 if (hiroshimaTextBounds) {
   const b = hiroshimaTextBounds;
 
