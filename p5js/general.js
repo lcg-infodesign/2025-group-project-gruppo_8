@@ -325,12 +325,12 @@ function drawPage1() {
   fill(200, 200, 200);
 
   const str1 =
-    "Between 1945 and 1998, \n nuclear testing reshaped geopolitics,\n science, and the environment.";
+    "Between 1945 and 1998, \n nuclear testing reshaped geopolitics,\nscience, and the environment.";
 
   const str3 =
     "Over two thousand explosions\nleft a lasting mark on the planet.\nEach particle is a real test.";
   const str2 =
-    "This website is a digital archive \n that presents nuclear testing \n as an interactive timeline.";
+  "Apart from the Hiroshima and Nagasaki\n bombs, all other explosions were tests\nand have not been used as weapons.";
   const str4 = "Data from the SIPRI-FOA Report";
 
   const GUTTER = 200;
