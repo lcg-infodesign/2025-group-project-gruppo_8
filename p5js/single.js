@@ -31,13 +31,17 @@ let animPlaying = false;
 let mapZoomed = false;
 let animBlueR = 0;
 
+// --- CTA button ---
+let ctaBtnX, ctaBtnY, ctaBtnW, ctaBtnH;
+let ctaBtnVisible = false;
+
 let isHandCursor = false;      // gestisce il cursore in modo centralizzato
 let tsarNameBounds = null;     // hitbox click sul nome (solo per RDS-200)
 let hoverNearBombPoint = false; // hover sul pallino nella mappa zoom
 
 
 const purposeTextMap = {
-  WR: "Activities associated with a weapons development programme, also used when a test’s purpose is unspecified.",
+  WR: "Activities associated with a weapons development programme, also used when a test's purpose is unspecified.",
   COMBAT:
     "Use of atomic bombs in wartime, specifically Hiroshima and Nagasaki in August 1945.",
   WE: "Tests evaluating the effects of a nuclear detonation on various targets.",
@@ -102,7 +106,7 @@ const typeTextMap = {
   GALLERY:
     "Nuclear device detonated in a horizontal mined gallery within rock.",
   UW: "Nuclear device detonated underwater below the sea surface.",
-  UG: "Nuclear detonation conducted below the Earth’s surface.",
+  UG: "Nuclear detonation conducted below the Earth's surface.",
   WATERSUR: "Nuclear device detonated on the surface of the sea.",
   CRATER: "Nuclear device detonated within a prepared ground crater.",
   MINE: "Nuclear device detonated inside an existing mine.",
@@ -243,6 +247,9 @@ function setup() {
     typeImg = typeImages[bombData.type];
   }
 
+  // --- determina se il CTA deve essere visibile ---
+  ctaBtnVisible = (bombID === "61053" || bombID === "45002");
+
   calculateMapDimensions();
 }
 
@@ -251,17 +258,6 @@ function draw() {
 
   background(20);
 
-  // if (bombBgImg) {
-  //   tint(255, 40);
-  //   let imgW = 0.9 * width; 
-  //   let imgH = 0.6 * height; 
-  //   let imgX = (width - imgW) / 2; 
-  //   let imgY = -50; 
-
-  //   image(bombBgImg, imgX, imgY, imgW, imgH);
-  // }
-
-  // tint(255, 255);
   if (mapZoomed) {
     drawZoomedMap();
     cursor(isHandCursor ? HAND : ARROW);
@@ -305,6 +301,11 @@ function draw() {
   drawHiroshimaAnnotation();
   drawBombAnnotation();
   drawInfo();
+
+  // --- CTA button (solo per 61053 e 45002) ---
+  if (ctaBtnVisible) {
+    drawCtaSection();
+  }
 
   cursor(isHandCursor ? HAND : ARROW);
 }
@@ -862,7 +863,7 @@ function drawHiroshimaAnnotation() {
   let currentHorizLength = horizLength * hHorizProgress;
   line(anchorX, anchorY, anchorX + currentHorizLength, anchorY);
 
-  // --- 文字：被横线“推着走” ---
+  // --- 文字：被横线"推着走" ---
   let textX = anchorX + currentHorizLength + 10;
 
   let hText = "Little Boy\nHiroshima, 1945";
@@ -955,7 +956,7 @@ const nameH = 24; // approx per hitbox
 const bx = textX - nameW;
 const by = anchorY - nameH / 2;
 
-// hitbox SOLO se Tsar
+// hitbox solo se è TSAR
 if (isTsar) {
   tsarNameBounds = { x: bx, y: by, w: nameW, h: nameH };
 
@@ -978,7 +979,54 @@ text(bombData.name, textX, anchorY);
 
 }
 
+// bottone CTA (solo ID 61053 e 45002)
+let ctaAlpha = 0; // fade-in dell'intero bottone
+
+function drawCtaSection() {
+  if (mapZoomed) return;
+  
+  // fade-in graduale da subito
+  ctaAlpha = lerp(ctaAlpha, 255, 0.06);
+  
+  ctaBtnW = 240;
+  ctaBtnH = 30;
+  
+  ctaBtnX = offsetX;
+  
+  let menuBtnCenterY = 25 + 60 / 2; // btnY + btnSize/2
+  ctaBtnY = menuBtnCenterY - ctaBtnH / 2;
+  
+  let isHover =
+    mouseX >= ctaBtnX &&
+    mouseX <= ctaBtnX + ctaBtnW &&
+    mouseY >= ctaBtnY &&
+    mouseY <= ctaBtnY + ctaBtnH;
+  
+  if (isHover) {
+    isHandCursor = true;
+  }
+  
+  push();
+  drawingContext.globalAlpha = ctaAlpha / 255;
+  drawCtaButton(ctaBtnX, ctaBtnY, ctaBtnW, ctaBtnH, "VIEW HISTORIC INSIGHTS", isHover);
+  pop();
+}
+
 function mousePressed() {
+  // --- CLICK sul CTA button (solo se visibile e animazione completata) ---
+  if (ctaBtnVisible && ctaAlpha > 50) {
+    if (
+      mouseX >= ctaBtnX &&
+      mouseX <= ctaBtnX + ctaBtnW &&
+      mouseY >= ctaBtnY &&
+      mouseY <= ctaBtnY + ctaBtnH
+    ) {
+      let topic = (bombID === "61053") ? "tsarbomba" : "hiroshima";
+      window.location.href = "insight.html?topic=" + topic;
+      return;
+    }
+  }
+
   // --- CLICK SU LITTLE BOY (solo a fine animazione) ---
 if (hiroshimaTextBounds) {
   const b = hiroshimaTextBounds;
@@ -1008,11 +1056,11 @@ if (tsarNameBounds) {
   // --- 2. 重置动画变量 (保持不变) ---
   animR = 0;
   animBlueR = 0;
-  hDiagProgress = 0; // 重置进度
+  hDiagProgress = 0;
   hHorizProgress = 0;
-  // 如果 drawBombAnnotation 也需要重置，请确保其变量也是全局的
   this.diagProgress = 0;
   this.horizProgress = 0;
+  ctaAlpha = 0; // reset anche il fade del CTA
 
   animPlaying = true;
 
@@ -1102,4 +1150,39 @@ function keyPressed() {
       updateBackBtnVisibility();
     }
   }
+}
+
+function drawCtaButton(btnX, btnY, btnW, btnH, label, isHover) {
+  const r = 8;
+  const padX = 12;
+
+  // contenitore
+  fill(20, 20, 20, 200);
+  stroke(0, 255, 255, isHover ? 220 : 120);
+  strokeWeight(isHover ? 1.5 : 1);
+  rect(btnX, btnY, btnW, btnH, r);
+
+  // testo
+  noStroke();
+  fill(0, 255, 255, isHover ? 255 : 180);
+  textAlign(LEFT, CENTER);
+  textFont(myFont3);
+  textSize(13);
+  text(label, btnX + padX, btnY + btnH / 2 - 1);
+
+  // triangolo con animazione sull'hover
+  let triSize = 5;
+  let triX = btnX + btnW - 12;
+  let triY = btnY + btnH / 2;
+
+  if (isHover) {
+    triX += sin(frameCount * 0.2) * 2;
+  }
+
+  fill(0, 255, 255, isHover ? 255 : 180);
+  noStroke();
+  push();
+  translate(triX, triY);
+  triangle(-triSize, -triSize, -triSize, triSize, triSize, 0);
+  pop();
 }
