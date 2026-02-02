@@ -105,6 +105,18 @@ let insightSketch = function(p) {
   // Variabili layout
   let scrollY = 0;
   let targetScrollY = 0;
+
+    // --- [ADD] Scroll hint + snap-to-section (solo per insight lunghi) ---
+  let snapTargets = [];          // targetScrollY per ogni sezione (centrata)
+  let currentStep = 0;           // 0..2
+  let showScrollLabel = true;    // al primo scroll diventa false
+  let lastStepMs = 0;            // throttle wheel
+  let isSnapping = false; // blocca wheel mentre stai ancora animando verso un target
+
+
+  let viewBombBtnBox = null;     // hitbox per click
+  let overViewBombBtn = false;   // hover state
+
   let canvasHeight;
   
 
@@ -130,6 +142,8 @@ let insightSketch = function(p) {
   let fadeIn = 0;
   let floatOffset = 20;
   let hoverClickable = false; // true quando sei sopra elementi cliccabili (thumbs / arrows)
+
+  const imgAlpha = 100; // prova 200–220 (255 = pieno)
 
 
   p.preload = function() {
@@ -185,6 +199,11 @@ let insightSketch = function(p) {
 
 
     scrollY += (targetScrollY - scrollY) * 0.12;
+    // sblocca wheel quando sei praticamente arrivata
+    if (isSnapping && Math.abs(targetScrollY - scrollY) < 0.4) {
+      isSnapping = false;
+    }
+
     thumbOffset += (targetThumbOffset - thumbOffset) * 0.18;
     
     fadeIn = p.min(fadeIn + 3, 255);
@@ -204,7 +223,7 @@ let insightSketch = function(p) {
 
     let y1 = topMargin + topTextH + 100 + floatOffset;
     
-    p.tint(255, 180 * fadeIn / 255);
+    p.tint(255, (fadeIn * imgAlpha) / 255);
     p.image(img1, sideMargin, y1 - scrollY * 0.9, imgW, imgH);
     p.noTint();
 
@@ -232,7 +251,7 @@ let insightSketch = function(p) {
       let y2 = y1 + imgH + spacing;
       
       let imgX2 = p.width - sideMargin - imgW;
-      p.tint(255, 120 * fadeIn / 255);
+      p.tint(255, (fadeIn * imgAlpha) / 255);
       p.image(img2, imgX2, y2 - scrollY * 0.9, imgW, imgH);
       p.noTint();
 
@@ -248,7 +267,7 @@ let insightSketch = function(p) {
 
       let y3 = y2 + imgH + spacing;
       
-      p.tint(255, 180 * fadeIn / 255);
+      p.tint(255, (fadeIn * imgAlpha) / 255);
       p.image(img3, sideMargin, y3 - scrollY * 0.9, imgW, imgH);
       p.noTint();
 
@@ -269,6 +288,14 @@ let insightSketch = function(p) {
         }
       }
     }
+
+        // --- [ADD] Tsar button ---
+    overViewBombBtn = drawViewBombButton();
+
+        // --- [ADD] Scroll hint (solo per insight lunghi) ---
+    const overHint = drawScrollHintIfNeeded(hasThreeSections);
+
+
 
     if (showPreview && previewImg && currentTopic === "hiroshima") {
       drawPreviewOverlay();
@@ -359,6 +386,137 @@ let insightSketch = function(p) {
     }
   }
 
+    // --- [ADD] calcola y base delle 3 sezioni (senza scroll) ---
+  function getSectionBaseYs() {
+    // Stessi calcoli del draw, ma senza floatOffset per avere targets stabili
+    let topTextW = p.width - topTextSideMargin * 2;
+    let topTextH = estimateTextHeight(pageTitle, topTextW);
+
+    let y1 = topMargin + topTextH + 100;          // come in draw (senza floatOffset)
+    let y2 = y1 + imgH + spacing;
+    let y3 = y2 + imgH + spacing;
+    return [y1, y2, y3];
+  }
+
+  // --- [ADD] costruisce targets scroll che centrano il testo (via centro immagine) ---
+  function rebuildSnapTargets() {
+    const ys = getSectionBaseYs();
+    const centers = ys.map(y => y + imgH / 2);
+
+    // nel draw: centerY = (y - scrollY*0.9) + imgH/2
+    // voglio centerY == p.height/2  => scrollY = (center - p.height/2)/0.9
+    snapTargets = centers.map(c => Math.max(0, (c - p.height / 2) / 0.9));
+  }
+
+  function nearestStepIndex() {
+    if (!snapTargets.length) return 0;
+    let bestI = 0;
+    let bestD = Infinity;
+    for (let i = 0; i < snapTargets.length; i++) {
+      let d = Math.abs(scrollY - snapTargets[i]);
+      if (d < bestD) { bestD = d; bestI = i; }
+    }
+    return bestI;
+  }
+
+  function snapToStep(i) {
+    if (!snapTargets.length) rebuildSnapTargets();
+    currentStep = Math.max(0, Math.min(i, snapTargets.length - 1));
+    targetScrollY = snapTargets[currentStep];
+  }
+
+  function stepScroll(dir) {
+
+    if (isSnapping) return;   // se stai già andando verso un target, ignora
+    isSnapping = true;        // da qui in poi 1 wheel = 1 step
+
+    // se torno indietro, ri-mostro la label
+    if (dir < 0) showScrollLabel = true;
+
+    // se vado giù, la nascondo (ma SOLO dopo che l'utente ha iniziato a scendere)
+    if (dir > 0) showScrollLabel = false;
+
+
+
+    // dir: +1 down, -1 up
+    const now = p.millis();
+    if (now - lastStepMs < 220) return; // evita 5 step con una wheel
+    lastStepMs = now;
+
+    if (dir > 0) showScrollLabel = false;
+    if (dir < 0 && nearestStepIndex() === 0) showScrollLabel = true;
+
+
+    rebuildSnapTargets();
+    const idx = nearestStepIndex();
+    snapToStep(idx + (dir > 0 ? 1 : -1));
+  }
+
+// --- CTA tipo page1: label + freccia. La label torna quando risali. A fine pagina sparisce tutto.
+function drawScrollHintIfNeeded(hasThreeSections) {
+  if (!hasThreeSections) return false;
+  if (showPreview) return false;
+
+  rebuildSnapTargets();
+  const idx = nearestStepIndex();
+  const isLast = idx >= snapTargets.length - 1;
+
+  // A fine pagina: NON disegnare nulla
+  if (isLast) return false;
+
+  const cx = p.width / 2;
+
+  // FONDO PAGINA (più giù possibile senza tagliare)
+  const baseCy = p.height - 34;
+
+  // bobbing condiviso: testo e freccia si muovono insieme
+  const bob = p.sin(p.frameCount * 0.08) * 4;
+  const cy = baseCy + bob;
+
+  // label sopra la freccia, e si muove con lei
+  const labelY = cy - 24;
+
+  // hitbox generosa (include area label)
+  const hitW = 240;
+  const hitH = 60;
+  const over =
+    p.mouseX > cx - hitW / 2 && p.mouseX < cx + hitW / 2 &&
+    p.mouseY > baseCy - hitH / 2 && p.mouseY < baseCy + hitH / 2;
+
+  // freccia “chevron”
+  const halfW = 10;
+  const h = 8;
+
+  p.push();
+  p.noFill();
+
+  // hover = più chiara
+  const a = over ? 220 : 160;
+  p.stroke(0, 255, 255, a);
+  p.strokeWeight(over ? 2 : 1.6);
+
+  // chevron down
+  p.line(cx - halfW, cy - h, cx, cy);
+  p.line(cx + halfW, cy - h, cx, cy);
+
+  // label: font come page1, ma colore ciano richiesto
+  if (idx === 0 && showScrollLabel) {
+    p.noStroke();
+    p.fill(0, 255, 255, over ? 255 : 200);
+    p.textFont(myFont2);
+    p.textSize(12);
+    p.textAlign(p.CENTER, p.BOTTOM);
+    p.text("SCROLL DOWN FOR MORE", cx, labelY);
+  }
+
+  p.pop();
+
+  if (over) hoverClickable = true;
+  return over;
+}
+
+
+
   function calculateThumbY(currentScrollY) {
     if (currentTopic !== "hiroshima") return -1000;
 
@@ -376,6 +534,87 @@ let insightSketch = function(p) {
     let base = y3 + imgH + spacing + 180;
     return base - currentScrollY;
   }
+
+  // --- [ADD] Button stile "VIEW HISTORIC INSIGHTS" ma con link alla bomba ---
+  function drawViewBombButton() {
+    // Solo su Tsar insight
+    if (currentTopic !== "tsarbomba") {
+      viewBombBtnBox = null;
+      return false;
+    }
+  
+    if (showPreview) {
+      viewBombBtnBox = null;
+      return false;
+    }
+
+    // MOSTRA SOLO ALLA FINE (ultimo step)
+    rebuildSnapTargets();
+    const idx = nearestStepIndex();
+    const isLast = idx >= snapTargets.length - 1;
+
+    if (!isLast) {
+      viewBombBtnBox = null;
+      return false;
+    }
+
+    const label = "VIEW THE BOMB";
+    const btnH = 40;
+    const padX = 18;
+
+    p.push();
+    p.textFont(myFont3);
+    p.textSize(14);
+    const btnW = p.textWidth(label) + padX * 2 + 18; // + spazio freccetta
+
+    const btnX = p.width / 2 - btnW / 2;
+    // lo metto "in basso" ma NON attaccato alla freccia scroll-hint (che sta più giù)
+    const btnY = p.height - 74;
+
+    const isHover =
+      p.mouseX > btnX && p.mouseX < btnX + btnW &&
+      p.mouseY > btnY && p.mouseY < btnY + btnH;
+
+    // salva hitbox per mousePressed
+    viewBombBtnBox = { x: btnX, y: btnY, w: btnW, h: btnH };
+
+    // stile: dark fill + cyan stroke (come year)
+    if (isHover) {
+      p.fill(20, 20, 20, 200);
+      p.stroke(0, 255, 255, 200);
+      hoverClickable = true;
+    } else {
+      p.fill(20, 20, 20, 200);
+      p.stroke(0, 255, 255, 120);
+    }
+
+    p.strokeWeight(1);
+    p.rect(btnX, btnY, btnW, btnH, 8);
+
+    // testo
+    p.noStroke();
+    p.fill(0, 255, 255, isHover ? 255 : 180);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text(label, btnX + btnW / 2 - 6, btnY + btnH / 2 - 1);
+
+    // triangolino a destra (stesso linguaggio del bottone year)
+    let triSize = 5;
+    let triX = btnX + btnW - 12;
+    let triY = btnY + btnH / 2;
+    if (isHover) triX += p.sin(p.frameCount * 0.2) * 2;
+
+    p.push();
+    p.translate(triX, triY);
+    p.noStroke();
+    p.fill(0, 255, 255, isHover ? 255 : 180);
+    p.triangle(-triSize, -triSize, -triSize, triSize, triSize, 0);
+    p.pop();
+
+    p.pop();
+    return isHover;
+  }
+
+
 
   function drawThumbnails(y) {
 
@@ -594,6 +833,46 @@ if (hoveredIndex !== -1 || hoverLeftStripArrow || hoverRightStripArrow) {
         }
       }
     }
+
+        // --- [ADD] click "View the bomb" (RDS-200 / 1961) ---
+    if (viewBombBtnBox) {
+      const overBtn =
+        p.mouseX >= viewBombBtnBox.x && p.mouseX <= viewBombBtnBox.x + viewBombBtnBox.w &&
+        p.mouseY >= viewBombBtnBox.y && p.mouseY <= viewBombBtnBox.y + viewBombBtnBox.h;
+
+      if (overBtn) {
+        // RDS-200 nel tuo dataset ha id_no = 61053
+        window.location.href = "single.html?id=61053";
+        return;
+      }
+    }
+
+        // --- [ADD] click sulla freccia/CTA: stesso comportamento dello scroll down ---
+    const config = contentConfig[currentTopic] || contentConfig["hiroshima"];
+    const hasThreeSections = config.hasThreeSections;
+
+    if (hasThreeSections) {
+      // ricostruisco e verifico hover sulla stessa hitbox del draw
+      rebuildSnapTargets();
+      const idx = nearestStepIndex();
+      const isLast = idx >= snapTargets.length - 1;
+
+      const cx = p.width / 2;
+      const baseCy = p.height - 44;
+      const hitW = 240;
+      const hitH = 60;
+
+      const overHint =
+        p.mouseX > cx - hitW/2 && p.mouseX < cx + hitW/2 &&
+        p.mouseY > baseCy - hitH/2 && p.mouseY < baseCy + hitH/2;
+
+      if (overHint && !isLast) {
+        stepScroll(+1);
+        return;
+      }
+    }
+
+
   };
 
   p.mouseWheel = function(event) {
@@ -606,8 +885,11 @@ if (hoveredIndex !== -1 || hoverLeftStripArrow || hoverRightStripArrow) {
       targetScrollY = 0;
       return false;
     }
+
+    if (isSnapping) return false;
+
     
-    targetScrollY += event.delta;
+    /*targetScrollY += event.delta;
     
     if (currentTopic === "hiroshima") {
       targetScrollY = p.constrain(targetScrollY, 0, p.max(0, canvasHeight - p.height));
@@ -616,7 +898,14 @@ if (hoveredIndex !== -1 || hoverLeftStripArrow || hoverRightStripArrow) {
       targetScrollY = p.constrain(targetScrollY, 0, p.max(0, maxScrollY));
     }
     
+    return false;*/
+
+        // --- [REPLACE] scroll a step: centra automaticamente la sezione successiva/precedente ---
+    if (event.delta > 0) stepScroll(+1);
+    else if (event.delta < 0) stepScroll(-1);
+
     return false;
+
   };
 
   p.windowResized = function() {
