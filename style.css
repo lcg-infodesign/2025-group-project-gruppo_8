@@ -1,17 +1,21 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
-  body { background-color: rgb(20,20,20); } 
+
+  body {
+    background-color: rgb(20, 20, 20);
+  }
+
   color: #ffffff;
 }
 
-
-body.menu-pointer, 
+body.menu-pointer,
 body.menu-pointer canvas {
   cursor: pointer !important;
 }
 
-@font-face{
+@font-face {
   font-family: "LexendZetta";
   src: url("fonts/LexendZetta-Regular.ttf") format("truetype");
   font-weight: 400;
@@ -19,7 +23,7 @@ body.menu-pointer canvas {
   font-display: swap;
 }
 
-@font-face{
+@font-face {
   font-family: "LibreFranklin";
   src: url("fonts/LibreFranklin-Regular.otf") format("opentype");
   font-weight: 400;
@@ -27,7 +31,7 @@ body.menu-pointer canvas {
   font-display: swap;
 }
 
-@font-face{
+@font-face {
   font-family: "LoRes9PlusOTWide";
   src: url("fonts/LoRes9PlusOTWide-Regular.ttf") format("truetype");
   font-weight: 400;
@@ -35,27 +39,24 @@ body.menu-pointer canvas {
   font-display: swap;
 }
 
-
-:root{
+:root {
   --font-1: "LexendZetta", system-ui, -apple-system, sans-serif;
   --font-2: "LibreFranklin", system-ui, -apple-system, sans-serif;
   --font-3: "LoRes9PlusOTWide", monospace;
 }
 
-
 canvas {
   display: block;
 }
 
-
-.skip-intro{
+.skip-intro {
   position: fixed;
   right: 60px;
   bottom: 58px;
   z-index: 1000;
 }
 
-.skip-cta{
+.skip-cta {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -64,8 +65,8 @@ canvas {
   padding: 0 14px;
 
   border-radius: 8px;
-  border: 1px solid rgba(0,255,255,0.45);
-  background: rgba(20,20,20,0.85);
+  border: 1px solid rgba(0, 255, 255, 0.45);
+  background: rgba(20, 20, 20, 0.85);
 
   font-family: var(--font-2);
   font-size: 10px;
@@ -73,26 +74,25 @@ canvas {
   text-transform: uppercase;
   line-height: 1;
 
-  color: rgba(0,255,255,0.75);
+  color: rgba(0, 255, 255, 0.75);
   cursor: pointer;
   user-select: none;
 
   transition: border-color 160ms ease, color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
 }
 
-.skip-cta:hover{
-  border-color: rgba(0,255,255,0.9);
-  color: rgba(0,255,255,1);
+.skip-cta:hover {
+  border-color: rgba(0, 255, 255, 0.9);
+  color: rgba(0, 255, 255, 1);
   transform: translateX(2px);
-  box-shadow: 0 0 10px rgba(0,255,255,0.18);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.18);
 }
 
-.skip-cta-arrow{
+.skip-cta-arrow {
   font-size: 11px;
   line-height: 1;
   pointer-events: none;
 }
-
 
 #skipIntroWrap {
   opacity: 0;
@@ -127,7 +127,6 @@ body.show-skip #skipIntroWrap {
   transition: color 0.25s ease, text-shadow 0.25s ease, transform 0.25s ease;
 }
 
-
 .back-btn:hover {
   color: #7fefff;
   text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
@@ -138,21 +137,21 @@ body.show-skip #skipIntroWrap {
   display: none;
 }
 
-.insight-tabs-wrap{
+.insight-tabs-wrap {
   position: fixed;
 
   top: 40px;
 
   left: 0;
   width: 100%;
-  z-index:  10050;
+  z-index: 10050;
   pointer-events: auto;
 
   display: flex;
   justify-content: center;
 }
 
-.insight-tabs{
+.insight-tabs {
   --insight-tabs-scale: 1;
 
   display: inline-flex;
@@ -164,8 +163,7 @@ body.show-skip #skipIntroWrap {
   pointer-events: auto;
 }
 
-
-.insight-tab{
+.insight-tab {
   pointer-events: auto;
   height: 30px;
   display: inline-flex;
@@ -189,46 +187,44 @@ body.show-skip #skipIntroWrap {
 }
 
 .insight-tab:hover,
-.insight-tab.is-active{
+.insight-tab.is-active {
   background: rgb(0, 255, 255);
   color: rgb(20, 20, 20);
 }
 
-.insight-tab:focus-visible{
+.insight-tab:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(0,255,255,0.35);
+  box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.35);
 }
 
-.insight-top-fade{
+.insight-top-fade {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 150px;
-  z-index: 9000; 
+  z-index: 9000;
   pointer-events: none;
 
-  background: linear-gradient(
-    to bottom,
-    rgba(22, 22, 22, 1) 0%,
-    rgba(22, 22, 22, 0.92) 35%,
-    rgba(22, 22, 22, 0) 100%
-  );
+  background: linear-gradient(to bottom,
+      rgba(22, 22, 22, 1) 0%,
+      rgba(22, 22, 22, 0.92) 35%,
+      rgba(22, 22, 22, 0) 100%);
 }
 
 body.photo-open .insight-tabs-wrap,
-body.photo-open .back-btn{
+body.photo-open .back-btn {
   opacity: 0;
   pointer-events: none;
 }
 
-:root{
+:root {
   --about-nav-y: 50%;
 }
 
 .about-tabs-wrap {
   position: fixed;
-  top: 40px; 
+  top: 40px;
   left: 0;
   width: 100%;
   z-index: 99999;
@@ -253,10 +249,10 @@ body.photo-open .back-btn{
   align-items: center;
   justify-content: center;
 
-  height: 30px; 
-  padding: 0 15px; 
+  height: 30px;
+  padding: 0 15px;
 
-  border: 2px solid rgb(0, 255, 255); 
+  border: 2px solid rgb(0, 255, 255);
   border-radius: 6px;
 
   background: rgba(20, 20, 20, 0.86);
@@ -280,41 +276,40 @@ body.photo-open .back-btn{
 
 .about-tab:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(0,255,255,0.35);
+  box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.35);
 }
 
-.about-content{
+.about-content {
   max-width: 860px;
   margin: 0 auto;
-  padding: 160px 24px 80px; 
+  padding: 160px 24px 80px;
 }
 
-.about-title{
+.about-title {
   margin: 0 0 16px;
-  font-family: var(--font-1); 
+  font-family: var(--font-1);
   font-size: 21px;
   letter-spacing: 0.02em;
 }
 
-.about-text{
+.about-text {
   margin: 0;
-  font-family: var(--font-2); 
+  font-family: var(--font-2);
   font-size: 21px;
   line-height: 1.6;
-  color: rgba(220,220,220,1);
+  color: rgba(220, 220, 220, 1);
 }
 
-
-.about-cta-row{
+.about-cta-row {
   position: relative;
-  z-index: 20000; 
+  z-index: 20000;
   margin-top: 28px;
   display: flex;
   gap: 14px;
   flex-wrap: wrap;
 }
 
-.cta-btn{
+.cta-btn {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -322,10 +317,10 @@ body.photo-open .back-btn{
   padding: 10px 14px;
   border-radius: 8px;
 
-  border: 1px solid rgba(0,255,255,0.55);
-  background: rgba(20,20,20,0.60);
+  border: 1px solid rgba(0, 255, 255, 0.55);
+  background: rgba(20, 20, 20, 0.60);
 
-  color: rgba(0,255,255,0.85);
+  color: rgba(0, 255, 255, 0.85);
   text-decoration: none;
 
   font-family: system-ui, -apple-system, sans-serif;
@@ -343,13 +338,13 @@ body.photo-open .back-btn{
   width: max-content;
 }
 
-.cta-btn:hover{
-  border-color: rgba(0,255,255,0.9);
-  color: rgba(0,255,255,1);
+.cta-btn:hover {
+  border-color: rgba(0, 255, 255, 0.9);
+  color: rgba(0, 255, 255, 1);
   transform: translateX(2px);
 }
 
-.cta-arrow{
+.cta-arrow {
   font-size: 11px;
   line-height: 1;
   pointer-events: none;
@@ -358,15 +353,15 @@ body.photo-open .back-btn{
 }
 
 #about-us-canvas {
-  position: relative; 
-  top: -100px;    
-  z-index:1; 
+  position: relative;
+  top: -100px;
+  z-index: 1;
 }
 
 #about-us-canvas canvas {
   display: block;
   position: relative;
-  top: -50px; 
+  top: -50px;
 }
 
 .about-footer {
@@ -381,7 +376,7 @@ body.photo-open .back-btn{
 .footer-row {
   display: flex;
   justify-content: space-between;
-  gap: 18px; 
+  gap: 18px;
   max-width: 1200px;
   margin: 0 auto;
   align-items: flex-start;
@@ -468,10 +463,12 @@ body.photo-open .back-btn{
     flex-direction: column;
     gap: 16px;
   }
+
   .footer-logos-row {
     flex-wrap: wrap;
   }
 }
+
 .about-content {
   position: relative;
   box-sizing: border-box;

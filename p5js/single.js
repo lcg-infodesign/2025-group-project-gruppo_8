@@ -5,10 +5,7 @@ let typeImages = {};
 let typeImg = null;
 let myFont1, myFont2, myFont3;
 let animR = 0;
-
 let hiroshimaTextBounds = null;
-
-
 let hDiagProgress = 0;
 let hHorizProgress = 0;
 //to google map
@@ -33,10 +30,9 @@ let animBlueR = 0;
 let ctaBtnX, ctaBtnY, ctaBtnW, ctaBtnH;
 let ctaBtnVisible = false;
 
-let isHandCursor = false;    
-let tsarNameBounds = null;   
-let hoverNearBombPoint = false; 
-
+let isHandCursor = false;
+let tsarNameBounds = null;
+let hoverNearBombPoint = false;
 
 const purposeTextMap = {
   WR: "Activities associated with a weapons development programme, also used when a test's purpose is unspecified.",
@@ -111,18 +107,18 @@ const typeTextMap = {
 };
 
 const purposeTitle = {
-WR:"Weapons-related",
-COMBAT:"Wartime use",
-WE:"Weapon effects test",
+  WR: "Weapons-related",
+  COMBAT: "Wartime use",
+  WE: "Weapon effects test",
   ME: "Military exercise test",
   SE: "Safety test",
   FMS: "Phenomena study",
   SAM: "Accident scenario test",
-"PNE:PLO":"Peaceful nuclear explosions",
- TRANSP: "Transport & storage",
-"PNE:V":"Peaceful nuclear explosions",
-"*UNKNOWN":"Unknown purpose",
-PNE:"Peaceful nuclear explosions",
+  "PNE:PLO": "Peaceful nuclear explosions",
+  TRANSP: "Transport & storage",
+  "PNE:V": "Peaceful nuclear explosions",
+  "*UNKNOWN": "Unknown purpose",
+  PNE: "Peaceful nuclear explosions",
   "WR/SE": "Weapons & safety test",
   "WR/WE": "Weapons & effect test",
   "WR/PNE": "Weapons & peaceful test",
@@ -130,7 +126,7 @@ PNE:"Peaceful nuclear explosions",
   "WR/P/SA": "Weapons & accident & peaceful test",
   "WR/SAM": "Weapons & accident test",
   "WR/F/SA": "Weapons & accident & phenomena test",
-"WR/FMS":"Tests weapons-related: ",
+  "WR/FMS": "Tests weapons-related: ",
   "WR/FMS": "Weapons & phenomena study",
   "WR/P/S": "Weapons & peaceful & accident tests",
   "WR/F/S": "Weapons & phenomena & accident tests",
@@ -171,7 +167,7 @@ const typeTitle = {
 
 function preload() {
   const urlParams = new URLSearchParams(window.location.search);
-  bombID = urlParams.get("id") || "1"; 
+  bombID = urlParams.get("id") || "1";
   console.log("bombID =", bombID);
 
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
@@ -205,7 +201,7 @@ function preload() {
 
 function getBombData(row) {
   return {
-     year: row.getString("year"),
+    year: row.getString("year"),
     name: row.getString("name"),
     country: row.getString("country"),
     region: row.getString("region"),
@@ -235,9 +231,9 @@ function setup() {
       break;
     }
   }
-  
+
   if (!bombData && table.getRowCount() > 0) {
-    bombData = getBombData(table.getRow(0)); 
+    bombData = getBombData(table.getRow(0));
   }
 
   if (bombData) {
@@ -250,7 +246,7 @@ function setup() {
 }
 
 function draw() {
-  isHandCursor = false; 
+  isHandCursor = false;
 
   background(20);
 
@@ -409,7 +405,7 @@ function drawInfo() {
 
   if (isHoverMap) {
     isHandCursor = true;
-    
+
     fill(0, 150);
     rect(offsetX, offsetY, scaledW, scaledH);
 
@@ -420,8 +416,6 @@ function drawInfo() {
     let iconX = offsetX + scaledW / 2;
     let iconY = offsetY + scaledH / 2;
     let iconSize = 100;
-
-    
 
     if (!mapZoomed) {
       let baseSize = 6;
@@ -438,7 +432,7 @@ function drawInfo() {
       line(iconX - iconSize / 2, iconY + iconSize / 2, iconX + iconSize / 2, iconY - iconSize / 2);
     }
 
-  } 
+  }
 
   stroke(0, 255, 255, 150);
   strokeWeight(1);
@@ -451,7 +445,7 @@ function drawInfo() {
   textFont(myFont3);
   textSize(14);
   textAlign(LEFT, TOP);
-      text("Year: "+ bombData.year, offsetX, boxY - 60)
+  text("Year: " + bombData.year, offsetX, boxY - 60)
   text("Type: " + getTypeTitle(bombData.type), offsetX, boxY - 30);
   text("Purpose: " + getPurposeTitle(bombData.purpose), width * 0.03, offsetY - 30);
   text("Country: " + bombData.country, offsetX, offsetY - 30);
@@ -512,7 +506,6 @@ function drawInfo() {
 
     pop();
   }
-
 
   textFont(myFont2);
   textAlign(LEFT, TOP);
@@ -583,7 +576,6 @@ function drawInfoIcon(cx, cy, r = 6) {
 
   pop();
 }
-
 
 function drawZoomedMap() {
   if (!mapImg || !bombData) return;
@@ -676,12 +668,11 @@ function drawZoomedMap() {
 
   let hoverNearBomb = dist(mouseX, mouseY, px, py) < 20;
 
-  hoverNearBombPoint = hoverNearBomb; 
+  hoverNearBombPoint = hoverNearBomb;
 
   if (hoverNearBomb) {
-    isHandCursor = true; 
+    isHandCursor = true;
   }
-
 
   if (hoverNearBomb) {
     const padding = 8;
@@ -689,8 +680,11 @@ function drawZoomedMap() {
 
     fill(0, 0, 0, 200);
 
+    const line1 = "Click to view on Google Maps";
+    const line2 = "Launched by: " + bombData.country;
+
     let boxW = 180;
-    let boxH = padding * 2 + lineHeight * 3;
+    let boxH = padding * 2 + lineHeight * 2;
 
     let boxX = px + 15;
     let boxY = py - boxH / 2;
@@ -702,18 +696,12 @@ function drawZoomedMap() {
     rect(boxX, boxY, boxW, boxH, 5);
 
     textSize(12);
+    textFont(myFont2);
     textAlign(LEFT, TOP);
     fill(0, 255, 255);
-    text("Country:", boxX + padding, boxY + padding);
-    text("Latitude:", boxX + padding, boxY + padding + lineHeight);
-    text("Longitude:", boxX + padding, boxY + padding + lineHeight * 2);
 
-    textAlign(RIGHT, TOP);
-    const valueX = boxX + boxW - padding;
-
-    text(bombData.country, valueX, boxY + padding);
-    text(nf(bombData.latitude, 0, 2), valueX, boxY + padding + lineHeight);
-    text(nf(bombData.longitude, 0, 2), valueX, boxY + padding + lineHeight * 2);
+    text(line1, boxX + padding, boxY + padding);
+    text(line2, boxX + padding, boxY + padding + lineHeight);
   }
 
   noStroke();
@@ -746,7 +734,7 @@ function drawZoomedMap() {
   translate(centerX, currentY);
   textAlign(CENTER, BOTTOM);
   if (isCoordHover) {
-       isHandCursor = true;   
+    isHandCursor = true;
     fill(255);
     scale(1.05);
   } else {
@@ -765,15 +753,14 @@ function drawZoomedMap() {
   let hintW = textWidth(hintText);
 
   const pulse = (sin(frameCount * 0.08) + 1) / 2;
-const alphaGlow = 80 + pulse * 175;
+  const alphaGlow = 80 + pulse * 175;
 
-fill(0, 255, 255, alphaGlow * 0.25);
-text(hintText, hintX + 1, currentY + 1);
+  fill(0, 255, 255, alphaGlow * 0.25);
+  text(hintText, hintX + 1, currentY + 1);
 
-fill(0, 255, 255, alphaGlow);
-text(hintText, hintX, currentY);
+  fill(0, 255, 255, alphaGlow);
+  text(hintText, hintX, currentY);
 
-  
   pop();
 }
 
@@ -784,7 +771,6 @@ function updateBackBtnVisibility() {
     document.body.classList.remove("map-open");
   }
 }
-
 
 window.addEventListener("load", () => {
   if (window.location.hash === "#page2") {
@@ -811,57 +797,66 @@ function drawHiroshimaAnnotation() {
     hHorizProgress = lerp(hHorizProgress, 1, 0.05);
   }
 
-  // --- 斜线当前末端（= 横线起点锚点）---
   let anchorX = lerp(startX, finalAnchorX, hDiagProgress);
   let anchorY = lerp(startY, finalAnchorY, hDiagProgress);
 
-  // 画斜线
   line(startX, startY, anchorX, anchorY);
 
-  // --- 横线从 anchor 向右生长 ---
   let currentHorizLength = horizLength * hHorizProgress;
   line(anchorX, anchorY, anchorX + currentHorizLength, anchorY);
 
-  // --- 文字：被横线"推着走" ---
   let textX = anchorX + currentHorizLength + 10;
 
-  let hText = "Little Boy\nHiroshima, 1945";
+  const line1 = "Little Boy";
+  const line2 = "Hiroshima, 1945";
+  const line3 = "Yield(kt): 15";
 
-  let isHiroshimaHover =
-    mouseX >= textX &&
-    mouseX <= textX + 130 &&
-    mouseY >= anchorY - 15 &&
-    mouseY <= anchorY + 15;
+  textFont(myFont2);
+  textSize(14);
+
+  const lineH = 16; 
+  const textW = max(textWidth(line1), textWidth(line2), textWidth(line3));
+  const textH = lineH * 3;
+
+  const textY = anchorY - textH / 2;
+
+  const padding = 10;
+
+  const active = (hHorizProgress > 0.95);
+
+  const bounds = {
+    x: textX - padding,
+    y: textY - padding,
+    w: textW + padding * 2,
+    h: textH + padding * 2,
+  };
+
+  const isHiroshimaHover =
+    active &&
+    mouseX >= bounds.x &&
+    mouseX <= bounds.x + bounds.w &&
+    mouseY >= bounds.y &&
+    mouseY <= bounds.y + bounds.h;
 
   noStroke();
-  if (isHiroshimaHover && hHorizProgress > 0.95) {
-  isHandCursor = true;
-  fill(255);
+  if (isHiroshimaHover) {
+    isHandCursor = true;
+    fill(255);
   } else {
     fill(0, 255, 255);
   }
 
+  textAlign(LEFT, TOP);
+  text(line1 + "\n" + line2 + "\n" + line3, textX, textY);
 
-  textFont(myFont2);
-  textSize(14);
-  textAlign(LEFT, CENTER);
-  text(hText, textX, anchorY);
-
-if (hHorizProgress > 0.95) {
-  const padding = 10;
-
-  hiroshimaTextBounds = {
-    x: textX - padding,
-    y: anchorY - 18 - padding,
-    w: 130 + padding * 2,
-    h: 36 + padding * 2
-  };
-} else {
-  hiroshimaTextBounds = null;
+  if (active) {
+    hiroshimaTextBounds = bounds;
+  } else {
+    hiroshimaTextBounds = null;
+  }
 }
 
 
-}
 function drawBombAnnotation() {
   if (!bombData) return;
 
@@ -888,55 +883,52 @@ function drawBombAnnotation() {
     this.horizProgress = lerp(this.horizProgress, 1, 0.05);
   }
 
-  // --- 斜线末端（锚点）---
   let anchorX = lerp(startX, finalAnchorX, this.diagProgress);
   let anchorY = lerp(startY, finalAnchorY, this.diagProgress);
 
   line(startX, startY, anchorX, anchorY);
 
-  // --- 横线向左生长 ---
   let currentHorizLength = horizLength * this.horizProgress;
   line(anchorX - currentHorizLength, anchorY, anchorX, anchorY);
 
-  // --- 文字被横线推出去 ---
   let textX = anchorX - currentHorizLength - 10;
 
   noStroke();
 
-const isTsar = (bombData.year === "1961" && bombData.name === "RDS-200");
+  const isTsar = (bombData.year === "1961" && bombData.name === "RDS-200");
 
-textFont(myFont1);
-textSize(20);
-textAlign(RIGHT, CENTER);
+  textFont(myFont1);
+  textSize(20);
+  textAlign(RIGHT, CENTER);
 
-const nameW = textWidth(bombData.name);
-const nameH = 24; 
-const bx = textX - nameW;
-const by = anchorY - nameH / 2;
+  const nameW = textWidth(bombData.name);
+  const nameH = 24;
+  const bx = textX - nameW;
+  const by = anchorY - nameH / 2;
 
-if (isTsar) {
-  tsarNameBounds = { x: bx, y: by, w: nameW, h: nameH };
+  if (isTsar) {
+    tsarNameBounds = { x: bx, y: by, w: nameW, h: nameH };
 
-  const isHoverName =
-    mouseX >= bx && mouseX <= bx + nameW &&
-    mouseY >= by && mouseY <= by + nameH;
+    const isHoverName =
+      mouseX >= bx && mouseX <= bx + nameW &&
+      mouseY >= by && mouseY <= by + nameH;
 
-  if (isHoverName) {
-    isHandCursor = true;
-    fill(200);
+    if (isHoverName) {
+      isHandCursor = true;
+      fill(200);
+    } else {
+      fill(red(c), green(c), blue(c));
+    }
   } else {
+    tsarNameBounds = null;
     fill(red(c), green(c), blue(c));
   }
-} else {
-  tsarNameBounds = null;
-  fill(red(c), green(c), blue(c));
-}
 
-text(bombData.name, textX, anchorY);
+  text(bombData.name, textX, anchorY);
 
 }
 
-let ctaAlpha = 0; 
+let ctaAlpha = 0;
 
 function drawCtaSection() {
   if (mapZoomed) return;
@@ -947,7 +939,7 @@ function drawCtaSection() {
   ctaBtnH = 30;
   ctaBtnX = offsetX;
 
-  let menuBtnCenterY = 25 + 60 / 2; 
+  let menuBtnCenterY = 25 + 60 / 2;
   ctaBtnY = menuBtnCenterY - ctaBtnH / 2;
 
   let isHover =
@@ -985,27 +977,27 @@ function mousePressed() {
     }
   }
 
-if (hiroshimaTextBounds) {
-  const b = hiroshimaTextBounds;
+  if (hiroshimaTextBounds) {
+    const b = hiroshimaTextBounds;
 
-  if (
-    mouseX >= b.x &&
-    mouseX <= b.x + b.w &&
-    mouseY >= b.y &&
-    mouseY <= b.y + b.h
-  ) {
-    window.location.href = "insight.html?topic=hiroshima";
-    return;
+    if (
+      mouseX >= b.x &&
+      mouseX <= b.x + b.w &&
+      mouseY >= b.y &&
+      mouseY <= b.y + b.h
+    ) {
+      window.location.href = "insight.html?topic=hiroshima";
+      return;
+    }
   }
-}
 
-if (tsarNameBounds) {
-  const b = tsarNameBounds;
-  if (mouseX >= b.x && mouseX <= b.x + b.w && mouseY >= b.y && mouseY <= b.y + b.h) {
-    window.location.href = "insight.html?topic=tsarbomba";
-    return;
+  if (tsarNameBounds) {
+    const b = tsarNameBounds;
+    if (mouseX >= b.x && mouseX <= b.x + b.w && mouseY >= b.y && mouseY <= b.y + b.h) {
+      window.location.href = "insight.html?topic=tsarbomba";
+      return;
+    }
   }
-}
 
   animR = 0;
   animBlueR = 0;
@@ -1016,7 +1008,6 @@ if (tsarNameBounds) {
   ctaAlpha = 0;
 
   animPlaying = true;
-
 
   if (bombData && mapZoomed) {
     let currentY = offsetY - 10;
@@ -1031,24 +1022,22 @@ if (tsarNameBounds) {
       mouseY >= currentY - coordH &&
       mouseY <= currentY;
 
-    textFont(myFont2); // 切换字体以准确计算宽度
+    textFont(myFont2);
     textSize(14);
     let hintText = "<< Click to view on Google Maps";
     let hintW = textWidth(hintText);
-    let hintX = offsetX + scaledW; // 右边界
+    let hintX = offsetX + scaledW;
 
     let isHintClicked =
       mouseX >= hintX - hintW &&
       mouseX <= hintX &&
-      mouseY >= currentY - 14 && // 14 是 textSize
+      mouseY >= currentY - 14 &&
       mouseY <= currentY;
 
     let px = lonToMapX(bombData.longitude);
     let py = latToMapY(bombData.latitude);
     let isPointClicked = dist(mouseX, mouseY, px, py) < 20;
 
-
-    // 如果两者之一被点击
     if (isCoordClicked || isHintClicked || isPointClicked) {
       let lat = bombData.latitude;
       let lon = bombData.longitude;
@@ -1058,7 +1047,7 @@ if (tsarNameBounds) {
     }
   }
 
-  // --- 以下是原有的地图缩放逻辑 ---
+  // map zoom
   let clickedOnMap =
     mouseX >= offsetX &&
     mouseX <= offsetX + scaledW &&
@@ -1076,10 +1065,10 @@ if (tsarNameBounds) {
       mouseY >= iconY - iconSize &&
       mouseY <= iconY + iconSize
     ) {
-     mapZoomed = false;
-calculateMapDimensions();
-updateBackBtnVisibility();
-return;
+      mapZoomed = false;
+      calculateMapDimensions();
+      updateBackBtnVisibility();
+      return;
 
     }
   }
@@ -1094,6 +1083,7 @@ return;
     updateBackBtnVisibility();
   }
 }
+
 function keyPressed() {
   if (keyCode === ESCAPE) {
     if (mapZoomed) {

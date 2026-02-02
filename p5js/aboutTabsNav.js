@@ -3,7 +3,6 @@ let atoms = [];
 let canvas;
 
 // DATASET CONTENT 
-
 const TEXT_MAIN = `
 <p class="about-text">
 The data is sourced from SIPRI, the Oklahoma Geological Survey, and the Natural Resources Defense Council,
@@ -32,7 +31,6 @@ const CTA_SECONDARY = [
 ];
 
 // NAMES
-
 const ATOM_INFO = [
   { name: "Silvia La Mastra", role: "Project Manager\nUX/UI Designer\nResearcher" },
   { name: "Giovanni Palladino", role: "Front-end Developer\nVisual Designer\nData Editor" },
@@ -49,7 +47,6 @@ function setup() {
   const params = new URLSearchParams(window.location.search);
   topic = params.get("topic") || "dataset";
 
-  // --- 关键：画布只在这里初始化一次 ---
   canvas = createCanvas(900, 600);
   canvas.parent("about-us-canvas");
   canvas.style("pointer-events", "none");
@@ -57,7 +54,7 @@ function setup() {
   updateTabs();
   buildPage();
 
-  // 绑定点击事件
+  // click
   selectAll(".about-tab").forEach(tab => {
     tab.mousePressed(e => {
       e.preventDefault();
@@ -81,7 +78,6 @@ function updateTabs() {
 }
 
 function buildPage() {
-  // 清空文本容器
   select(".about-title").html("");
   select(".about-text-wrap").html("");
   select(".review-text").html("");
@@ -89,19 +85,19 @@ function buildPage() {
   select(".secondary-cta").html("");
 
   if (topic === "dataset") {
-    // 隐藏画布容器
+    // hide canvas
     select("#about-us-canvas").hide();
-    
-    // 填充 Dataset 内容
+
+    // fill Dataset content
     select(".about-text-wrap").html(TEXT_MAIN);
     buildCTAs(".primary-cta", CTA_PRIMARY);
     select(".review-text").html(TEXT_REVIEW);
     buildCTAs(".secondary-cta", CTA_SECONDARY);
-  } 
+  }
   else if (topic === "us") {
-    // 显示画布容器并初始化原子数据
+    // show canvas
     select("#about-us-canvas").show();
-    initAtoms(); 
+    initAtoms();
   }
   setTimeout(adjustAboutHeight, 50);
 
@@ -119,33 +115,31 @@ function buildCTAs(selector, ctas) {
   });
 }
 
-
 function initAtoms() {
-  // 增加高度到 600，确保能放下两行文字
-  canvas = createCanvas(900, 600); 
+  canvas = createCanvas(900, 600);
   canvas.parent("about-us-canvas");
   canvas.style("pointer-events", "none");
   clear();
   atoms = [];
 
-  // 第一行原子
+  // first line atoms
   for (let i = 0; i < 4; i++) {
-    let x = map(i, 0, 3, 100, width - 100); // 增加左右边距
-    atoms.push(new AtomicModel(x, 150, i));  // 稍微往下移一点
+    let x = map(i, 0, 3, 100, width - 100); 
+    atoms.push(new AtomicModel(x, 150, i));  
   }
 
-  // 第二行原子
+  // second line atoms
   let secondRowIndices = [4, 5, 6];
   for (let i = 0; i < 3; i++) {
-    let x = map(i, 0, 2, 200, width - 200); // 让三个原子居中一点
-    atoms.push(new AtomicModel(x, 420, secondRowIndices[i])); // 给文字留出空间
+    let x = map(i, 0, 2, 200, width - 200); 
+    atoms.push(new AtomicModel(x, 420, secondRowIndices[i]));
   }
 }
 
 function draw() {
   if (topic !== "us") return;
 
-  clear(); 
+  clear();
   for (let atom of atoms) {
     atom.update();
     atom.display();
@@ -154,14 +148,13 @@ function draw() {
 }
 
 // Name
-
 function drawNameAndRole(atom) {
   push();
 
   textAlign(CENTER);
   textSize(20);
-    fill(200);
-textFont('LibreFranklin');
+  fill(200);
+  textFont('LibreFranklin');
 
   text(ATOM_INFO[atom.type].name, atom.pos.x, atom.pos.y + atom.r + 50);
   fill(200);
@@ -201,7 +194,7 @@ class AtomicModel {
     switch (this.type) {
 
       case 0:
-        stroke(0, 255, 255, 200);// 经典圆环 + 点状概率云
+        stroke(0, 255, 255, 200);
         this.drawElectron(40, this.angle);
         this.drawElectron(40, -this.angle * 0.8);
 
@@ -214,7 +207,7 @@ class AtomicModel {
         }
         break;
 
-      case 1: // 同心波纹轨道
+      case 1: 
         for (let i = 0; i < 3; i++) {
           let r = 30 + i * 20;
           let speedMult = (i % 2 === 0) ? 1 : -0.6;
@@ -223,7 +216,7 @@ class AtomicModel {
         }
         break;
 
-      case 2: // 多维陀螺仪系统
+      case 2: 
         ellipse(0, 0, 80, 80);
         this.drawElectron(40, this.angle);
         for (let i = 0; i < 2; i++) {
@@ -234,16 +227,13 @@ class AtomicModel {
           pop();
         }
         break;
+
       case 3:
-        // ===== 统一圆形外轮廓（固定圆） =====
         stroke(0, 255, 255, 200);
         strokeWeight(2);
         noFill();
-
-        // ===== 光环波动动画（点状圆环） =====
         let rings = 3;
         for (let i = 0; i < rings; i++) {
-          // 半径波动，最大时为 40（半径），和固定外轮廓一致
           let r = 20 + i * 10 + sin(this.angle * (0.5 + i * 0.3)) * 5;
           stroke(0, 255, 255, 150 - i * 40);
           for (let step = 0; step < TWO_PI; step += PI / 15) {
@@ -255,21 +245,16 @@ class AtomicModel {
           }
         }
 
-        // 核心小球
         fill(this.baseColor);
         noStroke();
         ellipse(0, 0, 10, 10);
         break;
 
-
       case 4:
-        // ===== 统一圆形外轮廓 =====
         stroke(0, 255, 255, 80);
         strokeWeight(1.5);
         noFill();
-        ellipse(0, 0, 80, 80); // 外轮廓
-
-        // 内部偏移旋转特色
+        ellipse(0, 0, 80, 80); 
         push();
         rotate(this.angle);
         ellipse(20, 0, 40, 40);
@@ -279,7 +264,7 @@ class AtomicModel {
         pop();
         break;
 
-      case 5: // 点状虚线星云
+      case 5: 
         stroke(0, 255, 255, 200);
         for (let i = 0; i < 3; i++) {
           let r = 40 + i * 15;
@@ -295,14 +280,12 @@ class AtomicModel {
         }
         break;
 
-      case 6: // 核心小球 + 四个旋转椭圆
-        // ===== 内部四个旋转椭圆 =====
-        let ellipseCount = 4; // 椭圆数量
-        let rx = 40; // 水平半径
-        let ry = 10; // 垂直半径
+      case 6: 
+        let ellipseCount = 4; 
+        let rx = 40; 
+        let ry = 10; 
         for (let i = 0; i < ellipseCount; i++) {
           push();
-          // 初始角度平均分布 + 统一旋转
           let initialAngle = i * TWO_PI / 8;
           rotate(this.angle + initialAngle);
           stroke(0, 255, 255, 150);
@@ -310,36 +293,31 @@ class AtomicModel {
           ellipse(0, 0, rx * 2, ry * 2);
           pop();
         }
-
-        // 核心小球
         fill(this.baseColor);
         noStroke();
         ellipse(0, 0, 10, 10);
-
         break;
-
     }
 
     pop();
   }
-drawElectron(r, a) {
-  push();
-  fill(this.baseColor); // 实心填充
-  noStroke();           
-  ellipse(r * cos(a), r * sin(a), 6, 6);
-  pop();
-}
+  drawElectron(r, a) {
+    push();
+    fill(this.baseColor); 
+    noStroke();
+    ellipse(r * cos(a), r * sin(a), 6, 6);
+    pop();
+  }
 
-drawElectronEllipse(rx, ry, a) {
-  push();
-  fill(this.baseColor); // 实心填充
-  noStroke();           // 不描边
-  ellipse(rx * cos(a), ry * sin(a), 6, 6);
-  pop();
-}
+  drawElectronEllipse(rx, ry, a) {
+    push();
+    fill(this.baseColor); 
+    noStroke();          
+    ellipse(rx * cos(a), ry * sin(a), 6, 6);
+    pop();
+  }
 }
 //FOOTER AFTER WINDOW HEIGHT
-
 function adjustAboutHeight() {
   const main = document.querySelector(".about-content");
   const footer = document.getElementById("about-footer");

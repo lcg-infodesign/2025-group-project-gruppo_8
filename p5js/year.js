@@ -34,15 +34,14 @@ let selectedCountry = null;
 
 let tsarCtaBox = null;
 
-let yAxis; 
-const dashLength = 4; 
-const dashGap = 6;  
+let yAxis;
+const dashLength = 4;
+const dashGap = 6;
 const offset = 5;
 let atmLabel = "Atmospheric";
 let undLabel = "Underground";
 let offsetX;
-let xBase; 
-
+let xBase;
 
 function preload() {
   myFont1 = loadFont("fonts/LexendZetta-Regular.ttf");
@@ -61,12 +60,12 @@ function setup() {
 
   const yearParam = urlParams.get("year");
   if (!yearParam) {
-  const storedYear = sessionStorage.getItem("lastYear");
-  if (storedYear) {
-    const index = years.indexOf(Number(storedYear));
-    if (index !== -1) currentYearIndex = index;
+    const storedYear = sessionStorage.getItem("lastYear");
+    if (storedYear) {
+      const index = years.indexOf(Number(storedYear));
+      if (index !== -1) currentYearIndex = index;
+    }
   }
-}
 
   if (yearParam) {
     const parsedYear = parseInt(yearParam);
@@ -76,7 +75,6 @@ function setup() {
 
   saveLastYear(years[currentYearIndex]);
   setYearInURL(years[currentYearIndex]);
-
 
   const countryParam = urlParams.get("country");
   if (countryParam && countries.includes(countryParam)) {
@@ -115,8 +113,6 @@ function drawCtaButton(btnX, btnY, btnW, btnH, label, isHover) {
 
 }
 
-
-
 function draw() {
   background(20);
 
@@ -138,7 +134,7 @@ function draw() {
     return;
   }
 
-  const currentYear = years[currentYearIndex]; 
+  const currentYear = years[currentYearIndex];
   const yearData = testsByYear[currentYear];
 
   textFont(myFont1);
@@ -203,8 +199,8 @@ function draw() {
   const legendY = height - margin - 80;
 
   const overLegendInfo =
-    hoverOnAtmospheric(legendX, 80) || 
-    hoverOnUnderground(legendX, height - 80) || 
+    hoverOnAtmospheric(legendX, 80) ||
+    hoverOnUnderground(legendX, height - 80) ||
     hoverOnYieldYear(legendX, legendY);
 
   const overTsarCTA = drawColumnCTA();
@@ -215,49 +211,47 @@ function draw() {
       : ARROW
   );
 
-let checkYear = Number(currentYear);
-if (checkYear === 1958 || checkYear === 1959 || checkYear === 1963 || checkYear === 1996) {
+  let checkYear = Number(currentYear);
+  if (checkYear === 1958 || checkYear === 1959 || checkYear === 1963 || checkYear === 1996) {
 
-    // --- 统一参数 ---
-    let btnH = 30; // 统一高度为 30
+    let btnH = 30;
     let btnW = 240;
     let btnX = width / 2 - btnW / 2;
-    let btnY = height - margin - 70; // 统一 Y 轴起始高度
+    let btnY = height - margin - 70;
     const r = 8;
     const padX = 12;
 
     push();
     let isHoverBack = mouseX > btnX && mouseX < btnX + btnW &&
-                      mouseY > btnY && mouseY < btnY + btnH;
+      mouseY > btnY && mouseY < btnY + btnH;
 
-    // 绘制容器
+
     fill(20, 20, 20, 200);
     stroke(0, 255, 255, isHoverBack ? 220 : 120);
     strokeWeight(isHoverBack ? 1.5 : 1);
     rect(btnX, btnY, btnW, btnH, r);
 
-    // 绘制文字
     noStroke();
     fill(0, 255, 255, isHoverBack ? 255 : 180);
-    textAlign(LEFT, CENTER); // 改为 LEFT 配合 padding，与另一个按钮一致
+    textAlign(LEFT, CENTER);
     textFont(myFont3);
-    textSize(13); // 统一字号
+    textSize(13);
     text("VIEW HISTORIC INSIGHTS", btnX + padX, btnY + btnH / 2 - 1);
 
-    let triSize = 5; 
+    let triSize = 5;
     let triX = btnX + btnW - 12;
     let triY = btnY + btnH / 2;
     if (isHoverBack) {
-        triX += sin(frameCount * 0.2) * 2;
-        cursor(HAND);
+      triX += sin(frameCount * 0.2) * 2;
+      cursor(HAND);
     }
-    
+
     push();
     translate(triX, triY);
     triangle(-triSize, -triSize, -triSize, triSize, triSize, 0);
     pop();
     pop();
-}
+  }
   drawBombTooltip();
 
   drawAxes();
@@ -273,7 +267,7 @@ function drawTimeline() {
   // disegna gli anni 
   const historicYears = [1947, 1950, 1958, 1959, 1963, 1996, 1997];
   const insightColor = [0, 255, 255];
-  const cyanColor = [255, 255, 255];     
+  const cyanColor = [255, 255, 255];
 
   push();
   for (let i = 0; i < years.length; i++) {
@@ -352,7 +346,7 @@ function drawNoTestBox(year) {
       }
     }
     if (currentLine) allLines.push(currentLine);
-    allLines.push(""); 
+    allLines.push("");
   }
 
   let midPoint = Math.ceil(allLines.length / 2);
@@ -388,7 +382,6 @@ function drawNoTestBox(year) {
     text(rightColumn[i], boxX + padding + colW + gap, textStartY + i * lineHeight);
   }
 }
-
 
 function processData() {
   let allTests = [];
@@ -516,11 +509,10 @@ function drawYearNavigation(currentYear) {
   textSize(20);
   text("NUCLEAR TEST EACH YEAR", width / 2, 70);
 
-
   const alphaBase = 200;
   const pulse = sin(frameCount * 0.08) * 55;
   const activeAlpha = constrain(alphaBase + pulse, 80, 255);
-  const disabledAlpha = 0; 
+  const disabledAlpha = 0;
 
   const halfW = 12;
   const h = 10;
@@ -556,7 +548,6 @@ function drawYearNavigation(currentYear) {
   pop();
 }
 
-
 function drawTestDots(yearData) {
   dots = [];
   let cellSize = 13;
@@ -581,14 +572,12 @@ function drawTestDots(yearData) {
     textSize(14);
     let nameW = textWidth(country);
 
-let isNameHovered = (
-  mouseX > x - 50 && 
-  mouseX < x + 100 &&
-  mouseY > yAxis - 15 && 
-  mouseY < yAxis + 15
-);
-
-
+    let isNameHovered = (
+      mouseX > x - 50 &&
+      mouseX < x + 100 &&
+      mouseY > yAxis - 15 &&
+      mouseY < yAxis + 15
+    );
 
     // underground type
     const undergroundTypes = ["UG", "SHAFT", "TUNNEL", "GALLERY", "MINE", "SHAFT/GR", "SHAFT/LG"];
@@ -597,90 +586,87 @@ let isNameHovered = (
     atmTests.sort((a, b) => getColorLevel(a.yield) - getColorLevel(b.yield));
     sottTests.sort((a, b) => getColorLevel(a.yield) - getColorLevel(b.yield));
 
-   function drawGroup(testArray, isAtmosph) {
-    let numCols = Math.max(1, Math.min(cols, testArray.length));
-    let colWidth = (numCols - 1) * (cellSize + gap);
-    testArray.forEach((test, i) => {
-    let col = i % cols;
-    let row = Math.floor(i / cols);
-    let cx = x - colWidth / 2 + col * (cellSize + gap);
-    
-    // 调整 Y 方向
-    let cy;
-    if (isAtmosph) {
-      cy = yAxis - 40 - row * (cellSize + gap); // 上方留 40px 空间
-    } else {
-      cy = yAxis + 40 + row * (cellSize + gap); // 下方留 40px 空间
+    function drawGroup(testArray, isAtmosph) {
+      let numCols = Math.max(1, Math.min(cols, testArray.length));
+      let colWidth = (numCols - 1) * (cellSize + gap);
+      testArray.forEach((test, i) => {
+        let col = i % cols;
+        let row = Math.floor(i / cols);
+        let cx = x - colWidth / 2 + col * (cellSize + gap);
+
+        let cy;
+        if (isAtmosph) {
+          cy = yAxis - 40 - row * (cellSize + gap); 
+        } else {
+          cy = yAxis + 40 + row * (cellSize + gap); 
+        }
+
+        let d = dist(mouseX, mouseY, cx, cy);
+        let isHovered = d < cellSize / 2;
+
+        let size = cellSize;
+        push();
+        fill(getYieldColor(test.yield));
+
+        const currentYear = years[currentYearIndex];
+        const isRDS200 =
+          currentYear === 1961 &&
+          test.bombName &&
+          test.bombName.toUpperCase() === "RDS-200";
+
+        if (isRDS200) {
+          push();
+          noFill();
+          stroke(0, 255, 255);
+          strokeWeight(2);
+          rectMode(CENTER);
+          circle(cx, cy, cellSize + 9);
+          stroke(0, 255, 255);
+          strokeWeight(2);
+          line(cx - (cellSize - 4) / 2, cy - 10, cx - 300, cy - 10);
+          noStroke();
+          textFont(myFont3);
+          textSize(13);
+          fill(0, 255, 255);
+          textAlign(LEFT, BOTTOM);
+          text("Largest bomb ever launched", cx - 297, cy - 11);
+
+          pop();
+        }
+
+        if (isHovered) {
+          const pulse = (sin(frameCount * 0.1) + 1) / 2;
+          size = cellSize * (1.2 + pulse * 0.5);
+          stroke(0, 255, 255);
+          strokeWeight(1.4);
+        } else {
+          noStroke();
+        }
+
+        circle(cx, cy, size);
+        pop();
+
+        dots.push({ cx: cx, cy: cy, r: size / 2, id: test.id });
+      });
     }
-
-    let d = dist(mouseX, mouseY, cx, cy);
-    let isHovered = d < cellSize / 2;
-
-    let size = cellSize;
-    push();
-    fill(getYieldColor(test.yield));
-
-const currentYear = years[currentYearIndex];
-const isRDS200 =
-  currentYear === 1961 &&
-  test.bombName &&
-  test.bombName.toUpperCase() === "RDS-200";
-
-if (isRDS200) {
-  push();
-  noFill();
-  stroke(0, 255, 255);
-  strokeWeight(2);
-  rectMode(CENTER);
-  circle(cx, cy, cellSize + 9);
-  stroke(0, 255, 255);
-  strokeWeight(2);
-  line(cx - (cellSize -4) / 2, cy-10, cx - 300, cy -10 );
-  noStroke();
-  textFont(myFont3);
-  textSize(13);
-  fill(0, 255, 255);
-  textAlign(LEFT, BOTTOM);
-  text("Largest bomb ever launched", cx - 297, cy - 11);
-
-  pop();
-}
-
-
-    if (isHovered) {
-      const pulse = (sin(frameCount * 0.1) + 1) / 2;
-      size = cellSize * (1.2 + pulse * 0.5);
-      stroke(0, 255, 255);
-      strokeWeight(1.4);
-    } else {
-      noStroke();
-    }
-
-    circle(cx, cy, size);
-    pop();
-
-    dots.push({ cx: cx, cy: cy, r: size / 2, id: test.id });
-  });
-}
 
     drawGroup(atmTests, true);
     drawGroup(sottTests, false);
 
-  push();
-  translate(x, yAxis); 
-  textAlign(CENTER, CENTER);
-  textFont(myFont2);
-  textSize(14);
-  fill(isNameHovered ? color(0,255,255) : color(200));
-  text(country, 0, 0);
-  pop();
+    push();
+    translate(x, yAxis);
+    textAlign(CENTER, CENTER);
+    textFont(myFont2);
+    textSize(14);
+    fill(isNameHovered ? color(0, 255, 255) : color(200));
+    text(country, 0, 0);
+    pop();
 
   });
 
   const offsetX = margin - 8;
   const isHoverATM = hoverOnAtmospheric(offsetX, margin);
   const isHoverUND = hoverOnUnderground(offsetX, height - margin);
-
 
   if (isHoverATM) {
     push();
@@ -784,7 +770,6 @@ function drawLegend() {
     pop();
   }
 
-
   textFont(myFont2);
   textSize(14);
   let circleSize = 10;
@@ -804,8 +789,8 @@ function drawLegend() {
 let lastScrollTime = 0;
 let scrollVelocity = 0;
 
-let scrollAccumulator = 0; 
-const SCROLL_THRESHOLD = 80; 
+let scrollAccumulator = 0;
+const SCROLL_THRESHOLD = 80;
 
 function mouseWheel(event) {
 
@@ -817,21 +802,20 @@ function mouseWheel(event) {
 
   while (abs(scrollAccumulator) >= SCROLL_THRESHOLD) {
     if (scrollAccumulator > 0) {
-      if (currentYearIndex < years.length - 1) currentYearIndex++; 
-        scrollAccumulator -= SCROLL_THRESHOLD;
-      } else {
+      if (currentYearIndex < years.length - 1) currentYearIndex++;
+      scrollAccumulator -= SCROLL_THRESHOLD;
+    } else {
       if (currentYearIndex > 0) currentYearIndex--;
       scrollAccumulator += SCROLL_THRESHOLD;
     }
-    
-    // 边界保护：如果已经滚到头了，清空累加器，防止积攒过多无效滚动
+// Reset accumulator at boundary to prevent scroll overflow
     if (currentYearIndex === 0 || currentYearIndex === years.length - 1) {
-       scrollAccumulator = 0;
-       break; 
+      scrollAccumulator = 0;
+      break;
     }
   }
 
-   if (currentYearIndex !== oldIndex) {
+  if (currentYearIndex !== oldIndex) {
     saveLastYear(years[currentYearIndex]);
     setYearInURL(years[currentYearIndex]);
   }
@@ -867,31 +851,29 @@ function mousePressed() {
 
   if (tsarCtaBox) {
     const overTsar =
-    mouseX >= tsarCtaBox.x && mouseX <= tsarCtaBox.x + tsarCtaBox.w &&
-    mouseY >= tsarCtaBox.y && mouseY <= tsarCtaBox.y + tsarCtaBox.h;
+      mouseX >= tsarCtaBox.x && mouseX <= tsarCtaBox.x + tsarCtaBox.w &&
+      mouseY >= tsarCtaBox.y && mouseY <= tsarCtaBox.y + tsarCtaBox.h;
 
     if (overTsar) {
-  const currentYear = Number(years[currentYearIndex]);
+      const currentYear = Number(years[currentYearIndex]);
+      // 1961 to insight Tsar Bomba
+      if (currentYear === 1961) {
+        saveLastYear(years[currentYearIndex]);
+        setYearInURL(years[currentYearIndex]);
+        window.location.href = "insight.html?topic=tsarbomba";
+        return;
+      }
+      const targetYear = 1961;
+      const targetIndex = years.indexOf(targetYear);
+      if (targetIndex !== -1) {
+        currentYearIndex = targetIndex;
+        saveLastYear(years[currentYearIndex]);
+        setYearInURL(years[currentYearIndex]);
+      }
+      return;
+    }
 
-  // 1961 to insight Tsar Bomba
-  if (currentYear === 1961) {
-    saveLastYear(years[currentYearIndex]);
-    setYearInURL(years[currentYearIndex]);
-    window.location.href = "insight.html?topic=tsarbomba";
-    return;
   }
-
-  const targetYear = 1961;
-  const targetIndex = years.indexOf(targetYear);
-  if (targetIndex !== -1) {
-    currentYearIndex = targetIndex;
-    saveLastYear(years[currentYearIndex]);
-    setYearInURL(years[currentYearIndex]);
-  }
-  return;
-}
-
-}
   let activeYear = Number(years[currentYearIndex]);
   saveLastYear(years[currentYearIndex]);
 
@@ -899,7 +881,7 @@ function mousePressed() {
     let btnW = 240;
     let btnH = 40;
     let btnX = width / 2 - btnW / 2;
-    let btnY = height - margin - 65; 
+    let btnY = height - margin - 65;
 
     if (mouseX > btnX && mouseX < btnX + btnW &&
       mouseY > btnY && mouseY < btnY + btnH) {
@@ -939,7 +921,7 @@ function mousePressed() {
       saveLastYear(years[currentYearIndex]);
       setYearInURL(years[currentYearIndex]);
 
-    window.location.href = `single.html?id=${d.id}&from=year&year=${year}`;
+      window.location.href = `single.html?id=${d.id}&from=year&year=${year}`;
 
       return;
     }
@@ -962,7 +944,7 @@ function mousePressed() {
     ) {
 
       saveLastYear(years[currentYearIndex]);
-      setYearInURL(years[currentYearIndex]); 
+      setYearInURL(years[currentYearIndex]);
       window.location.href = `index.html?country=${country}&from=year#page2`;
 
       return;
@@ -989,8 +971,7 @@ function keyPressed() {
   }
 }
 
-
-function drawColumnCTA() { 
+function drawColumnCTA() {
   const msg = "Click a bomb or a country to see more";
 
   const currentYear = Number(years[currentYearIndex]);
@@ -998,23 +979,22 @@ function drawColumnCTA() {
     ? "VIEW HISTORIC INSIGHT"
     : "Go to the Largest bomb";
 
-  
   const rightX = width - margin;
-  const bottomY = height - margin; 
+  const bottomY = height - margin;
   const moveUp = 25;
   const btnH = 30;
-  
+
   textFont(myFont3);
   textSize(13);
-  
+
   let btnW = 250;
 
-  const btnX = rightX - btnW; 
+  const btnX = rightX - btnW;
   const btnY = bottomY - btnH - 15 - moveUp;
 
   const isHoverTsar = mouseX >= btnX && mouseX <= btnX + btnW &&
-                      mouseY >= btnY && mouseY <= btnY + btnH;
-  
+    mouseY >= btnY && mouseY <= btnY + btnH;
+
   tsarCtaBox = { x: btnX, y: btnY, w: btnW, h: btnH };
 
   push();
@@ -1028,15 +1008,13 @@ function drawColumnCTA() {
   text(msg, rightX, bottomY);
   pop();
 
-  push(); 
+  push();
   fill(20, 20, 20, 200);
   stroke(0, 255, 255, isHoverTsar ? 220 : 120);
   strokeWeight(isHoverTsar ? 1.5 : 1);
   rect(btnX, btnY, btnW, btnH, 8);
 
   noStroke();
-
-  
   fill(0, 255, 255, isHoverTsar ? 255 : 180);
   textFont(myFont3);
   textSize(13);
@@ -1059,9 +1037,6 @@ function drawColumnCTA() {
   return isHoverTsar;
 
 }
-
-
-
 
 function drawBombTooltip() {
   let hoveredDot = null;
@@ -1109,15 +1084,15 @@ function drawBombTooltip() {
       textAlign(LEFT, TOP);
       fill(0, 255, 255);
       text("Click the bomb for more information", boxX + padding, boxY + padding)
-      text("Bomb Name:", boxX + padding, boxY + padding+ lineHeight);
-      text("Yield (kt):", boxX + padding, boxY + padding + lineHeight+ lineHeight);
+      text("Bomb Name:", boxX + padding, boxY + padding + lineHeight);
+      text("Yield (kt):", boxX + padding, boxY + padding + lineHeight + lineHeight);
 
       textAlign(RIGHT, TOP);
       fill(0, 255, 255);
       const valueX = boxX + boxW - padding;
 
-      text(bombData.bombName, valueX, boxY + padding+ lineHeight);
-      text(bombData.yield, valueX, boxY + padding + lineHeight+ lineHeight);
+      text(bombData.bombName, valueX, boxY + padding + lineHeight);
+      text(bombData.yield, valueX, boxY + padding + lineHeight + lineHeight);
 
       pop();
     }
@@ -1132,7 +1107,6 @@ function drawInfoIcon(cx, cy, r = 7) {
   fill(18, 210);
   circle(cx, cy, r * 2);
 
-  // "i" 
   textAlign(CENTER, CENTER);
   textFont("system-ui");
   textSize(r * 1.8);
@@ -1144,7 +1118,6 @@ function drawInfoIcon(cx, cy, r = 7) {
 
   pop();
 }
-
 
 function hoverOnYieldYear(offsetX, offsetY) {
   const y = offsetY - 40;
@@ -1161,10 +1134,9 @@ function hoverOnYieldYear(offsetX, offsetY) {
     mouseY >= y && mouseY <= y + h);
 }
 
-
 function hoverOnAtmospheric(offsetX, dummy) {
-  let x = offsetX - 65; 
-  let y = yAxis - 180;  
+  let x = offsetX - 65;
+  let y = yAxis - 180;
   let w = 40;
   let h = 150;
   return (mouseX > x && mouseX < x + w && mouseY > y && mouseY < y);
@@ -1172,12 +1144,11 @@ function hoverOnAtmospheric(offsetX, dummy) {
 
 function hoverOnUnderground(offsetX, dummy) {
   let x = offsetX - 65;
-  let y = yAxis + 30; 
+  let y = yAxis + 30;
   let w = 40;
   let h = 150;
   return (mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h);
 }
-
 
 window.addEventListener("load", () => {
   if (window.location.hash === "#page2") {
@@ -1187,7 +1158,7 @@ window.addEventListener("load", () => {
 
 function onCountryClick(countryName) {
   saveLastYear(years[currentYearIndex]);
-  setYearInURL(years[currentYearIndex]); 
+  setYearInURL(years[currentYearIndex]);
   indow.location.href = `index.html?country=${countryName}&from=year#page2`;
 
 }
@@ -1197,14 +1168,12 @@ function drawAxes() {
   stroke(200, 160);
   strokeWeight(1.5);
 
-  
   line(xBase, yAxis - 25, width - margin + 10, yAxis - 25);
   line(xBase, yAxis - 25, xBase, yAxis - 25 - 144);
   for (let y = yAxis - 25 - 144 - offset; y >= yAxis - 25 - 144 - offset - 40; y -= dashLength + dashGap) {
     line(xBase, y, xBase, y - dashLength);
   }
 
-  
   line(xBase, yAxis + 25, width - margin + 10, yAxis + 25);
   line(xBase, yAxis + 25, xBase, yAxis + 25 + 144);
   for (let y = yAxis + 25 + 144 + offset; y <= yAxis + 25 + 144 + offset + 40; y += dashLength + dashGap) {
@@ -1234,7 +1203,6 @@ function drawAtmosUndLabels() {
   text(atmLabel, 0, 0);
   drawInfoIcon(textWidth(atmLabel) + 14, 9);
   pop();
-
   // Underground
   const undW = textWidth(undLabel);
   push();
@@ -1242,16 +1210,14 @@ function drawAtmosUndLabels() {
   rotate(-HALF_PI);
   textAlign(RIGHT, TOP);
   fill(200);
-    textFont(myFont2);
-    textSize(14);
+  textFont(myFont2);
+  textSize(14);
   text(undLabel, 0, 0);
   drawInfoIcon(-undW, 9);
   pop();
 }
 
-// -------------------------------
-// 信息图标函数
-// -------------------------------
+// info icon
 function drawInfoIcon(cx, cy, r = 7) {
   push();
   stroke(0, 255, 255, 220);
@@ -1269,9 +1235,7 @@ function drawInfoIcon(cx, cy, r = 7) {
   pop();
 }
 
-// -------------------------------
-// Hover检测函数（可选）
-// -------------------------------
+// Hover detect
 function hoverOnAtmospheric(offsetX, offsetY) {
   const label = "Atmospheric";
   textFont(myFont2);
