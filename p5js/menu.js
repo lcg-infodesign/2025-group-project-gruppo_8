@@ -6,6 +6,9 @@ let menuSketch = function (p) {
   let btnScale = 1;
 
   let hoverButton = false;
+  let hoverIcon = false;
+  let hoverAnyItem = false;
+
 
   let menuOpen = false;
   let menuX;
@@ -82,7 +85,28 @@ let menuSketch = function (p) {
 
     drawSideMenu();
     drawButton();
+
+    document.body.classList.toggle("menu-pointer", hoverIcon || hoverAnyItem);
+
+
   };
+
+  function applyGlobalCursor(isPointer) {
+    const value = isPointer ? "pointer" : "";
+
+    // 1) html/body (utile per testi/DOM)
+    document.documentElement.style.cursor = value;
+    document.body.style.cursor = value;
+
+    // 2) IMPORTANTISSIMO: forza anche sui canvas, altrimenti il canvas della pagina vince
+    const canvases = document.querySelectorAll("canvas");
+    canvases.forEach((c) => {
+      // quando serve pointer, sovrascrivi; quando non serve, lascia che gli altri sketch decidano
+      if (isPointer) c.style.cursor = "pointer";
+      else c.style.cursor = "";
+    });
+  }
+
 
   function checkMenuLogic() {
     let distToButton = p.dist(
@@ -92,9 +116,11 @@ let menuSketch = function (p) {
       btnY + btnSize / 2
     );
 
-    hoverButton = distToButton < btnSize / 2 || menuOpen;
+    const hoverRadius = (btnSize / 2) * btnScale + 6;
+    hoverIcon = distToButton < hoverRadius;
+    hoverButton = hoverIcon || menuOpen;
 
-    if (distToButton < btnSize / 2) {
+    if (hoverIcon) {
       menuOpen = true;
       menuTargetX = 0;
     }
@@ -157,6 +183,8 @@ let menuSketch = function (p) {
   }
 
   function drawSideMenu() {
+    hoverAnyItem = false;
+
     if (!menuOpen && menuX <= -menuW + 1) return;
 
     p.textFont(font);
@@ -179,11 +207,15 @@ let menuSketch = function (p) {
         p.mouseY >= y - menuTextH &&
         p.mouseY <= y;
 
+
       p.fill(hovering ? p.color(0, 255, 255) : 220);
       p.text(displayLabel, x, y);
 
+
       if (label === "insight") insightY = y;
       currentY += menuStepY;
+
+      if (hovering) hoverAnyItem = true;
     }
 
     if (!ON_INSIGHT_PAGE && insightY !== null) {
@@ -208,8 +240,12 @@ let menuSketch = function (p) {
             p.mouseY >= y - menuTextH &&
             p.mouseY <= y;
 
+
           p.fill(hovering ? p.color(0, 255, 255) : 160);
           p.text(label, subX, y);
+
+          if (hovering) hoverAnyItem = true;
+
         }
       }
     }

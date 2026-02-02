@@ -445,27 +445,7 @@ function drawInfo() {
   } 
 
   
-  // --- icona PICCOLA sempre visibile in basso a destra ---
-  push();
-  noFill();
-  stroke(0, 255, 255, isHoverMap ? 255 : 170);
-  strokeWeight(1.6);
-
-  const pad = 10;
-  const base = 4;            // piccola
-  const s = base;            // statica (se vuoi, puoi fare: isHoverMap ? base*1.2 : base)
-
-  const iconX = offsetX + scaledW - pad - s;
-  const iconY = offsetY + scaledH - pad - s;
-
-  // due "corner" mini in basso a destra
-  line(iconX - s, iconY - s, iconX,     iconY - s);
-  line(iconX - s, iconY - s, iconX - s, iconY);
-
-  line(iconX + s, iconY + s, iconX,     iconY + s);
-  line(iconX + s, iconY + s, iconX + s, iconY);
-
-  pop();
+ 
 
     
 

@@ -73,6 +73,9 @@ let introTargets = [];
 let snapping = false;
 let snapTarget = 0;
 
+let showScrollLabelPage1 = true; // label visibile solo sul primo testo; poi resta solo freccia
+
+
 // tweakables
 const INTRO_START_OFFSET = 120;
 const INTRO_STEP_FACTOR = 0.6;
@@ -110,7 +113,7 @@ let scrollDirection = 0;
 let scrollStep = 0.5;
 
 let page2BackScrollAcc = 0;
-const PAGE2_BACK_SCROLL_THRESHOLD = 450; // regola a gusto
+const PAGE2_BACK_SCROLL_THRESHOLD = 950; // regola a gusto
 let backTransActive = false;
 let backTransT = 0;
 const BACK_TRANS_DURATION = 0.55; // secondi (regola a gusto)
@@ -311,7 +314,7 @@ function snapTo(val) {
   snapTarget = constrain(val, 0, maxScroll);
   snapping = true;
 }
-
+/*
 function introNext() {
   syncIntroIndex();
   if (introIndex < 3) {
@@ -339,7 +342,46 @@ function introTop() {
   autoExpandStarted = false;
   centerCircleSize = 10;
   snapTo(0);
+}*/
+
+function introNext() {
+  syncIntroIndex();
+
+  // appena l'utente scende oltre il primo testo, la label sparisce
+  if (introIndex >= 0) showScrollLabelPage1 = false;
+
+  if (introIndex < 3) {
+    introIndex++;
+    snapTo(introTargets[introIndex]);
+  } else {
+    snapTo(maxScroll);
+    if (!autoExpandStarted) autoExpandStarted = true;
+  }
 }
+
+function introPrev() {
+  syncIntroIndex();
+
+  if (introIndex > 0) {
+    introIndex--;
+    snapTo(introTargets[introIndex]);
+  } else {
+    introTop();
+  }
+
+  // se torno al primo testo, la label torna
+  if (introIndex <= 0) showScrollLabelPage1 = true;
+}
+
+function introTop() {
+  introIndex = 0;
+  showScrollLabelPage1 = true;
+
+  autoExpandStarted = false;
+  centerCircleSize = 10;
+  snapTo(0);
+}
+
 
 // ===============================
 // Se URL contiene #page2 → apri ovverview SUBITO
@@ -572,7 +614,7 @@ function drawIntroBlockData(str, x, y, w) {
   text(str, x, y, w);
 }
 
-function drawScrollHintArrow() {
+/*function drawScrollHintArrow() {
   // Only show at the very start
   const visible = scrollOffset < 80;
   if (!visible) return;
@@ -592,20 +634,6 @@ function drawScrollHintArrow() {
   strokeWeight(2);
   noFill();
 
-  /*
-  // chevron only (no vertical stem)
-  line(cx - halfW, cy - h, cx, cy);
-  line(cx + halfW, cy - h, cx, cy);
-
-  // label above arrow
-  noStroke();
-  fill(200, alpha);
-  textFont(myFont2);
-  textSize(12);
-  textAlign(CENTER, BOTTOM);
-  text("SCROLL DOWN FOR MORE", cx, labelY);
-
-  */
 
   // label + side chevrons
   const label = "SCROLL DOWN FOR MORE";
@@ -645,9 +673,63 @@ function drawScrollHintArrow() {
 
   pop();
 
+}*/
 
+function drawScrollHintArrow() {
+  // CTA page 1:
+  // - all'inizio: label + UNA freccia sotto
+  // - dal primo step in poi: la label sparisce, ma la freccia resta
+  // (qui NON tocchiamo la logica di scroll/click: solo rendering)
+
+  const cx = width / 2;
+  const bob = sin(frameCount * 0.08) * 4;
+  const cy = height - 44 + bob;
+  const labelY = cy - 24; // baseline label (sopra la freccia)
+
+  const halfW = 10; // half width of the chevron
+  const h = 8;      // height of the chevron
+
+  // safety: se introTargets non è pronto, usa un fallback
+  const firstTarget = (introTargets && introTargets.length) ? introTargets[0] : 120;
+
+  // label visibile solo prima che il primo testo sia centrato
+  const showLabel = scrollOffset < firstTarget - 10;
+
+  // la freccia resta finché puoi ancora scendere (prima dell'espansione)
+  if (scrollOffset >= maxScroll - 2) return;
+
+  // fade label mentre ti avvicini al primo target
+  const labelAlpha = showLabel
+    ? map(scrollOffset, 0, max(1, firstTarget - 10), 255, 0, true)
+    : 0;
+
+  // freccia sempre visibile (fade leggero solo a fine pagina)
+  const fadeStart = maxScroll - 140;
+  const arrowAlpha = scrollOffset > fadeStart
+    ? map(scrollOffset, fadeStart, maxScroll, 255, 0, true)
+    : 255;
+
+  push();
+
+  // LABEL
+  if (showLabel) {
+    noStroke();
+    fill(200, labelAlpha);
+    textFont(myFont2);
+    textSize(12);
+    textAlign(CENTER, BOTTOM);
+    text("SCROLL DOWN FOR MORE", cx, labelY);
+  }
+
+  // UNA SOLA FRECCIA centrata sotto la label
+  stroke(200, arrowAlpha);
+  strokeWeight(2);
+  noFill();
+  line(cx - halfW, cy - h, cx, cy);
+  line(cx + halfW, cy - h, cx, cy);
+
+  pop();
 }
-
 
 
 
@@ -656,7 +738,7 @@ function drawScrollHintArrow() {
 function isOverDownHint(mx, my) {
   // hitbox generosa (include anche la label)
   const cx = width / 2;
-  const baseCy = height - 44;
+  const baseCy = height - 4;
   const hitW = 220;
   const hitH = 80;
 
@@ -1489,6 +1571,7 @@ function mouseWheel(event) {
     }
   } */
   if (page === 1) {
+    
     spreadSpeed += event.delta * 0.05;
 
     // 1) scroll SEMPRE bidirezionale (anche quando sei già a maxScroll)
@@ -2066,7 +2149,22 @@ function getDatasetCountryName(label) {
 }
 function checkExternalCountryFilter() {
   let params = new URLSearchParams(window.location.search);
-  let countryParam = params.get('country');
+  const countryParam = params.get("country");
+  const fromParam = params.get("from");
+
+  // --- back button (da "year") ---
+  const backBtn = document.getElementById("backFromYearBtn");
+  if (backBtn) {
+    const shouldShow = !!countryParam && fromParam === "year";
+    backBtn.style.display = shouldShow ? "block" : "none";
+
+    if (shouldShow) {
+      backBtn.onclick = () => {
+        const y = sessionStorage.getItem("lastYear");
+        window.location.href = y ? `year.html?year=${y}` : "year.html";
+      };
+    }
+  }
 
   if (countryParam) {
     // 将 URL 中的国家名赋值给你的全局变量
