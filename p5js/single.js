@@ -809,7 +809,7 @@ function drawHiroshimaAnnotation() {
 
   const line1 = "Little Boy";
   const line2 = "Hiroshima, 1945";
-  const line3 = "Yield: 15kt";
+  const line3 = "Yield(kt): 15";
 
   textFont(myFont2);
   textSize(14);
