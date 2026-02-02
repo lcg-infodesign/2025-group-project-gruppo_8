@@ -73,6 +73,9 @@ let introTargets = [];
 let snapping = false;
 let snapTarget = 0;
 
+let showScrollLabelPage1 = true; // label visibile solo sul primo testo; poi resta solo freccia
+
+
 // tweakables
 const INTRO_START_OFFSET = 120;
 const INTRO_STEP_FACTOR = 0.6;
@@ -110,7 +113,7 @@ let scrollDirection = 0;
 let scrollStep = 0.5;
 
 let page2BackScrollAcc = 0;
-const PAGE2_BACK_SCROLL_THRESHOLD = 450; // regola a gusto
+const PAGE2_BACK_SCROLL_THRESHOLD = 950; // regola a gusto
 let backTransActive = false;
 let backTransT = 0;
 const BACK_TRANS_DURATION = 0.55; // secondi (regola a gusto)
@@ -311,7 +314,7 @@ function snapTo(val) {
   snapTarget = constrain(val, 0, maxScroll);
   snapping = true;
 }
-
+/*
 function introNext() {
   syncIntroIndex();
   if (introIndex < 3) {
@@ -339,7 +342,46 @@ function introTop() {
   autoExpandStarted = false;
   centerCircleSize = 10;
   snapTo(0);
+}*/
+
+function introNext() {
+  syncIntroIndex();
+
+  // appena l'utente scende oltre il primo testo, la label sparisce
+  if (introIndex >= 0) showScrollLabelPage1 = false;
+
+  if (introIndex < 3) {
+    introIndex++;
+    snapTo(introTargets[introIndex]);
+  } else {
+    snapTo(maxScroll);
+    if (!autoExpandStarted) autoExpandStarted = true;
+  }
 }
+
+function introPrev() {
+  syncIntroIndex();
+
+  if (introIndex > 0) {
+    introIndex--;
+    snapTo(introTargets[introIndex]);
+  } else {
+    introTop();
+  }
+
+  // se torno al primo testo, la label torna
+  if (introIndex <= 0) showScrollLabelPage1 = true;
+}
+
+function introTop() {
+  introIndex = 0;
+  showScrollLabelPage1 = true;
+
+  autoExpandStarted = false;
+  centerCircleSize = 10;
+  snapTo(0);
+}
+
 
 // ===============================
 // Se URL contiene #page2 → apri ovverview SUBITO
@@ -592,20 +634,6 @@ function drawScrollHintArrow() {
   strokeWeight(2);
   noFill();
 
-  /*
-  // chevron only (no vertical stem)
-  line(cx - halfW, cy - h, cx, cy);
-  line(cx + halfW, cy - h, cx, cy);
-
-  // label above arrow
-  noStroke();
-  fill(200, alpha);
-  textFont(myFont2);
-  textSize(12);
-  textAlign(CENTER, BOTTOM);
-  text("SCROLL DOWN FOR MORE", cx, labelY);
-
-  */
 
   // label + side chevrons
   const label = "SCROLL DOWN FOR MORE";
@@ -645,10 +673,7 @@ function drawScrollHintArrow() {
 
   pop();
 
-
 }
-
-
 
 
 
@@ -656,7 +681,7 @@ function drawScrollHintArrow() {
 function isOverDownHint(mx, my) {
   // hitbox generosa (include anche la label)
   const cx = width / 2;
-  const baseCy = height - 44;
+  const baseCy = height - 4;
   const hitW = 220;
   const hitH = 80;
 
@@ -1517,6 +1542,7 @@ function mouseWheel(event) {
     }
   } */
   if (page === 1) {
+    
     spreadSpeed += event.delta * 0.05;
 
     // 1) scroll SEMPRE bidirezionale (anche quando sei già a maxScroll)
