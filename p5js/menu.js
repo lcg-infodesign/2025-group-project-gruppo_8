@@ -20,6 +20,9 @@ let menuSketch = function (p) {
   const menuStepY = 28;
   const menuTextH = 18;
 
+  let menuHoverTop = 0;
+  let menuHoverBottom = 0;
+
   const menuLinks = {
     "home": "index.html",
     "overview": "index.html#page2",
@@ -94,7 +97,6 @@ let menuSketch = function (p) {
     insightArrowBtn.style("background", "transparent");
     insightArrowBtn.mousePressed(() => {
       insightSubOpen = !insightSubOpen;
-      if (insightSubOpen) aboutSubOpen = false;
     });
 
     aboutArrowBtn = p.createDiv("");
@@ -107,7 +109,6 @@ let menuSketch = function (p) {
     aboutArrowBtn.style("background", "transparent");
     aboutArrowBtn.mousePressed(() => {
       aboutSubOpen = !aboutSubOpen;
-      if (aboutSubOpen) insightSubOpen = false;
     });
   };
 
@@ -116,20 +117,19 @@ let menuSketch = function (p) {
   };
 
   p.draw = function () {
-
     p.clear();
-    drawSideMenu();
 
     checkMenuLogic();
+    const isClosing = menuTargetX < menuX;
+    const t = isClosing ? 0.08 : 0.22;
+    menuX = p.lerp(menuX, menuTargetX, t);
 
-    menuX = p.lerp(menuX, menuTargetX, 0.2);
-
-    p.clear();
     drawSideMenu();
     drawButton();
 
     document.body.classList.toggle("menu-pointer", hoverIcon || hoverAnyItem);
   };
+
 
   function checkMenuLogic() {
     let distToButton = p.dist(
@@ -148,23 +148,14 @@ let menuSketch = function (p) {
       menuTargetX = 0;
     }
 
-    let insideMenu =
+    const insidePanel =
       p.mouseX >= menuX &&
-      p.mouseX <= menuX + menuW + 180 &&
-      p.mouseY >= 0 &&
-      p.mouseY <= p.height;
+      p.mouseX <= menuX + menuW &&
+      p.mouseY >= menuHoverTop &&
+      p.mouseY <= menuHoverBottom;
 
-    let insideSubMenu = hitBoxes.some(b => {
-      if (b.kind === "main") return false;
-      return (
-        p.mouseX >= b.x &&
-        p.mouseX <= b.x + b.w &&
-        p.mouseY >= b.y - b.h &&
-        p.mouseY <= b.y
-      );
-    });
 
-    if (menuOpen && !insideMenu && !insideSubMenu && distToButton >= btnSize / 2) {
+    if (menuOpen && !hoverIcon && !hoverAnyItem && !insidePanel) {
       menuOpen = false;
       menuTargetX = -menuW;
     }
@@ -223,8 +214,8 @@ let menuSketch = function (p) {
     aboutArrowBtn.style("display", "none");
 
     const x = menuX + 38;
-    const indent = 18; 
-    const arrowZone = 40; 
+    const indent = 18;
+    const arrowZone = 40;
 
     for (let i = 0; i < items.length; i++) {
       let label = items[i];
@@ -350,6 +341,8 @@ let menuSketch = function (p) {
         }
       }
     }
+    menuHoverTop = menuStartY - menuTextH;
+    menuHoverBottom = currentY + 6;
   }
 
   p.mouseReleased = function () {
