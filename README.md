@@ -50,7 +50,7 @@ This project uses an upstream dataset that is MIT-licensed. Any derived datasets
 - Analizzare un singolo evento: accedere agli attributi (nome, paese, yield, tipo, scopo), localizzarlo geograficamente e interpretarne la scala tramite un confronto comprensibile (Hiroshima come riferimento).
 
 ### Obiettivo di conoscenza #4 (Insights)
-Interpretare i dati dentro un contesto storico-politico attraverso letture guidate (moratorie, trattati, casi emblematici).
+- Interpretare i dati dentro un contesto storico-politico attraverso letture guidate (moratorie, trattati, casi emblematici).
 
 ---
 
