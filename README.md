@@ -38,6 +38,22 @@ This project uses an upstream dataset that is MIT-licensed. Any derived datasets
 
 ---
 
+## Obiettivi di conoscenza (semplificati x presentazione)
+
+### Obiettivo di conoscenza #1 
+- Comprendere l’evoluzione temporale dei test nucleari (1945–1998) e riconoscere la forte variabilità della potenza (yield), individuando picchi e anomalie.
+
+### Obiettivo di conoscenza #2
+- Confrontare, in un anno specifico, gli stati per numero di test e yield, identificando quantità e attori coinvolti.
+
+### Obiettivo di conoscenza #3
+- Analizzare un singolo evento: accedere agli attributi (nome, paese, yield, tipo, scopo), localizzarlo geograficamente e interpretarne la scala tramite un confronto comprensibile (Hiroshima come riferimento).
+
+### Obiettivo di conoscenza #4 (Insights)
+Interpretare i dati dentro un contesto storico-politico attraverso letture guidate (moratorie, trattati, casi emblematici).
+
+---
+
 ## Knowledge objectives
 
 ### Level 1 — Global overview (1945–1998)
